@@ -1,20 +1,18 @@
 import { HeroField } from "@/components/HeroField";
-import { useStepNav } from "@/scroll/StepNavContext";
+import { useScrollNav } from "@/scroll/ScrollProvider";
 
 export function Hero() {
-  const { mode, goToSection } = useStepNav();
+  const { scrollToSection } = useScrollNav();
 
   const handleCtaClick = (e: React.MouseEvent) => {
-    if (mode === "stepping") {
-      e.preventDefault();
-      goToSection("projets");
-    }
+    e.preventDefault();
+    scrollToSection("projets");
   };
 
   return (
     <section
       id="hero"
-      className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden px-6 pt-28 pb-16 text-center max-md:snap-start motion-reduce:snap-start sm:px-10 lg:px-20"
+      className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden px-6 pt-28 pb-16 text-center sm:px-10 lg:px-20"
     >
       <div
         className="pointer-events-none absolute top-[32%] left-1/2 h-[1200px] w-[1200px] -translate-x-1/2 -translate-y-1/2 rounded-full"

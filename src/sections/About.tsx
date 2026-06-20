@@ -7,7 +7,7 @@ export function About() {
   return (
     <section
       id="about"
-      className="relative bg-gradient-to-b from-void via-deep to-void px-6 py-20 max-md:snap-start motion-reduce:snap-start sm:px-10 lg:px-20"
+      className="relative bg-gradient-to-b from-void via-deep to-void px-6 py-20 sm:px-10 lg:px-20"
     >
       <div className="mx-auto max-w-7xl">
         <SectionLabel index="05" label="À propos" className="mb-12" />

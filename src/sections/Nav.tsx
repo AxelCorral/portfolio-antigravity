@@ -1,4 +1,4 @@
-import { useStepNav } from "@/scroll/StepNavContext";
+import { useScrollNav } from "@/scroll/ScrollProvider";
 
 const links = [
   { id: "projets", label: "Projets" },
@@ -8,13 +8,11 @@ const links = [
 ];
 
 export function Nav() {
-  const { mode, goToSection } = useStepNav();
+  const { scrollToSection } = useScrollNav();
 
   const handleClick = (e: React.MouseEvent, id: string) => {
-    if (mode === "stepping") {
-      e.preventDefault();
-      goToSection(id);
-    }
+    e.preventDefault();
+    scrollToSection(id);
   };
 
   return (

@@ -1,53 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { railProjects } from "@/content/projects";
 import { deepDives } from "@/content/deepdives";
 import { useDocumentMeta } from "@/scroll/useDocumentMeta";
-
-function FictifTag() {
-  return (
-    <span className="inline-flex flex-none items-center gap-1.5 rounded-full border border-white/[0.14] px-2 py-1 font-mono text-[9.5px] tracking-[0.16em] text-ink-muted uppercase">
-      <span className="h-1.25 w-1.25 rounded-full bg-ink-muted" />
-      Fictif
-    </span>
-  );
-}
-
-/** Reserves aspect-ratio up front (zero CLS) and only "activates" once scrolled into view. */
-function LazyMediaSlot({ label }: { label: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [inView, setInView] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setInView(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: "200px" },
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  return (
-    <div
-      ref={ref}
-      role="img"
-      aria-label={label}
-      className="flex aspect-video w-full items-center justify-center rounded-[16px] border border-white/10 bg-deep/40 transition-opacity duration-500"
-      style={{ opacity: inView ? 1 : 0.4 }}
-    >
-      <span className="max-w-[34ch] px-4 text-center font-mono text-[11px] tracking-[0.14em] text-ink-muted uppercase">
-        {label}
-      </span>
-    </div>
-  );
-}
+import { FictifTag } from "@/components/FictifTag";
+import { LazyMediaSlot } from "@/components/LazyMediaSlot";
 
 export function DeepDivePage() {
   const { slug } = useParams<{ slug: string }>();

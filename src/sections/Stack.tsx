@@ -22,7 +22,7 @@ export function Stack() {
   return (
     <section
       id="stack"
-      className="relative overflow-hidden px-6 py-20 max-md:snap-start motion-reduce:snap-start sm:px-10 lg:px-20"
+      className="relative overflow-hidden px-6 py-20 sm:px-10 lg:px-20"
     >
       <div className="mx-auto max-w-7xl">
         <Reveal>

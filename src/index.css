@@ -107,32 +107,3 @@
   }
 }
 
-@layer components {
-  /* Recap radial carousel (Build 06 Partie B) — true 3D ring, same pattern as
-     the old Build 05 cylinder. Each .recap-cell carries the static
-     rotateY/translateZ placement (set once via inline style, never
-     animated); GSAP only ever tweens opacity/filter on the inner
-     .recap-panel for depth, and rotationY on the ring to spin the assembly. */
-  .recap-stage {
-    perspective: 1500px;
-  }
-
-  .recap-ring {
-    position: absolute;
-    inset: 0;
-    transform-style: preserve-3d;
-    pointer-events: none;
-  }
-
-  .recap-cell {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 280px;
-    max-width: 68vw;
-    margin-left: -140px;
-    margin-top: -150px;
-    backface-visibility: hidden;
-    pointer-events: auto;
-  }
-}

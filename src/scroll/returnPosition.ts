@@ -1,24 +1,21 @@
 const KEY = "antigravity:return";
 
 export interface ReturnPosition {
-  mode: "stepping" | "native";
-  step?: number;
-  scrollY?: number;
+  scrollY: number;
 }
 
 // Cached after the first read so repeated calls between a save and its
-// eventual restoration (StrictMode double-invokes effects in dev, and both
-// the stepping and native restoration paths may call this) keep returning
-// the same result, instead of a later call finding the sessionStorage entry
-// already cleared by an earlier one and silently losing the restored
-// position. Reset on every new save so each round-trip gets a fresh read.
+// eventual restoration (StrictMode double-invokes effects in dev) keep
+// returning the same result, instead of a later call finding the
+// sessionStorage entry already cleared by an earlier one. Reset on every
+// new save so each round-trip gets a fresh read.
 let cache: ReturnPosition | null | undefined;
 
 /** Recorded right before navigating "/" -> a deep-dive route, so coming back restores it. */
-export function saveReturnPosition(pos: ReturnPosition) {
+export function saveReturnPosition() {
   cache = undefined;
   try {
-    sessionStorage.setItem(KEY, JSON.stringify(pos));
+    sessionStorage.setItem(KEY, JSON.stringify({ scrollY: window.scrollY }));
   } catch {
     // sessionStorage unavailable (privacy mode etc) — restoration is best-effort.
   }

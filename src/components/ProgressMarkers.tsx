@@ -1,36 +1,34 @@
-import { useStepNav } from "@/scroll/StepNavContext";
+import { useScrollNav } from "@/scroll/ScrollProvider";
 
-const SECTION_LABELS: Record<string, string> = {
-  hero: "Accueil",
-  "projets-recap": "Récap",
-  deep: "Deep dive",
-  stack: "Stack",
-  about: "À propos",
-  contact: "Contact",
-};
+const MARKERS = [
+  { id: "hero", label: "Accueil" },
+  { id: "projets", label: "Projets" },
+  { id: "deep", label: "Deep dive" },
+  { id: "stack", label: "Stack" },
+  { id: "about", label: "À propos" },
+  { id: "contact", label: "Contact" },
+];
 
 export function ProgressMarkers() {
-  const { steps, currentStep, goToStep, mode } = useStepNav();
+  const { smooth, activeSection, scrollToSection } = useScrollNav();
 
-  if (mode !== "stepping") return null;
+  if (!smooth) return null;
 
   return (
     <nav
       aria-label="Navigation par section"
       className="fixed top-1/2 right-5 z-50 flex -translate-y-1/2 flex-col items-center gap-3.5 lg:right-8"
     >
-      {steps.map((step, i) => {
-        const isCurrent = i === currentStep;
-        const label =
-          step.sectionId === "projets" ? `Projet ${(step.cardIndex ?? 0) + 1}` : SECTION_LABELS[step.sectionId] ?? step.sectionId;
+      {MARKERS.map((marker) => {
+        const isCurrent = marker.id === activeSection;
         return (
           <button
-            key={`${step.sectionId}-${step.cardIndex ?? 0}`}
+            key={marker.id}
             type="button"
-            aria-label={`Aller à ${label}`}
+            aria-label={`Aller à ${marker.label}`}
             aria-current={isCurrent ? "step" : undefined}
-            onClick={() => goToStep(i)}
-            className={`h-2 w-2 rounded-full border transition-colors ${
+            onClick={() => scrollToSection(marker.id)}
+            className={`h-2 w-2 rounded-full border transition-colors duration-200 ${
               isCurrent
                 ? "border-halo bg-halo shadow-[0_0_10px_var(--halo)]"
                 : "border-white/25 bg-transparent hover:border-white/50"

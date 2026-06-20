@@ -10,7 +10,7 @@ export function Contact() {
   return (
     <section
       id="contact"
-      className="relative flex min-h-[86vh] flex-col items-center justify-center overflow-hidden px-6 py-25 text-center max-md:snap-start motion-reduce:snap-start sm:px-10 lg:px-20"
+      className="relative flex min-h-[86vh] flex-col items-center justify-center overflow-hidden px-6 py-25 text-center sm:px-10 lg:px-20"
     >
       <div
         className="pointer-events-none absolute top-[46%] left-1/2 h-[1100px] w-[1100px] -translate-x-1/2 -translate-y-1/2 rounded-full"

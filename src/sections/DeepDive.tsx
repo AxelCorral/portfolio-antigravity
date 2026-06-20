@@ -5,7 +5,7 @@ export function DeepDive() {
   return (
     <section
       id="deep"
-      className="relative flex min-h-dvh flex-col justify-center overflow-hidden px-6 py-14 max-md:snap-start motion-reduce:snap-start sm:px-10 lg:px-20"
+      className="relative flex min-h-dvh flex-col justify-center overflow-hidden px-6 py-14 sm:px-10 lg:px-20"
     >
       <div
         className="pointer-events-none absolute top-1/2 left-[30%] h-[900px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full"

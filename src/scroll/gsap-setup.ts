@@ -1,21 +1,11 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { CustomEase } from "gsap/CustomEase";
-import { Observer } from "gsap/Observer";
 import { MotionPathPlugin } from "gsap/MotionPathPlugin";
 import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
-import { Flip } from "gsap/Flip";
 import { useGSAP } from "@gsap/react";
 
-gsap.registerPlugin(
-  ScrollTrigger,
-  CustomEase,
-  Observer,
-  MotionPathPlugin,
-  DrawSVGPlugin,
-  Flip,
-  useGSAP,
-);
+gsap.registerPlugin(ScrollTrigger, CustomEase, MotionPathPlugin, DrawSVGPlugin, useGSAP);
 
 // Mirrors the easings defined in tokens.css — single source of truth is the
 // design plan, duplicated here because GSAP can't read CSS custom properties.
