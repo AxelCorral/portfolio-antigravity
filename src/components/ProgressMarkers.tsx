@@ -2,7 +2,6 @@ import { useStepNav } from "@/scroll/StepNavContext";
 
 const SECTION_LABELS: Record<string, string> = {
   hero: "Accueil",
-  projets: "Projets",
   "projets-recap": "Récap",
   deep: "Deep dive",
   stack: "Stack",
@@ -22,10 +21,11 @@ export function ProgressMarkers() {
     >
       {steps.map((step, i) => {
         const isCurrent = i === currentStep;
-        const label = SECTION_LABELS[step.sectionId] ?? step.sectionId;
+        const label =
+          step.sectionId === "projets" ? `Projet ${(step.cardIndex ?? 0) + 1}` : SECTION_LABELS[step.sectionId] ?? step.sectionId;
         return (
           <button
-            key={step.sectionId}
+            key={`${step.sectionId}-${step.cardIndex ?? 0}`}
             type="button"
             aria-label={`Aller à ${label}`}
             aria-current={isCurrent ? "step" : undefined}

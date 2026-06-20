@@ -1,7 +1,5 @@
 import { useRef, useState } from "react";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { MotionPathPlugin } from "gsap/MotionPathPlugin";
 import { useGSAP } from "@gsap/react";
 import { SectionLabel } from "@/components/SectionLabel";
 import { ProjectCard } from "@/components/ProjectCard";
@@ -10,7 +8,6 @@ import { railProjects } from "@/content/projects";
 import { Reveal } from "@/scroll/Reveal";
 import { useStepNav } from "@/scroll/StepNavContext";
 import { useProjectCta } from "@/scroll/useProjectCta";
-import { buildZigzagRawPath, focusWeight, getZigzagAnchors } from "@/scroll/zigzag";
 
 /** Right/left alternating, descending — see prompt.md Build 06 Partie A. */
 const SLOTS = [
@@ -21,130 +18,51 @@ const SLOTS = [
 ];
 
 export function FlowProjets() {
-  const { mode, goToSection, setObserverEnabled, isProgrammaticJump } = useStepNav();
+  const { mode, steps, currentStep } = useStepNav();
   const isStepping = mode === "stepping";
   const containerRef = useRef<HTMLDivElement>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
   const { stubProject, open, close } = useProjectCta();
 
+  const currentStepData = steps[currentStep];
+  const activeIndex =
+    isStepping && currentStepData?.sectionId === "projets" ? currentStepData.cardIndex ?? 0 : -1;
+
+  // One scroll/keyboard step = one project: no pin, no scrub — just tween
+  // each card's focus weight off the discrete activeIndex. The orb/path is
+  // handled generically by PathOrb (see anchors.ts), not duplicated here.
   useGSAP(
     () => {
       if (!isStepping || !containerRef.current) return;
-      const container = containerRef.current;
-      const cardEls = Array.from(container.querySelectorAll<HTMLElement>("[data-zigzag-card]"));
-      const dimPath = container.querySelector<SVGPathElement>("#zigzag-dim-path");
-      const progressPath = container.querySelector<SVGPathElement>("#zigzag-progress-path");
-      const orb = container.querySelector<SVGCircleElement>("#zigzag-orb");
-
-      let rawPath: ReturnType<typeof buildZigzagRawPath> | null = null;
-
-      const rebuildPath = () => {
-        const points = getZigzagAnchors(container, railProjects.length);
-        rawPath = buildZigzagRawPath(points);
-        const d = MotionPathPlugin.rawPathToString(rawPath);
-        if (dimPath) gsap.set(dimPath, { attr: { d } });
-        if (progressPath) gsap.set(progressPath, { attr: { d } });
-      };
-
-      const applyProgress = (progress: number) => {
-        cardEls.forEach((el, i) => {
-          const w = focusWeight(progress, i, cardEls.length);
-          gsap.set(el, {
-            opacity: 0.16 + w * 0.84,
-            scale: 0.78 + w * 0.22,
-            filter: `blur(${((1 - w) * 5).toFixed(2)}px)`,
-          });
+      const cardEls = Array.from(containerRef.current.querySelectorAll<HTMLElement>("[data-zigzag-card]"));
+      cardEls.forEach((el, i) => {
+        const weight = activeIndex < 0 ? 1 : Math.max(0, 1 - Math.abs(activeIndex - i));
+        gsap.to(el, {
+          opacity: 0.16 + weight * 0.84,
+          scale: 0.78 + weight * 0.22,
+          filter: `blur(${((1 - weight) * 5).toFixed(2)}px)`,
+          duration: 0.6,
+          ease: "ease-float",
         });
-        if (rawPath && progressPath) gsap.set(progressPath, { drawSVG: `0% ${progress * 100}%` });
-        if (rawPath && orb) {
-          const pos = MotionPathPlugin.getPositionOnPath(rawPath, progress);
-          gsap.set(orb, { attr: { cx: pos.x, cy: pos.y } });
-        }
-      };
-
-      rebuildPath();
-      applyProgress(0);
-
-      const st = ScrollTrigger.create({
-        trigger: container,
-        start: "top top",
-        end: () => "+=" + window.innerHeight * 3,
-        pin: true,
-        scrub: true,
-        invalidateOnRefresh: true,
-        onUpdate: (self) => applyProgress(self.progress),
-        onEnter: () => {
-          if (isProgrammaticJump()) return;
-          setObserverEnabled(false);
-        },
-        onEnterBack: () => {
-          if (isProgrammaticJump()) return;
-          setObserverEnabled(false);
-        },
-        onLeave: () => {
-          if (isProgrammaticJump()) return;
-          setObserverEnabled(true);
-          goToSection("projets-recap");
-        },
-        onLeaveBack: () => {
-          if (isProgrammaticJump()) return;
-          setObserverEnabled(true);
-          goToSection("hero");
-        },
       });
-
-      const onResize = () => {
-        rebuildPath();
-        applyProgress(st.progress);
-      };
-      window.addEventListener("resize", onResize);
-
-      return () => {
-        window.removeEventListener("resize", onResize);
-        st.kill();
-      };
     },
-    { dependencies: [isStepping], revertOnUpdate: true },
+    { dependencies: [activeIndex, isStepping] },
   );
 
   return (
     <section
       id="projets"
       ref={containerRef}
-      className="relative overflow-hidden max-md:snap-start motion-reduce:snap-start"
-      style={isStepping ? { height: "100vh" } : undefined}
+      className="relative min-h-dvh overflow-hidden py-20 max-md:snap-start motion-reduce:snap-start"
     >
-      <div className="mx-auto flex max-w-7xl flex-wrap items-end justify-between gap-6 px-6 pt-10 sm:px-10 lg:px-20">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-end justify-between gap-6 px-6 sm:px-10 lg:px-20">
         <Reveal className="min-w-70 flex-1">
           <SectionLabel index="02" label="Flow projets" />
         </Reveal>
       </div>
 
       {isStepping ? (
-        <>
-          <svg className="pointer-events-none absolute inset-0 z-10 h-full w-full" aria-hidden="true">
-            <defs>
-              <filter id="zigzag-glow" x="-200%" y="-200%" width="500%" height="500%">
-                <feGaussianBlur stdDeviation="6" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
-            <path id="zigzag-dim-path" d="" fill="none" stroke="rgba(91,108,255,0.14)" strokeWidth="1.5" />
-            <path
-              id="zigzag-progress-path"
-              d=""
-              fill="none"
-              stroke="var(--halo)"
-              strokeWidth="2"
-              filter="url(#zigzag-glow)"
-              opacity={0.9}
-            />
-            <circle id="zigzag-orb" r="5" fill="var(--halo)" filter="url(#zigzag-glow)" />
-          </svg>
-
+        <div className="relative mx-auto mt-8 h-[78vh] min-h-[560px] max-w-7xl">
           {railProjects.map((project, i) => {
             const slot = SLOTS[i % SLOTS.length];
             return (
@@ -211,7 +129,7 @@ export function FlowProjets() {
               </article>
             );
           })}
-        </>
+        </div>
       ) : (
         <div className="mt-10 flex flex-col items-center gap-6.5 px-6 pb-10 sm:px-10 lg:px-20">
           {railProjects.map((project, i) => {
