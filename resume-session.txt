@@ -1,0 +1,99 @@
+RÉSUMÉ DE SESSION — 2026-06-19
+================================
+
+1. NETTOYAGE DES SKILLS CLAUDE CODE (~/.claude/skills/)
+---------------------------------------------------------
+Constat : plusieurs skills téléchargés en zip depuis GitHub étaient mal
+installés (double dossier imbriqué <repo>-main/<repo>-main/..., donc
+SKILL.md jamais à la racine attendue).
+
+Corrections effectuées :
+- stop-slop        : aplati (stop-slop/stop-slop/* -> stop-slop/*)
+- marketingskills-main : ~40 skills marketing extraits individuellement
+  à la racine de skills/ (ab-testing, ads, cro, copywriting, seo-audit,
+  pricing, emails, social, video, etc.)
+- ui-ux-pro-max-skill-main : 7 skills extraits (banner-design, brand,
+  design, design-system, slides, ui-styling, ui-ux-pro-max)
+- llm-council-master : ce n'était pas un skill (appli complète, pas de
+  SKILL.md) -> déplacé hors de skills/ vers ~/llm-council-master
+- Tous les .zip correspondants supprimés une fois extraits
+
+Résultat : ~52 skills actifs et correctement reconnus par Claude Code.
+
+2. BUILD 01 — SCAFFOLD DU PORTFOLIO "ANTIGRAVITY"
+---------------------------------------------------------
+Dossier : D:\Project_claude_code\portfolio
+
+Contexte récupéré :
+- prompt.md (instructions du build, déjà renommé par l'utilisateur)
+- mockup-reference.html (cible visuelle complète, toutes sections)
+- mockup claude design.zip contenait les fichiers de référence
+  manquants -> extraits :
+  - content/projets.md (contenu réel des 4 projets)
+  - portfolio-antigravity-plan-actions.md (DA, tokens, architecture,
+    roadmap 6 semaines)
+
+Stack posée :
+- Vite + React + TypeScript (scaffold officiel, copié depuis un dossier
+  temporaire pour ne pas écraser les fichiers déjà présents)
+- Tailwind CSS v4 (plugin Vite, pas de postcss.config.js classique)
+- shadcn/ui (preset Nova / Radix), thème fondu en dark-only directement
+  dans les tokens (pas de toggle .dark, conforme à la consigne "dark
+  mode only")
+- Alias d'import "@/..." configuré (vite.config.ts + tsconfig)
+
+Fichiers créés :
+- src/tokens.css            : palette, échelle typo fluide, easings
+- src/content/projects.ts   : contenu typé des 4 projets (type Project),
+  source unique lue par le rail ET le deep dive
+- src/components/HeroField.tsx   : signature "champ de points" en SVG
+  (placeholder avant la version WebGL/OGL d'un build suivant)
+- src/components/SectionLabel.tsx, ProjectCard.tsx
+- src/sections/ : Nav, Hero, Manifeste, FlowProjets, DeepDive, Stack,
+  About, Contact
+- src/App.tsx : assemble les 8 sections, un seul <h1> (dans Hero),
+  skip-link d'accessibilité
+
+Contraintes respectées :
+- Aucun style inline en dur -> tout en classes Tailwind branchées sur
+  les tokens (bg-void, text-ink, text-halo, bg-ember, etc.)
+- Pas d'animation scroll (ni Lenis, ni GSAP, ni WebGL) -> reporté aux
+  builds suivants
+- Rail horizontal en scroll natif + scroll-snap (la version pinnée
+  GSAP viendra plus tard)
+- Responsive mobile-first, min-h-dvh
+- Quality floor : HTML sémantique, focus visible, contraste AA
+
+Problèmes rencontrés et corrigés :
+- npm create vite a capté un package.json parent (ancien projet
+  SoberCount) -> scaffold généré dans un dossier temporaire puis copié
+- Build Vite cassé par un postcss.config.js du dossier parent
+  (D:\Project_claude_code\postcss.config.js, incompatible) -> désactivé
+  explicitement via css.postcss = {} dans vite.config.ts
+- @import des polices Google Fonts/Fontshare déplacés du CSS vers des
+  <link> dans index.html (règle CSS : les @import doivent précéder tout
+  le reste, ce qui cassait le bundle Tailwind v4)
+- tsconfig : baseUrl déprécié en TS récent -> retiré, seul "paths" gardé
+
+Vérification :
+- npx tsc -b -> OK, aucune erreur
+- npm run build -> OK
+- npm run dev lancé en arrière-plan (http://localhost:5183/)
+- Captures Playwright headless (hero, rail projets, deep dive, stack,
+  vue mobile 390px) : rendu fidèle au mockup, aucune erreur console
+- Fichiers de scratch et la dépendance playwright (dev) nettoyés après
+  vérification
+
+À FAIRE AU PROCHAIN BUILD (build 02 et suivants)
+---------------------------------------------------------
+- Remplacer les chiffres marqués placeholder: true dans
+  content/projets.md / projects.ts par les vraies valeurs mesurées
+- Spine d'animation : Lenis (smooth scroll) + GSAP/ScrollTrigger (pin,
+  scrub, rail horizontal pinné, transitions)
+- Scrub vidéo en séquence d'images <canvas> pour le deep dive
+- Signature WebGL (OGL ParticleField + grain), derrière un flag
+  ENABLE_WEBGL, retirable si la deadline serre
+- Micro-interactions Framer Motion (cartes/nav uniquement)
+- Conversion mobile du rail horizontal en pile verticale / scroll-snap
+  natif, désactivation du WebGL sur mobile
+- Passes performance/accessibilité (Lighthouse, prefers-reduced-motion)

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portfolio Antigravity — Mockup de référence (Axel Corral)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;padding:0;background:#06070D;}
+  *{box-sizing:border-box;}
+  ::selection{background:rgba(91,108,255,0.35);color:#EAECF5;}
+  @keyframes heroFloat{0%,100%{transform:perspective(1500px) rotateX(17deg) translateY(0)}50%{transform:perspective(1500px) rotateX(17deg) translateY(-16px)}}
+</style>
+</head>
+<body>
+<div style="position:relative;background:#06070D;color:#EAECF5;font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;min-height:100vh;">
+
+  <!-- GRAIN OVERLAY -->
+  <div style="position:fixed;inset:0;pointer-events:none;z-index:60;opacity:0.05;mix-blend-mode:overlay;background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E&quot;);"></div>
+
+  <!-- NAV (glass) -->
+  <nav data-screen-label="Nav" style="position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:18px clamp(24px,5vw,80px);background:rgba(12,15,28,0.5);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border-bottom:1px solid rgba(234,236,245,0.06);">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div style="width:34px;height:34px;border:1px solid rgba(234,236,245,0.22);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Clash Display',sans-serif;font-weight:600;font-size:15px;letter-spacing:-0.02em;color:#EAECF5;box-shadow:inset 0 0 16px rgba(91,108,255,0.18);">AC</div>
+      <div style="display:flex;flex-direction:column;line-height:1.1;">
+        <span style="font-family:'Clash Display',sans-serif;font-weight:600;font-size:15px;letter-spacing:0.01em;">Axel Corral</span>
+        <span style="font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:0.18em;text-transform:uppercase;color:#8A90A8;">Data / ML Engineer</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:clamp(18px,2.4vw,36px);font-family:'Geist Mono',monospace;font-size:12.5px;letter-spacing:0.06em;color:#8A90A8;">
+      <a href="#projets" style="color:#8A90A8;text-decoration:none;">Projets</a>
+      <a href="#deep" style="color:#8A90A8;text-decoration:none;">Deep dive</a>
+      <a href="#stack" style="color:#8A90A8;text-decoration:none;">Stack</a>
+      <a href="#about" style="color:#8A90A8;text-decoration:none;">À propos</a>
+      <a href="#contact" style="color:#EAECF5;text-decoration:none;border-bottom:1px solid rgba(234,236,245,0.35);padding-bottom:2px;">Contact</a>
+    </div>
+  </nav>
+
+  <!-- [00] HERO -->
+  <section data-screen-label="00 Hero" style="position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:140px clamp(24px,5vw,80px) 96px;overflow:hidden;">
+    <!-- volumetric glow -->
+    <div style="position:absolute;top:32%;left:50%;width:1200px;height:1200px;transform:translate(-50%,-50%);background:radial-gradient(circle at 50% 50%, rgba(91,108,255,0.22) 0%, rgba(155,107,255,0.10) 26%, rgba(91,108,255,0.0) 58%);pointer-events:none;"></div>
+    <div style="position:absolute;top:58%;left:62%;width:520px;height:520px;transform:translate(-50%,-50%);background:radial-gradient(circle at 50% 50%, rgba(155,107,255,0.16) 0%, rgba(155,107,255,0) 62%);pointer-events:none;"></div>
+
+    <!-- SIGNATURE — champ de tracking en lévitation (positions joueurs sur terrain implicite) -->
+    <div style="position:absolute;top:50%;left:50%;width:min(1120px,94vw);transform:translate(-50%,-52%);pointer-events:none;z-index:1;">
+      <div style="transform:perspective(1500px) rotateX(17deg);transform-origin:50% 60%;animation:heroFloat 11s ease-in-out infinite;">{{ heroField }}</div>
+    </div>
+
+    <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:34px;max-width:1080px;">
+      <span style="font-family:'Geist Mono',monospace;font-size:12.5px;letter-spacing:0.34em;text-transform:uppercase;color:#8A90A8;">Axel Corral — Portfolio 2026</span>
+      <h1 style="margin:0;font-family:'Clash Display',sans-serif;font-weight:600;font-size:clamp(40px,6.1vw,98px);line-height:0.99;letter-spacing:-0.03em;color:#EAECF5;text-wrap:balance;max-width:15ch;">Je transforme des flux de données brutes en <span style="color:#9FB0FF;">systèmes qui bougent.</span></h1>
+      <p style="margin:0;font-family:'Geist',sans-serif;font-size:clamp(15px,1.2vw,18px);line-height:1.6;color:#8A90A8;max-width:46ch;">Le mouvement est la démo : la donnée lévite, se réorganise, se rejoue. Vision par ordinateur, modern data stack, produit déployé.</p>
+      <!-- EMBER CTA — unique usage du token doré -->
+      <a href="#projets" style="margin-top:6px;display:inline-flex;align-items:center;gap:12px;font-family:'Geist',sans-serif;font-weight:600;font-size:16px;color:#0B0A06;background:#F2B65A;border-radius:999px;padding:15px 30px;text-decoration:none;box-shadow:0 18px 50px -16px rgba(242,182,90,0.6);">Voir le travail <span style="font-family:'Geist Mono',monospace;font-size:13px;">→</span></a>
+    </div>
+
+    <!-- scroll indicator -->
+    <div style="position:absolute;bottom:34px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;">
+      <span style="font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:0.3em;text-transform:uppercase;color:#8A90A8;">Défiler</span>
+      <span style="width:1px;height:46px;background:linear-gradient(180deg,rgba(138,144,168,0.6),transparent);"></span>
+    </div>
+
+    <!-- motion annotation -->
+    <span style="position:absolute;left:clamp(24px,5vw,80px);bottom:34px;display:inline-flex;align-items:center;gap:9px;font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:0.08em;text-transform:uppercase;color:#6E748C;">▸ Motion<span style="color:#8A90A8;text-transform:none;letter-spacing:0.04em;">ambient WebGL + plan vidéo qui surgit en lévitation</span></span>
+  </section>
+
+  <!-- [01] MANIFESTE -->
+  <section data-screen-label="01 Manifeste" style="position:relative;padding:clamp(90px,12vh,150px) clamp(24px,5vw,80px);max-width:1280px;margin:0 auto;">
+    <div style="font-family:'Geist Mono',monospace;font-size:12px;letter-spacing:0.22em;text-transform:uppercase;color:#8A90A8;display:flex;align-items:center;gap:14px;margin-bottom:40px;"><span style="color:#5C6178;">[ 01 ]</span> Manifeste <span style="flex:1;height:1px;background:linear-gradient(90deg,rgba(138,144,168,0.25),transparent);"></span></div>
+    <p style="margin:0;max-width:30ch;font-family:'Clash Display',sans-serif;font-weight:500;font-size:clamp(28px,3.4vw,50px);line-height:1.14;letter-spacing:-0.02em;color:#EAECF5;text-wrap:balance;"><span style="color:#8A90A8;">De la vidéo brute aux événements de match jusqu'aux flux d'offres d'emploi —</span> je conçois les pipelines qui transforment le désordre en systèmes exploitables.</p>
+  </section>
+
+  <!-- [02] FLOW PROJETS -->
+  <section id="projets" data-screen-label="02 Flow projets" style="position:relative;padding:clamp(70px,9vh,110px) 0 clamp(90px,12vh,140px);overflow:hidden;">
+    <div style="padding:0 clamp(24px,5vw,80px);max-width:1280px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;">
+      <div style="font-family:'Geist Mono',monospace;font-size:12px;letter-spacing:0.22em;text-transform:uppercase;color:#8A90A8;display:flex;align-items:center;gap:14px;flex:1;min-width:280px;"><span style="color:#5C6178;">[ 02 ]</span> Flow projets <span style="flex:1;height:1px;background:linear-gradient(90deg,rgba(138,144,168,0.25),transparent);"></span></div>
+      <span style="display:inline-flex;align-items:center;gap:9px;font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:0.08em;text-transform:uppercase;color:#6E748C;">↤ Motion<span style="color:#8A90A8;text-transform:none;letter-spacing:0.04em;">rail horizontal pinné · translation droite→gauche au scroll · 04 projets</span></span>
+    </div>
+
+    <!-- RAIL -->
+    <div style="margin-top:48px;padding:0 clamp(24px,5vw,80px);display:flex;gap:26px;align-items:stretch;">
+
+      <!-- Card ★ analyse-video-football — état HOVER/FOCUS -->
+      <article style="position:relative;flex:none;width:392px;border-radius:20px;padding:32px;display:flex;flex-direction:column;background:linear-gradient(165deg,rgba(20,24,46,0.9),rgba(9,11,22,0.9));border:1px solid rgba(91,108,255,0.55);box-shadow:0 50px 120px -40px rgba(91,108,255,0.55),inset 0 0 0 1px rgba(91,108,255,0.12);outline:2px solid rgba(91,108,255,0.45);outline-offset:3px;transform:translateY(-8px);">
+        <span style="position:absolute;top:-11px;left:24px;font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;color:#9FB0FF;background:#0C0F1C;border:1px solid rgba(91,108,255,0.45);border-radius:999px;padding:3px 9px;">état hover / focus</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+          <span style="font-family:'Geist Mono',monospace;font-size:12px;letter-spacing:0.14em;color:#5B6CFF;">★ / 01</span>
+          <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:#8A90A8;border:1px solid rgba(234,236,245,0.12);border-radius:999px;padding:3px 9px;">Hero · Deep dive</span>
+        </div>
+        <h3 style="margin:0 0 12px;font-family:'Clash Display',sans-serif;font-weight:600;font-size:27px;letter-spacing:-0.02em;line-height:1.05;color:#EAECF5;">Analyse vidéo football</h3>
+        <p style="margin:0 0 26px;font-family:'Geist',sans-serif;font-size:14.5px;line-height:1.55;color:#8A90A8;flex:1;">Transformer une simple vidéo de match en données de positionnement exploitables par un coach — qui était où, et quand — sans capteur ni caméra spécialisée.</p>
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:22px;">
+          <div>
+            <div style="font-family:'Geist Mono',monospace;font-variant-numeric:tabular-nums;font-size:42px;font-weight:500;letter-spacing:-0.02em;color:#EAECF5;line-height:1;">22</div>
+            <div style="margin-top:8px;font-family:'Geist',sans-serif;font-size:12.5px;color:#8A90A8;max-width:24ch;">joueurs suivis image par image · 90 min de match</div>
+          </div>
+          <span style="flex:none;display:inline-flex;align-items:center;gap:6px;font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:0.16em;text-transform:uppercase;color:#8A90A8;border:1px solid rgba(234,236,245,0.14);border-radius:999px;padding:3px 8px;background:transparent;"><span style="width:5px;height:5px;border-radius:50%;background:#8A90A8;"></span>Fictif</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:7px;">
+          <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#8A90A8;border:1px solid rgba(234,236,245,0.1);border-radius:6px;padding:4px 9px;">Python</span>
+          <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#8A90A8;border:1px solid rgba(234,236,245,0.1);border-radius:6px;padding:4px 9px;">YOLOv8</span>
+          <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#8A90A8;border:1px solid rgba(234,236,245,0.1);border-radius:6px;padding:4px 9px;">ByteTrack</span>
+          <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#8A90A8;border:1px solid rgba(234,236,245,0.1);border-radius:6px;padding:4px 9px;">OpenCV</span>
+          <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#8A90A8;border:1px solid rgba(234,236,245,0.1);border-radius:6px;padding:4px 9px;">Streamlit</span>
+        </div>
+        <div style="margin-top:24px;display:flex;align-items:center;gap:8px;font-family:'Geist Mono',monospace;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#9FB0FF;">Deep dive <span>→</span></div>
+      </article>
+
+      <!-- Card football-pipeline -->
+      <article style="position:relative;flex:none;width:392px;border-radius:20px;padding:32px;display:flex;flex-direction:column;background:linear-gradient(165deg,rgba(14,17,30,0.85),rgba(8,10,20,0.85));border:1px solid rgba(234,236,245,0.08);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+          <span style="font-family:'Geist Mono',monospace;font-size:12px;letter-spacing:0.14em;color:#8A90A8;">02</span>
+          <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:#8A90A8;border:1px solid rgba(234,236,245,0.12);border-radius:999px;padding:3px 9px;">Rail</span>
+        </div>
+        <h3 style="margin:0 0 12px;font-family:'Clash Display',sans-serif;font-weight:600;font-size:27px;letter-spacing:-0.02em;line-height:1.05;color:#EAECF5;">football-pipeline</h3>
+        <p style="margin:0 0 26px;font-family:'Geist',sans-serif;font-size:14.5px;line-height:1.55;color:#8A90A8;flex:1;">Automatiser la collecte et la mise en forme de données football jusqu'à un dashboard live, déployé et maintenu comme un vrai produit (pas un notebook).</p>
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:22px;">
+          <div>
+            <div style="font-family:'Geist Mono',monospace;font-variant-numeric:tabular-nums;font-size:42px;font-weight:500;letter-spacing:-0.02em;color:#EAECF5;line-height:1;">~2 000</div>
+            <div style="margin-top:8px;font-family:'Geist',sans-serif;font-size:12.5px;color:#8A90A8;max-width:24ch;">matchs agrégés · rafraîchis quotidiennement</div>
+          </div>
+          <span style="flex:none;display:inline-flex;align-items:center;gap:6px;font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:0.16em;text-transform:uppercase;color:#8A90A8;border:1px solid rgba(234,236,245,0.14);border-radius:999px;padding:3px 8px;background:transparent;"><span style="width:5px;height:5px;border-radius:50%;background:#8A90A8;"></span>Fictif</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:7px;">
+          <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#8A90A8;border:1px solid rgba(234,236,245,0.1);border-radius:6px;padding:4px 9px;">Python</span>
+          <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#8A90A8;border:1px solid rgba(234,236,245,0.1);border-radius:6px;padding:4px 9px;">Streamlit</span>
+          <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#8A90A8;border:1px solid rgba(234,236,245,0.1);border-radius:6px;padding:4px 9px;">GitHub + GitLab</span>
+        </div>
+        <div style="margin-top:24px;font-family:'Geist Mono',monospace;font-size:11.5px;color:#8A90A8;">football-pipeline-axel.streamlit.app ↗</div>
+      </article>
+
+      <!-- Card scout-ia -->
+      <article style="position:relative;flex:none;width:392px;border-radius:20px;padding:32px;display:flex;flex-direction:column;background:linear-gradient(165deg,rgba(14,17,30,0.85),rgba(8,10,20,0.85));border:1px solid rgba(234,236,245,0.08);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+          <span style="font-family:'Geist Mono',monospace;font-size:12px;letter-spacing:0.14em;color:#8A90A8;">03</span>
+          <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:#8A90A8;border:1px solid rgba(234,236,245,0.12);border-radius:999px;padding:3px 9px;">Rail</span>
+        </div>
+        <h3 style="margin:0 0 12px;font-family:'Clash Display',sans-serif;font-weight:600;font-size:27px;letter-spacing:-0.02em;line-height:1.05;color:#EAECF5;">scout-ia</h3>
+        <p style="margin:0 0 26px;font-family:'Geist',sans-serif;font-size:14.5px;line-height:1.55;color:#8A90A8;flex:1;">Construire un outil de scouting qui transforme les données d'événements StatsBomb en métriques de joueurs comparables, avec une couche de transformation versionnée et testée.</p>
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:22px;">
+          <div>
+            <div style="font-family:'Geist Mono',monospace;font-variant-numeric:tabular-nums;font-size:42px;font-weight:500;letter-spacing:-0.02em;color:#EAECF5;line-height:1;">3,1 M</div>
+            <div style="margin-top:8px;font-family:'Geist',sans-serif;font-size:12.5px;color:#8A90A8;max-width:24ch;">événements StatsBomb modélisés · 40 modèles dbt</div>
+          </div>
+          <span style="flex:none;display:inline-flex;align-items:center;gap:6px;font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:0.16em;text-transform:uppercase;color:#8A90A8;border:1px solid rgba(234,236,245,0.14);border-radius:999px;padding:3px 8px;background:transparent;"><span style="width:5px;height:5px;border-radius:50%;background:#8A90A8;"></span>Fictif</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:7px;">
+          <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#8A90A8;border:1px solid rgba(234,236,245,0.1);border-radius:6px;padding:4px 9px;">Python</span>
+          <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#8A90A8;border:1px solid rgba(234,236,245,0.1);border-radius:6px;padding:4px 9px;">dbt</span>
+          <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#8A90A8;border:1px solid rgba(234,236,245,0.1);border-radius:6px;padding:4px 9px;">StatsBomb</span>
+          <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#8A90A8;border:1px solid rgba(234,236,245,0.1);border-radius:6px;padding:4px 9px;">SQL</span>
+        </div>
+        <div style="margin-top:24px;font-family:'Geist Mono',monospace;font-size:11.5px;color:#8A90A8;">Modern data stack</div>
+      </article>
+
+      <!-- Card jobtrackr -->
+      <article style="position:relative;flex:none;width:392px;border-radius:20px;padding:32px;display:flex;flex-direction:column;background:linear-gradient(165deg,rgba(14,17,30,0.85),rgba(8,10,20,0.85));border:1px solid rgba(234,236,245,0.08);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+          <span style="font-family:'Geist Mono',monospace;font-size:12px;letter-spacing:0.14em;color:#8A90A8;">04</span>
+          <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:#7FC8A9;border:1px solid rgba(127,200,169,0.28);border-radius:999px;padding:3px 9px;">Rail · Déployé</span>
+        </div>
+        <h3 style="margin:0 0 12px;font-family:'Clash Display',sans-serif;font-weight:600;font-size:27px;letter-spacing:-0.02em;line-height:1.05;color:#EAECF5;">JobTrackr</h3>
+        <p style="margin:0 0 26px;font-family:'Geist',sans-serif;font-size:14.5px;line-height:1.55;color:#8A90A8;flex:1;">Un « Career OS » qui centralise toute une recherche d'emploi — du suivi des candidatures à l'agrégation automatique d'offres et au scoring IA de compatibilité.</p>
+        <div style="margin-bottom:14px;">
+          <div style="font-family:'Geist Mono',monospace;font-variant-numeric:tabular-nums;font-size:42px;font-weight:500;letter-spacing:-0.02em;color:#EAECF5;line-height:1;">3</div>
+          <div style="margin-top:8px;font-family:'Geist',sans-serif;font-size:12.5px;color:#8A90A8;max-width:26ch;">sources d'offres agrégées automatiquement · France Travail · Adzuna · RSS</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:22px;font-family:'Geist Mono',monospace;font-size:12px;color:#8A90A8;">
+          <span style="font-variant-numeric:tabular-nums;color:#EAECF5;">180+</span> candidatures suivies
+          <span style="flex:none;display:inline-flex;align-items:center;gap:6px;font-size:9.5px;letter-spacing:0.16em;text-transform:uppercase;color:#8A90A8;border:1px solid rgba(234,236,245,0.14);border-radius:999px;padding:3px 8px;background:transparent;"><span style="width:5px;height:5px;border-radius:50%;background:#8A90A8;"></span>Fictif</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:7px;">
+          <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#8A90A8;border:1px solid rgba(234,236,245,0.1);border-radius:6px;padding:4px 9px;">Next.js</span>
+          <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#8A90A8;border:1px solid rgba(234,236,245,0.1);border-radius:6px;padding:4px 9px;">PostgreSQL · Neon</span>
+          <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#8A90A8;border:1px solid rgba(234,236,245,0.1);border-radius:6px;padding:4px 9px;">Vercel</span>
+          <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#8A90A8;border:1px solid rgba(234,236,245,0.1);border-radius:6px;padding:4px 9px;">Gemini</span>
+        </div>
+        <div style="margin-top:24px;font-family:'Geist Mono',monospace;font-size:11.5px;color:#7FC8A9;">● Live · shippé</div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- [03] DEEP DIVE -->
+  <section id="deep" data-screen-label="03 Deep dive" style="position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:clamp(80px,11vh,130px) clamp(24px,5vw,80px);overflow:hidden;">
+    <div style="position:absolute;top:50%;left:30%;width:900px;height:900px;transform:translate(-50%,-50%);background:radial-gradient(circle at 50% 50%, rgba(155,107,255,0.14) 0%, rgba(155,107,255,0) 60%);pointer-events:none;"></div>
+    <div style="position:relative;max-width:1280px;margin:0 auto;width:100%;">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:30px;">
+        <div style="font-family:'Geist Mono',monospace;font-size:12px;letter-spacing:0.22em;text-transform:uppercase;color:#8A90A8;display:flex;align-items:center;gap:14px;"><span style="color:#5C6178;">[ 03 ]</span> Deep dive · projet ★</div>
+        <h2 style="margin:0;font-family:'Clash Display',sans-serif;font-weight:600;font-size:clamp(34px,4.6vw,68px);letter-spacing:-0.03em;line-height:1;color:#EAECF5;">Analyse vidéo football</h2>
+      </div>
+
+      <!-- foreground video zone -->
+      <div style="position:relative;width:100%;aspect-ratio:16/8;border-radius:20px;overflow:hidden;border:1px solid rgba(234,236,245,0.1);background:linear-gradient(160deg,#0C0F1C,#070912);box-shadow:0 70px 180px -60px rgba(155,107,255,0.5),0 0 0 1px rgba(234,236,245,0.03);">
+        <div style="position:absolute;inset:0;background:repeating-linear-gradient(120deg,rgba(91,108,255,0.06) 0 16px,rgba(91,108,255,0) 16px 32px);"></div>
+        <!-- corner ticks -->
+        <div style="position:absolute;top:16px;left:16px;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(159,176,255,0.85);display:flex;align-items:center;gap:7px;"><span style="width:7px;height:7px;border-radius:50%;background:#E0625F;box-shadow:0 0 9px rgba(224,98,95,0.8);"></span>Footage · tracking</div>
+        <div style="position:absolute;top:16px;right:16px;font-family:'Geist Mono',monospace;font-variant-numeric:tabular-nums;font-size:10px;letter-spacing:0.14em;color:rgba(138,144,168,0.85);">1920×1080 · 30 fps</div>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;">
+          <div style="width:64px;height:64px;border-radius:50%;border:1px solid rgba(234,236,245,0.25);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);box-shadow:0 0 40px rgba(91,108,255,0.3);"><span style="margin-left:4px;border-left:16px solid rgba(234,236,245,0.85);border-top:10px solid transparent;border-bottom:10px solid transparent;"></span></div>
+          <span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#8A90A8;max-width:40ch;">overlay YOLOv8 + ByteTrack · heatmaps · reconstruction terrain par homographie</span>
+        </div>
+        <!-- scrim + overlay text -->
+        <div style="position:absolute;left:0;right:0;bottom:0;padding:32px;background:linear-gradient(0deg,rgba(6,7,13,0.92),rgba(6,7,13,0));display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;">
+          <p style="margin:0;max-width:48ch;font-family:'Geist',sans-serif;font-size:clamp(14px,1.15vw,17px);line-height:1.55;color:#EAECF5;">Transformer une simple vidéo de match en données de positionnement exploitables par un coach — qui était où, et quand — sans capteur ni caméra spécialisée.</p>
+          <div style="display:flex;align-items:flex-end;gap:14px;">
+            <div style="text-align:right;">
+              <div style="font-family:'Geist Mono',monospace;font-variant-numeric:tabular-nums;font-size:clamp(38px,4.5vw,56px);font-weight:500;letter-spacing:-0.02em;color:#EAECF5;line-height:0.95;">22</div>
+              <div style="margin-top:6px;font-family:'Geist',sans-serif;font-size:12.5px;color:#8A90A8;max-width:22ch;">joueurs suivis image par image · 90 min</div>
+            </div>
+            <span style="flex:none;display:inline-flex;align-items:center;gap:6px;font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:0.16em;text-transform:uppercase;color:#8A90A8;border:1px solid rgba(234,236,245,0.14);border-radius:999px;padding:3px 8px;background:transparent;margin-bottom:6px;"><span style="width:5px;height:5px;border-radius:50%;background:#8A90A8;"></span>Fictif</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:26px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;">
+        <div style="display:flex;flex-wrap:wrap;gap:7px;">
+          <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#8A90A8;border:1px solid rgba(234,236,245,0.1);border-radius:6px;padding:4px 9px;">Python</span>
+          <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#8A90A8;border:1px solid rgba(234,236,245,0.1);border-radius:6px;padding:4px 9px;">YOLOv8</span>
+          <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#8A90A8;border:1px solid rgba(234,236,245,0.1);border-radius:6px;padding:4px 9px;">ByteTrack</span>
+          <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#8A90A8;border:1px solid rgba(234,236,245,0.1);border-radius:6px;padding:4px 9px;">OpenCV · homographie · optical flow</span>
+          <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#8A90A8;border:1px solid rgba(234,236,245,0.1);border-radius:6px;padding:4px 9px;">clustering d'équipes</span>
+          <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#8A90A8;border:1px solid rgba(234,236,245,0.1);border-radius:6px;padding:4px 9px;">Streamlit</span>
+        </div>
+        <span style="display:inline-flex;align-items:center;gap:9px;font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:0.08em;text-transform:uppercase;color:#6E748C;">▸ Motion<span style="color:#8A90A8;text-transform:none;letter-spacing:0.04em;">vidéo surgit (scale + clip-path) puis se replie · scrub canvas (séquence d'images)</span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- [04] STACK — champ gravitationnel -->
+  <section id="stack" data-screen-label="04 Stack" style="position:relative;padding:clamp(80px,11vh,130px) clamp(24px,5vw,80px);overflow:hidden;">
+    <div style="max-width:1280px;margin:0 auto;">
+      <div style="font-family:'Geist Mono',monospace;font-size:12px;letter-spacing:0.22em;text-transform:uppercase;color:#8A90A8;display:flex;align-items:center;gap:14px;margin-bottom:8px;"><span style="color:#5C6178;">[ 04 ]</span> Stack <span style="flex:1;height:1px;background:linear-gradient(90deg,rgba(138,144,168,0.25),transparent);"></span></div>
+      <p style="margin:0 0 10px;font-family:'Geist',sans-serif;font-size:14px;color:#8A90A8;">Champ gravitationnel — les outils flottent sur plusieurs plans de profondeur.</p>
+
+      <!-- gravity field -->
+      <div style="position:relative;height:clamp(440px,52vh,560px);">
+        <div style="position:absolute;top:50%;left:50%;width:760px;height:760px;transform:translate(-50%,-50%);background:radial-gradient(circle at 50% 50%, rgba(91,108,255,0.16) 0%, rgba(155,107,255,0.06) 34%, transparent 60%);pointer-events:none;"></div>
+
+        <span style="position:absolute;top:46%;left:50%;transform:translate(-50%,-50%) scale(1.25);font-family:'Clash Display',sans-serif;font-weight:600;font-size:24px;letter-spacing:-0.02em;color:#EAECF5;padding:14px 26px;border:1px solid rgba(91,108,255,0.5);border-radius:14px;background:linear-gradient(160deg,rgba(20,24,46,0.9),rgba(9,11,22,0.9));box-shadow:0 40px 90px -30px rgba(91,108,255,0.6);">Python</span>
+
+        <span style="position:absolute;top:18%;left:14%;font-family:'Geist Mono',monospace;font-size:15px;color:#EAECF5;padding:9px 16px;border:1px solid rgba(234,236,245,0.14);border-radius:10px;background:rgba(14,17,30,0.7);">YOLOv8</span>
+        <span style="position:absolute;top:30%;left:74%;font-family:'Geist Mono',monospace;font-size:14px;color:#EAECF5;padding:8px 14px;border:1px solid rgba(234,236,245,0.12);border-radius:10px;background:rgba(14,17,30,0.7);">dbt</span>
+        <span style="position:absolute;top:70%;left:20%;font-family:'Geist Mono',monospace;font-size:13px;color:#EAECF5;padding:8px 14px;border:1px solid rgba(234,236,245,0.12);border-radius:10px;background:rgba(14,17,30,0.65);">Next.js</span>
+        <span style="position:absolute;top:74%;left:66%;font-family:'Geist Mono',monospace;font-size:14px;color:#EAECF5;padding:8px 14px;border:1px solid rgba(234,236,245,0.12);border-radius:10px;background:rgba(14,17,30,0.7);">PostgreSQL</span>
+        <span style="position:absolute;top:60%;left:46%;font-family:'Geist Mono',monospace;font-size:13px;color:#EAECF5;padding:8px 13px;border:1px solid rgba(234,236,245,0.1);border-radius:10px;background:rgba(14,17,30,0.6);">StatsBomb</span>
+
+        <!-- mid-depth (smaller, dimmer) -->
+        <span style="position:absolute;top:8%;left:46%;font-family:'Geist Mono',monospace;font-size:12px;color:#8A90A8;padding:6px 11px;border:1px solid rgba(234,236,245,0.08);border-radius:8px;background:rgba(12,15,28,0.5);transform:scale(0.92);">ByteTrack</span>
+        <span style="position:absolute;top:40%;left:6%;font-family:'Geist Mono',monospace;font-size:12px;color:#8A90A8;padding:6px 11px;border:1px solid rgba(234,236,245,0.08);border-radius:8px;background:rgba(12,15,28,0.5);transform:scale(0.9);">OpenCV</span>
+        <span style="position:absolute;top:54%;left:84%;font-family:'Geist Mono',monospace;font-size:12px;color:#8A90A8;padding:6px 11px;border:1px solid rgba(234,236,245,0.08);border-radius:8px;background:rgba(12,15,28,0.5);transform:scale(0.9);">Streamlit</span>
+        <span style="position:absolute;top:86%;left:42%;font-family:'Geist Mono',monospace;font-size:12px;color:#8A90A8;padding:6px 11px;border:1px solid rgba(234,236,245,0.08);border-radius:8px;background:rgba(12,15,28,0.5);transform:scale(0.9);">SQL</span>
+        <span style="position:absolute;top:24%;left:88%;font-family:'Geist Mono',monospace;font-size:12px;color:#8A90A8;padding:6px 11px;border:1px solid rgba(234,236,245,0.08);border-radius:8px;background:rgba(12,15,28,0.5);transform:scale(0.9);">Vercel</span>
+
+        <!-- far depth (tiny, blurred, faint) -->
+        <span style="position:absolute;top:14%;left:30%;font-family:'Geist Mono',monospace;font-size:11px;color:#5C6178;padding:5px 9px;border:1px solid rgba(234,236,245,0.05);border-radius:7px;filter:blur(0.6px);transform:scale(0.78);opacity:0.7;">Gemini</span>
+        <span style="position:absolute;top:66%;left:6%;font-family:'Geist Mono',monospace;font-size:11px;color:#5C6178;padding:5px 9px;border:1px solid rgba(234,236,245,0.05);border-radius:7px;filter:blur(0.6px);transform:scale(0.76);opacity:0.65;">Power Automate</span>
+        <span style="position:absolute;top:88%;left:80%;font-family:'Geist Mono',monospace;font-size:11px;color:#5C6178;padding:5px 9px;border:1px solid rgba(234,236,245,0.05);border-radius:7px;filter:blur(0.6px);transform:scale(0.76);opacity:0.65;">Open-Meteo API</span>
+        <span style="position:absolute;top:4%;left:68%;font-family:'Geist Mono',monospace;font-size:11px;color:#5C6178;padding:5px 9px;border:1px solid rgba(234,236,245,0.05);border-radius:7px;filter:blur(0.7px);transform:scale(0.74);opacity:0.6;">GitLab</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- [05] À PROPOS -->
+  <section id="about" data-screen-label="05 À propos" style="position:relative;padding:clamp(80px,11vh,130px) clamp(24px,5vw,80px);background:linear-gradient(180deg,#06070D,#0C0F1C 60%,#06070D);">
+    <div style="max-width:1280px;margin:0 auto;">
+      <div style="font-family:'Geist Mono',monospace;font-size:12px;letter-spacing:0.22em;text-transform:uppercase;color:#8A90A8;display:flex;align-items:center;gap:14px;margin-bottom:48px;"><span style="color:#5C6178;">[ 05 ]</span> À propos <span style="flex:1;height:1px;background:linear-gradient(90deg,rgba(138,144,168,0.25),transparent);"></span></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:clamp(40px,6vw,90px);align-items:start;">
+        <div>
+          <h2 style="margin:0 0 22px;font-family:'Clash Display',sans-serif;font-weight:500;font-size:clamp(26px,3vw,40px);letter-spacing:-0.02em;line-height:1.12;color:#EAECF5;text-wrap:balance;">Du notebook à la production.</h2>
+          <p style="margin:0;font-family:'Geist',sans-serif;font-size:16px;line-height:1.65;color:#8A90A8;max-width:52ch;">Data / ML Engineer. Je conçois des pipelines qui transforment de la donnée brute — vidéo, événements, flux d'offres — en systèmes exploitables et déployés. De la vision par ordinateur au modern data stack, ce qui m'intéresse, c'est le passage à l'échelle réelle.</p>
+        </div>
+        <!-- bandeau crédibilité -->
+        <div style="display:flex;flex-direction:column;gap:18px;">
+          <div style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#8A90A8;">Crédibilité entreprise</div>
+          <div style="border:1px solid rgba(234,236,245,0.08);border-radius:16px;padding:24px;background:rgba(12,15,28,0.6);">
+            <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:8px;">
+              <span style="font-family:'Geist Mono',monospace;font-variant-numeric:tabular-nums;font-size:30px;font-weight:500;color:#EAECF5;letter-spacing:-0.02em;">14 M</span>
+              <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:#7FC8A9;border:1px solid rgba(127,200,169,0.28);border-radius:999px;padding:3px 8px;">Volume réel</span>
+            </div>
+            <div style="font-family:'Clash Display',sans-serif;font-weight:600;font-size:18px;color:#EAECF5;margin-bottom:6px;">Energy EDA</div>
+            <p style="margin:0;font-family:'Geist',sans-serif;font-size:13.5px;line-height:1.55;color:#8A90A8;">Pipeline EDA sur 14 M lignes de consommation énergétique, enrichi via API Open-Meteo (DJU Toulouse-Blagnac).</p>
+          </div>
+          <div style="border:1px solid rgba(234,236,245,0.08);border-radius:16px;padding:24px;background:rgba(12,15,28,0.6);">
+            <div style="font-family:'Clash Display',sans-serif;font-weight:600;font-size:18px;color:#EAECF5;margin-bottom:6px;">ECR · DSM-Firmenich</div>
+            <p style="margin:0;font-family:'Geist',sans-serif;font-size:13.5px;line-height:1.55;color:#8A90A8;">Digitalisation du workflow Engineering Change Request en entreprise — SharePoint Online + Power Automate.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- [06] CONTACT — reboucle vers le hero -->
+  <section id="contact" data-screen-label="06 Contact" style="position:relative;min-height:86vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:clamp(90px,13vh,150px) clamp(24px,5vw,80px);overflow:hidden;">
+    <div style="position:absolute;top:46%;left:50%;width:1100px;height:1100px;transform:translate(-50%,-50%);background:radial-gradient(circle at 50% 50%, rgba(91,108,255,0.2) 0%, rgba(155,107,255,0.09) 28%, transparent 58%);pointer-events:none;"></div>
+    <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:30px;max-width:980px;">
+      <span style="font-family:'Geist Mono',monospace;font-size:12px;letter-spacing:0.3em;text-transform:uppercase;color:#8A90A8;">[ 06 ] Contact</span>
+      <h2 style="margin:0;font-family:'Clash Display',sans-serif;font-weight:600;font-size:clamp(34px,5vw,80px);line-height:1.0;letter-spacing:-0.03em;color:#EAECF5;text-wrap:balance;max-width:16ch;">Construisons un système qui bouge.</h2>
+      <div style="display:flex;align-items:center;gap:clamp(20px,3vw,44px);flex-wrap:wrap;justify-content:center;font-family:'Geist Mono',monospace;font-size:15px;letter-spacing:0.04em;margin-top:8px;">
+        <a href="#" style="color:#EAECF5;text-decoration:none;border-bottom:1px solid rgba(234,236,245,0.3);padding-bottom:3px;">Email ↗</a>
+        <a href="#" style="color:#EAECF5;text-decoration:none;border-bottom:1px solid rgba(234,236,245,0.3);padding-bottom:3px;">LinkedIn ↗</a>
+        <a href="#" style="color:#EAECF5;text-decoration:none;border-bottom:1px solid rgba(234,236,245,0.3);padding-bottom:3px;">GitHub · AxelCorral ↗</a>
+      </div>
+    </div>
+    <div style="position:absolute;bottom:30px;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(24px,5vw,80px);flex-wrap:wrap;gap:16px;">
+      <span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.1em;color:#8A90A8;">© 2026 Axel Corral</span>
+    </div>
+  </section>
+
+  <!-- ════ RESPONSIVE REFERENCE — HERO MOBILE ════ -->
+  <section data-screen-label="Mobile · Hero (375)" style="position:relative;padding:clamp(70px,9vh,110px) clamp(24px,5vw,80px) 120px;background:#0A0B12;border-top:1px solid rgba(234,236,245,0.06);">
+    <div style="max-width:1280px;margin:0 auto;display:flex;gap:clamp(36px,6vw,80px);align-items:center;flex-wrap:wrap;">
+      <!-- phone -->
+      <div style="flex:none;width:375px;max-width:100%;margin:0 auto;">
+        <div style="position:relative;width:375px;max-width:100%;height:760px;border-radius:46px;padding:12px;background:linear-gradient(160deg,#1a1d2b,#0a0b12);box-shadow:0 50px 120px -40px rgba(0,0,0,0.8),inset 0 0 0 1px rgba(234,236,245,0.06);">
+          <div style="position:relative;width:100%;height:100%;border-radius:36px;overflow:hidden;background:#06070D;display:flex;flex-direction:column;">
+            <!-- status bar -->
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 24px 6px;font-family:'Geist Mono',monospace;font-size:11px;color:#EAECF5;">
+              <span style="font-variant-numeric:tabular-nums;">9:41</span>
+              <span style="position:absolute;left:50%;top:11px;transform:translateX(-50%);width:88px;height:22px;background:#000;border-radius:999px;"></span>
+              <span style="letter-spacing:0.1em;">●●● ▮</span>
+            </div>
+            <!-- hero mobile content -->
+            <div style="position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 26px;overflow:hidden;">
+              <div style="position:absolute;top:38%;left:50%;width:420px;height:420px;transform:translate(-50%,-50%);background:radial-gradient(circle at 50% 50%, rgba(91,108,255,0.2) 0%, rgba(155,107,255,0.08) 30%, transparent 60%);"></div>
+              <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:22px;">
+                <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:#8A90A8;">Axel Corral · 2026</span>
+                <h3 style="margin:0;font-family:'Clash Display',sans-serif;font-weight:600;font-size:34px;line-height:1.02;letter-spacing:-0.03em;color:#EAECF5;text-wrap:balance;">Je transforme des données brutes en <span style="color:#9FB0FF;">systèmes qui bougent.</span></h3>
+                <a href="#" style="display:inline-flex;align-items:center;gap:10px;font-family:'Geist',sans-serif;font-weight:600;font-size:14px;color:#0B0A06;background:#F2B65A;border-radius:999px;padding:12px 24px;text-decoration:none;box-shadow:0 16px 40px -14px rgba(242,182,90,0.6);">Voir le travail →</a>
+              </div>
+              <div style="position:absolute;bottom:22px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:7px;">
+                <span style="font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:0.3em;text-transform:uppercase;color:#8A90A8;">Défiler</span>
+                <span style="width:1px;height:30px;background:linear-gradient(180deg,rgba(138,144,168,0.6),transparent);"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- mobile notes -->
+      <div style="flex:1;min-width:280px;max-width:520px;">
+        <div style="font-family:'Geist Mono',monospace;font-size:12px;letter-spacing:0.22em;text-transform:uppercase;color:#8A90A8;display:flex;align-items:center;gap:14px;margin-bottom:26px;"><span style="color:#5C6178;">[ ↳ ]</span> Responsive · Hero mobile</div>
+        <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:16px;">
+          <li style="display:flex;gap:12px;font-family:'Geist',sans-serif;font-size:14.5px;line-height:1.5;color:#8A90A8;"><span style="color:#9FB0FF;font-family:'Geist Mono',monospace;">→</span> Rail horizontal → <span style="color:#EAECF5;">pile verticale / scroll-snap natif</span> avec affordance.</li>
+          <li style="display:flex;gap:12px;font-family:'Geist',sans-serif;font-size:14.5px;line-height:1.5;color:#8A90A8;"><span style="color:#9FB0FF;font-family:'Geist Mono',monospace;">→</span> <span style="color:#EAECF5;">WebGL off</span> — grain CSS seul, ambient allégé.</li>
+          <li style="display:flex;gap:12px;font-family:'Geist',sans-serif;font-size:14.5px;line-height:1.5;color:#8A90A8;"><span style="color:#9FB0FF;font-family:'Geist Mono',monospace;">→</span> Vidéo foreground → <span style="color:#EAECF5;">poster + clip court in-view</span> (pas de scrub).</li>
+          <li style="display:flex;gap:12px;font-family:'Geist',sans-serif;font-size:14.5px;line-height:1.5;color:#8A90A8;"><span style="color:#9FB0FF;font-family:'Geist Mono',monospace;">→</span> CTA <span style="color:#F2B65A;">--ember</span> conservé, hit-target ≥ 44px.</li>
+        </ul>
+        <div style="margin-top:26px;border-top:1px solid rgba(234,236,245,0.08);padding-top:22px;">
+          <span style="display:inline-flex;align-items:center;gap:9px;font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:0.08em;text-transform:uppercase;color:#6E748C;">⊘ a11y<span style="color:#8A90A8;text-transform:none;letter-spacing:0.04em;">prefers-reduced-motion → posters statiques + fondus courts · zéro scrub</span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>
