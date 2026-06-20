@@ -5,6 +5,7 @@ import { Nav } from "@/sections/Nav";
 import { Hero } from "@/sections/Hero";
 import { Manifeste } from "@/sections/Manifeste";
 import { FlowProjets } from "@/sections/FlowProjets";
+import { ProjectsRecap } from "@/components/ProjectsRecap";
 import { DeepDive } from "@/sections/DeepDive";
 import { Stack } from "@/sections/Stack";
 import { About } from "@/sections/About";
@@ -30,6 +31,7 @@ function App() {
           <Hero />
           <Manifeste />
           <FlowProjets />
+          <ProjectsRecap />
           <DeepDive />
           <Stack />
           <About />

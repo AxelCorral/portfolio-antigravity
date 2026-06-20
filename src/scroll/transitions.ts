@@ -55,7 +55,6 @@ export function findNearestStepIndex(steps: Step[]): number {
   let bestDistance = Infinity;
 
   steps.forEach((step, i) => {
-    if (step.cardIndex !== undefined && step.cardIndex !== 0) return;
     const el = document.getElementById(step.sectionId);
     if (!el) return;
     const distance = Math.abs(el.getBoundingClientRect().top);

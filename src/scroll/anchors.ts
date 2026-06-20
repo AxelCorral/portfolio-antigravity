@@ -1,12 +1,13 @@
 import type { Step } from "./path";
 
-/** Resolves the real DOM element the orb should dock to for a given step. */
+/**
+ * Resolves the real DOM element the orb should dock to for a macro step.
+ * Only used for the macro spline (hero <-> projets-entry, recap <-> deep,
+ * etc) — while actually inside the projets pinned scrub or the open recap
+ * window, their own dedicated scrubbed orbs take over (see ZigzagOrb.tsx /
+ * ProjectsRecap.tsx), not this one.
+ */
 export function getAnchorEl(step: Step): HTMLElement | null {
-  if (step.sectionId === "projets") {
-    const card = document.querySelector<HTMLElement>(`#carousel-stage [data-card-index="${step.cardIndex ?? 0}"]`);
-    if (!card) return null;
-    return card.querySelector<HTMLElement>('[data-orb-anchor="projets-card"]') ?? card;
-  }
   return document.querySelector<HTMLElement>(`[data-orb-anchor="${step.sectionId}"]`);
 }
 

@@ -108,55 +108,31 @@
 }
 
 @layer components {
-  /* Cylinder "manège" — true 3D ring. Each .cylinder-cell carries the static
-     rotateY/translateZ placement (set once via inline style, never animated);
-     GSAP only ever tweens opacity/filter on the inner .carousel-card for
-     depth, and rotationY on #carousel-ring to spin the whole assembly. */
-  .cylinder-stage {
+  /* Recap radial carousel (Build 06 Partie B) — true 3D ring, same pattern as
+     the old Build 05 cylinder. Each .recap-cell carries the static
+     rotateY/translateZ placement (set once via inline style, never
+     animated); GSAP only ever tweens opacity/filter on the inner
+     .recap-panel for depth, and rotationY on the ring to spin the assembly. */
+  .recap-stage {
     perspective: 1500px;
   }
 
-  .cylinder-ring {
+  .recap-ring {
     position: absolute;
     inset: 0;
     transform-style: preserve-3d;
     pointer-events: none;
   }
 
-  .cylinder-cell {
+  .recap-cell {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 420px;
-    max-width: 88vw;
-    margin-left: -210px;
-    margin-top: -230px;
+    width: 280px;
+    max-width: 68vw;
+    margin-left: -140px;
+    margin-top: -150px;
     backface-visibility: hidden;
-  }
-
-  .carousel-card {
-    max-height: 70vh;
-    overflow-y: auto;
-  }
-
-  /* Hover/tap detail expansion — the card is reparented from its
-     .cylinder-cell into #carousel-stage (a non-rotated sibling of the ring)
-     before this class is toggled, so absolute-positioning here is relative
-     to the stage, not warped by the ring's 3D transform. */
-  .carousel-card.is-detail {
-    position: absolute;
-    top: clamp(16px, 4vw, 40px);
-    right: clamp(16px, 4vw, 40px);
-    bottom: clamp(16px, 4vw, 40px);
-    left: clamp(16px, 4vw, 40px);
-    max-height: none;
-    z-index: 30;
-  }
-
-  .carousel-card-detail-extra {
-    display: none;
-  }
-  .carousel-card-detail-extra.is-visible {
-    display: block;
+    pointer-events: auto;
   }
 }
