@@ -4,7 +4,6 @@ import { useGSAP } from "@gsap/react";
 import { railProjects } from "@/content/projects";
 import { useStepNav } from "@/scroll/StepNavContext";
 import { useProjectCta } from "@/scroll/useProjectCta";
-import { ProjectStubModal } from "@/components/ProjectStubModal";
 import { fanAngles, rotateRing } from "@/scroll/carousel";
 
 /**
@@ -28,7 +27,7 @@ export function ProjectsRecap() {
   const overlayRef = useRef<HTMLDivElement>(null);
   const windowRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
-  const { stubProject, open, close } = useProjectCta();
+  const { open } = useProjectCta();
 
   const baseAngles = fanAngles(railProjects.length, FAN_DEG);
 
@@ -110,7 +109,6 @@ export function ProjectsRecap() {
             </button>
           ))}
         </div>
-        {stubProject && <ProjectStubModal project={stubProject} onClose={close} />}
       </section>
     );
   }
@@ -181,8 +179,6 @@ export function ProjectsRecap() {
           ← → pour tourner · clic sur le projet de face pour le détail
         </p>
       </div>
-
-      {stubProject && <ProjectStubModal project={stubProject} onClose={close} />}
     </div>
   );
 }

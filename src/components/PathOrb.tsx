@@ -33,7 +33,13 @@ export function PathOrb() {
   const orbRef = useRef<SVGCircleElement>(null);
   const rawPathRef = useRef<ReturnType<typeof MotionPathPlugin.arrayToRawPath> | null>(null);
   const progressRef = useRef(0);
+  const activeTweenRef = useRef<gsap.core.Tween | null>(null);
   const [vb, setVb] = useState({ w: window.innerWidth, h: window.innerHeight });
+
+  const setOrbPosition = (pos: { x: number; y: number }) => {
+    if (!orbRef.current || !Number.isFinite(pos.x) || !Number.isFinite(pos.y)) return;
+    gsap.set(orbRef.current, { attr: { cx: pos.x, cy: pos.y } });
+  };
 
   const rebuild = (animateTo: number | null) => {
     if (mode !== "stepping" || !dimPathRef.current || !progressPathRef.current || !orbRef.current) return;
@@ -46,26 +52,25 @@ export function PathOrb() {
     gsap.set([dimPathRef.current, progressPathRef.current], { attr: { d } });
 
     const targetProgress = steps.length > 1 ? currentStep / (steps.length - 1) : 0;
+    activeTweenRef.current?.kill();
 
     if (animateTo === null) {
       progressRef.current = targetProgress;
-      const pos = MotionPathPlugin.getPositionOnPath(rawPath, targetProgress);
-      gsap.set(orbRef.current, { attr: { cx: pos.x, cy: pos.y } });
+      setOrbPosition(MotionPathPlugin.getPositionOnPath(rawPath, targetProgress));
       gsap.set(progressPathRef.current, { drawSVG: `0% ${targetProgress * 100}%` });
       return;
     }
 
     const from = progressRef.current;
     const proxy = { p: from };
-    gsap.to(proxy, {
+    activeTweenRef.current = gsap.to(proxy, {
       p: targetProgress,
       duration: 0.9,
       ease: "ease-float",
       onUpdate: () => {
         const path = rawPathRef.current;
         if (!path || !orbRef.current || !progressPathRef.current) return;
-        const pos = MotionPathPlugin.getPositionOnPath(path, proxy.p);
-        gsap.set(orbRef.current, { attr: { cx: pos.x, cy: pos.y } });
+        setOrbPosition(MotionPathPlugin.getPositionOnPath(path, proxy.p));
         gsap.set(progressPathRef.current, { drawSVG: `0% ${proxy.p * 100}%` });
       },
     });
@@ -84,6 +89,10 @@ export function PathOrb() {
 
   useGSAP(() => {
     rebuild(currentStep);
+    return () => {
+      activeTweenRef.current?.kill();
+      activeTweenRef.current = null;
+    };
   }, [currentStep, mode]);
 
   if (mode !== "stepping") return null;
@@ -118,7 +127,7 @@ export function PathOrb() {
         opacity={0.9}
       />
 
-      <circle ref={orbRef} r="5" fill="var(--halo)" filter="url(#orb-glow)" />
+      <circle ref={orbRef} cx={0} cy={0} r="5" fill="var(--halo)" filter="url(#orb-glow)" />
     </svg>
   );
 }

@@ -5,6 +5,7 @@ import { Observer } from "gsap/Observer";
 import { railProjects } from "@/content/projects";
 import { buildSteps, type Step } from "./path";
 import { animateSectionStep, findNearestStepIndex } from "./transitions";
+import { consumeReturnPosition } from "./returnPosition";
 
 /** Stepping (Observer-driven, animated) only kicks in for motion-safe desktop. */
 export const STEPPING_QUERY = "(prefers-reduced-motion: no-preference) and (min-width: 768px)";
@@ -97,10 +98,21 @@ export function StepNavProvider({ children }: { children: ReactNode }) {
     const mm = gsap.matchMedia();
 
     mm.add(STEPPING_QUERY, () => {
-      const initialIndex = findNearestStepIndex(stepsRef.current);
+      const saved = consumeReturnPosition();
+      const initialIndex =
+        saved?.mode === "stepping" && saved.step !== undefined
+          ? Math.max(0, Math.min(stepsRef.current.length - 1, saved.step))
+          : findNearestStepIndex(stepsRef.current);
       currentStepRef.current = initialIndex;
       setCurrentStep(initialIndex);
       setMode("stepping");
+
+      if (saved?.mode === "stepping" && saved.step !== undefined) {
+        const targetSection = stepsRef.current[initialIndex]?.sectionId;
+        const scrollTargetId = targetSection === "projets-recap" ? "projets" : targetSection;
+        const el = scrollTargetId && document.getElementById(scrollTargetId);
+        el?.scrollIntoView({ behavior: "auto", block: "start" });
+      }
 
       const observer = Observer.create({
         target: window,

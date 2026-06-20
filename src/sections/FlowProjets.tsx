@@ -3,7 +3,6 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { SectionLabel } from "@/components/SectionLabel";
 import { ProjectCard } from "@/components/ProjectCard";
-import { ProjectStubModal } from "@/components/ProjectStubModal";
 import { railProjects } from "@/content/projects";
 import { Reveal } from "@/scroll/Reveal";
 import { useStepNav } from "@/scroll/StepNavContext";
@@ -22,7 +21,7 @@ export function FlowProjets() {
   const isStepping = mode === "stepping";
   const containerRef = useRef<HTMLDivElement>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
-  const { stubProject, open, close } = useProjectCta();
+  const { open } = useProjectCta();
 
   const currentStepData = steps[currentStep];
   const activeIndex =
@@ -167,8 +166,6 @@ export function FlowProjets() {
           })}
         </div>
       )}
-
-      {stubProject && <ProjectStubModal project={stubProject} onClose={close} />}
     </section>
   );
 }
