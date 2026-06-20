@@ -108,10 +108,22 @@
 }
 
 @layer components {
-  /* Carousel "manège" — GSAP drives x/scale/opacity/filter on .carousel-card
-     directly, so its own positioning here must be margin-based, never a
-     transform, or the two would fight over the `transform` property. */
-  .carousel-card {
+  /* Cylinder "manège" — true 3D ring. Each .cylinder-cell carries the static
+     rotateY/translateZ placement (set once via inline style, never animated);
+     GSAP only ever tweens opacity/filter on the inner .carousel-card for
+     depth, and rotationY on #carousel-ring to spin the whole assembly. */
+  .cylinder-stage {
+    perspective: 1500px;
+  }
+
+  .cylinder-ring {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    pointer-events: none;
+  }
+
+  .cylinder-cell {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -119,20 +131,25 @@
     max-width: 88vw;
     margin-left: -210px;
     margin-top: -230px;
+    backface-visibility: hidden;
+  }
+
+  .carousel-card {
     max-height: 70vh;
     overflow-y: auto;
   }
 
+  /* Hover/tap detail expansion — the card is reparented from its
+     .cylinder-cell into #carousel-stage (a non-rotated sibling of the ring)
+     before this class is toggled, so absolute-positioning here is relative
+     to the stage, not warped by the ring's 3D transform. */
   .carousel-card.is-detail {
-    position: fixed;
-    top: clamp(16px, 4vw, 56px);
-    right: clamp(16px, 4vw, 56px);
-    bottom: clamp(16px, 4vw, 56px);
-    left: clamp(16px, 4vw, 56px);
-    width: auto;
-    max-width: none;
+    position: absolute;
+    top: clamp(16px, 4vw, 40px);
+    right: clamp(16px, 4vw, 40px);
+    bottom: clamp(16px, 4vw, 40px);
+    left: clamp(16px, 4vw, 40px);
     max-height: none;
-    margin: 0;
     z-index: 30;
   }
 

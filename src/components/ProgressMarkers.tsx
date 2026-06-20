@@ -28,8 +28,6 @@ export function ProgressMarkers() {
 
   steps.forEach((step, i) => {
     if (step.sectionId === "projets") {
-      // One marker per project (its focus step) — lets you jump straight to a specific card.
-      if (step.phase !== "focus") return;
       markers.push({
         key: `projets-${step.cardIndex}`,
         stepIndex: i,

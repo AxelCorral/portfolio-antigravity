@@ -5,8 +5,7 @@ export function getAnchorEl(step: Step): HTMLElement | null {
   if (step.sectionId === "projets") {
     const card = document.querySelector<HTMLElement>(`#carousel-stage [data-card-index="${step.cardIndex ?? 0}"]`);
     if (!card) return null;
-    const selector = step.phase === "detail" ? '[data-orb-anchor="projets-detail"]' : '[data-orb-anchor="projets-card"]';
-    return card.querySelector<HTMLElement>(selector) ?? card;
+    return card.querySelector<HTMLElement>('[data-orb-anchor="projets-card"]') ?? card;
   }
   return document.querySelector<HTMLElement>(`[data-orb-anchor="${step.sectionId}"]`);
 }

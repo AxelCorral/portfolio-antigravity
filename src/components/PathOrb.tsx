@@ -4,70 +4,86 @@ import gsap from "gsap";
 import { MotionPathPlugin } from "gsap/MotionPathPlugin";
 import { useStepNav } from "@/scroll/StepNavContext";
 import { getAnchorPoint, type AnchorPoint } from "@/scroll/anchors";
+import type { Step } from "@/scroll/path";
 
 /**
- * The orb/track is anchor-driven: at every step it docks next to the real
- * focal element (section title, active carousel card, open detail panel —
- * see data-orb-anchor). The visible path is just the segment between the
- * previous and current anchor, redrawn each transition, rather than one
- * static decorative curve.
+ * One continuous smooth spline through every anchor point in route order
+ * (Catmull-Rom-style, via MotionPathPlugin.arrayToRawPath's `curviness`) —
+ * never a fresh straight chord per transition, so tangents stay continuous
+ * across every waypoint. The same raw path drives both the visible line
+ * (dim + bright DrawSVG-style progress segment) and the orb's motion
+ * (manual point lookup along the path, not the `motionPath` tween property —
+ * that double-applies on top of an SVG element's own cx/cy attributes).
  */
+function buildPoints(steps: Step[]): AnchorPoint[] {
+  const pts: AnchorPoint[] = [];
+  let last: AnchorPoint = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+  steps.forEach((step) => {
+    const p = getAnchorPoint(step);
+    if (p) last = p;
+    pts.push(last);
+  });
+  return pts;
+}
+
 export function PathOrb() {
   const { mode, steps, currentStep } = useStepNav();
-  const pathRef = useRef<SVGPathElement>(null);
+  const dimPathRef = useRef<SVGPathElement>(null);
   const progressPathRef = useRef<SVGPathElement>(null);
   const orbRef = useRef<SVGCircleElement>(null);
-  const lastPointRef = useRef<AnchorPoint | null>(null);
+  const rawPathRef = useRef<ReturnType<typeof MotionPathPlugin.arrayToRawPath> | null>(null);
+  const progressRef = useRef(0);
   const [vb, setVb] = useState({ w: window.innerWidth, h: window.innerHeight });
 
-  useEffect(() => {
-    const onResize = () => setVb({ w: window.innerWidth, h: window.innerHeight });
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
+  const rebuild = (animateTo: number | null) => {
+    if (mode !== "stepping" || !dimPathRef.current || !progressPathRef.current || !orbRef.current) return;
 
-  // Resync instantly (no animation) on resize — the anchor likely moved under us.
-  useEffect(() => {
-    const onResync = () => {
-      if (mode !== "stepping" || !orbRef.current) return;
-      const point = getAnchorPoint(steps[currentStep]);
-      if (!point) return;
-      lastPointRef.current = point;
-      gsap.set(orbRef.current, { attr: { cx: point.x, cy: point.y } });
-    };
-    window.addEventListener("resize", onResync);
-    return () => window.removeEventListener("resize", onResync);
-  }, [mode, steps, currentStep]);
+    const points = buildPoints(steps);
+    const rawPath = MotionPathPlugin.arrayToRawPath(points, { curviness: 1.25 });
+    MotionPathPlugin.cacheRawPathMeasurements(rawPath);
+    rawPathRef.current = rawPath;
+    const d = MotionPathPlugin.rawPathToString(rawPath);
+    gsap.set([dimPathRef.current, progressPathRef.current], { attr: { d } });
 
-  useGSAP(() => {
-    if (mode !== "stepping" || !orbRef.current || !pathRef.current || !progressPathRef.current) return;
+    const targetProgress = steps.length > 1 ? currentStep / (steps.length - 1) : 0;
 
-    const toPoint = getAnchorPoint(steps[currentStep]);
-    if (!toPoint) return;
-
-    const fromPoint = lastPointRef.current ?? toPoint;
-    lastPointRef.current = toPoint;
-
-    if (fromPoint.x === toPoint.x && fromPoint.y === toPoint.y) {
-      gsap.set(orbRef.current, { attr: { cx: toPoint.x, cy: toPoint.y } });
-      gsap.set([pathRef.current, progressPathRef.current], { attr: { d: "" } });
+    if (animateTo === null) {
+      progressRef.current = targetProgress;
+      const pos = MotionPathPlugin.getPositionOnPath(rawPath, targetProgress);
+      gsap.set(orbRef.current, { attr: { cx: pos.x, cy: pos.y } });
+      gsap.set(progressPathRef.current, { drawSVG: `0% ${targetProgress * 100}%` });
       return;
     }
 
-    const rawPath = MotionPathPlugin.arrayToRawPath([fromPoint, toPoint], { curviness: 1.25 });
-    const d = MotionPathPlugin.rawPathToString(rawPath);
+    const from = progressRef.current;
+    const proxy = { p: from };
+    gsap.to(proxy, {
+      p: targetProgress,
+      duration: 0.9,
+      ease: "ease-float",
+      onUpdate: () => {
+        const path = rawPathRef.current;
+        if (!path || !orbRef.current || !progressPathRef.current) return;
+        const pos = MotionPathPlugin.getPositionOnPath(path, proxy.p);
+        gsap.set(orbRef.current, { attr: { cx: pos.x, cy: pos.y } });
+        gsap.set(progressPathRef.current, { drawSVG: `0% ${proxy.p * 100}%` });
+      },
+    });
+    progressRef.current = targetProgress;
+  };
 
-    gsap.set([pathRef.current, progressPathRef.current], { attr: { d } });
-    gsap.fromTo(
-      progressPathRef.current,
-      { drawSVG: "0%" },
-      { drawSVG: "100%", duration: 0.9, ease: "ease-float" },
-    );
-    gsap.fromTo(
-      orbRef.current,
-      { attr: { cx: fromPoint.x, cy: fromPoint.y } },
-      { attr: { cx: toPoint.x, cy: toPoint.y }, duration: 0.9, ease: "ease-float" },
-    );
+  useEffect(() => {
+    const onResize = () => {
+      setVb({ w: window.innerWidth, h: window.innerHeight });
+      rebuild(null);
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, steps]);
+
+  useGSAP(() => {
+    rebuild(currentStep);
   }, [currentStep, mode]);
 
   if (mode !== "stepping") return null;
@@ -88,10 +104,10 @@ export function PathOrb() {
         </filter>
       </defs>
 
-      {/* dim reference for the current segment */}
-      <path ref={pathRef} d="" fill="none" stroke="rgba(91,108,255,0.16)" strokeWidth="1.5" />
+      {/* dim reference for the whole route */}
+      <path ref={dimPathRef} d="" fill="none" stroke="rgba(91,108,255,0.14)" strokeWidth="1.5" />
 
-      {/* bright, traveled portion of the same segment */}
+      {/* bright, traveled portion — same `d`, just a shorter DrawSVG window */}
       <path
         ref={progressPathRef}
         d=""

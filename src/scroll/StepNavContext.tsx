@@ -2,19 +2,10 @@ import { createContext, useContext, useMemo, useRef, useState, type ReactNode } 
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { Observer } from "gsap/Observer";
-import Lenis from "lenis";
 import { railProjects } from "@/content/projects";
 import { buildSteps, type Step } from "./path";
 import { animateSectionStep, findNearestStepIndex } from "./transitions";
-import {
-  closeDetailAndRotate,
-  closeDetailOnly,
-  forceCloseDetailInstant,
-  getCarouselCardEls,
-  layoutCarousel,
-  openDetail,
-  syncCarouselToStep,
-} from "./carousel";
+import { forceCloseHoverDetail, rotateCylinder } from "./carousel";
 
 /** Stepping (Observer-driven, animated) only kicks in for motion-safe desktop. */
 export const STEPPING_QUERY = "(prefers-reduced-motion: no-preference) and (min-width: 768px)";
@@ -37,30 +28,6 @@ export function useStepNav() {
   return ctx;
 }
 
-/** Transition logic specific to the "projets" carousel's focus/detail sub-steps. */
-function animateProjetsStep(prev: Step, next: Step, onDone: () => void) {
-  const cardEls = getCarouselCardEls();
-  const prevIdx = prev.cardIndex ?? 0;
-  const nextIdx = next.cardIndex ?? 0;
-
-  if (prev.phase === "focus" && next.phase === "detail" && prevIdx === nextIdx) {
-    openDetail(cardEls, prevIdx, onDone);
-    return;
-  }
-  if (prev.phase === "detail" && next.phase === "focus" && nextIdx === prevIdx) {
-    closeDetailOnly(cardEls, prevIdx, onDone);
-    return;
-  }
-  if (prev.phase === "detail" && next.phase === "focus" && nextIdx === prevIdx + 1) {
-    closeDetailAndRotate(cardEls, prevIdx, nextIdx, onDone);
-    return;
-  }
-
-  // Generic jump (e.g. clicking a different project's marker).
-  if (prev.phase === "detail") forceCloseDetailInstant(cardEls, prevIdx);
-  layoutCarousel(cardEls, nextIdx, true, onDone);
-}
-
 export function StepNavProvider({ children }: { children: ReactNode }) {
   const steps = useMemo(() => buildSteps(railProjects.length), []);
   const totalSteps = steps.length;
@@ -73,7 +40,6 @@ export function StepNavProvider({ children }: { children: ReactNode }) {
   stepsRef.current = steps;
   const currentStepRef = useRef(0);
   const isAnimatingRef = useRef(false);
-  const lenisRef = useRef<Lenis | null>(null);
 
   const goToStepRef = useRef((index: number) => {
     const list = stepsRef.current;
@@ -93,18 +59,17 @@ export function StepNavProvider({ children }: { children: ReactNode }) {
       setIsAnimating(false);
     };
 
+    forceCloseHoverDetail();
+
     if (prevStep.sectionId === nextStep.sectionId && prevStep.sectionId === "projets") {
-      animateProjetsStep(prevStep, nextStep, onDone);
+      rotateCylinder(nextStep.cardIndex ?? 0, true, onDone);
       return;
     }
 
-    if (prevStep.sectionId === "projets" && prevStep.phase === "detail") {
-      forceCloseDetailInstant(getCarouselCardEls(), prevStep.cardIndex ?? 0);
-    }
     if (nextStep.sectionId === "projets") {
-      syncCarouselToStep(getCarouselCardEls(), nextStep.cardIndex ?? 0, nextStep.phase);
+      rotateCylinder(nextStep.cardIndex ?? 0, false);
     }
-    animateSectionStep(prevStep.sectionId, nextStep.sectionId, lenisRef.current, onDone);
+    animateSectionStep(prevStep.sectionId, nextStep.sectionId, onDone);
   });
 
   const goToSectionRef = useRef((sectionId: string) => {
@@ -123,14 +88,8 @@ export function StepNavProvider({ children }: { children: ReactNode }) {
 
       const initialStep = stepsRef.current[initialIndex];
       if (initialStep.sectionId === "projets") {
-        syncCarouselToStep(getCarouselCardEls(), initialStep.cardIndex ?? 0, initialStep.phase);
+        rotateCylinder(initialStep.cardIndex ?? 0, false);
       }
-
-      const lenis = new Lenis({ lerp: 0.1, smoothWheel: true });
-      lenisRef.current = lenis;
-      const tick = (time: number) => lenis.raf(time * 1000);
-      gsap.ticker.add(tick);
-      gsap.ticker.lagSmoothing(0);
 
       const observer = Observer.create({
         target: window,
@@ -162,12 +121,12 @@ export function StepNavProvider({ children }: { children: ReactNode }) {
       return () => {
         observer.kill();
         window.removeEventListener("keydown", onKeyDown);
-        gsap.ticker.remove(tick);
-        lenis.destroy();
-        lenisRef.current = null;
+        forceCloseHoverDetail();
+        const ring = document.getElementById("carousel-ring");
+        if (ring) gsap.set(ring, { clearProps: "transform" });
         const cardEls = document.querySelectorAll("#carousel-stage [data-card-index]");
         if (cardEls.length > 0) {
-          gsap.set(cardEls, { clearProps: "transform,opacity,filter,zIndex" });
+          gsap.set(cardEls, { clearProps: "opacity,filter" });
         }
         setMode("native");
       };

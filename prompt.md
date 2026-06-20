@@ -1,68 +1,59 @@
-# Build 04 — Carrousel projets « manège » + détail en pop-up + ancrage de l'orbe
+# Build 05 — Manège 3D réel + section épinglée + tracé courbe + détail au survol
 > À lancer dans Claude Code : `Get-Content -Raw prompt.md | claude`
-> Repo : `D:\Project_claude_code\portfolio` (builds 01→03 en place et validés).
+> Repo : `D:\Project_claude_code\portfolio` (builds 01→04 en place).
 
 ---
 
-## ÉTAT ACTUEL
-Navigation par étapes (Observer) OK, tracé SVG + orbe lumineux + marqueurs cliquables OK, fallback reduced-motion/mobile OK. **Deux problèmes à corriger** dans ce build :
-1. La section **Flow Projets affiche les 4 cartes d'un coup**, sans hiérarchie. → la remplacer par un **carrousel « manège »** piloté au scroll.
-2. **L'orbe/tracé se balade de façon décorative** (un peu au hasard). → l'**ancrer aux éléments réels** du portfolio.
-
-## INSTALLER
-Ajoute le plugin **Flip** de GSAP (gratuit) pour la transition carte→détail (effet « ouverture d'app macOS ») :
-```
-gsap.registerPlugin(Flip); // en plus de Observer, MotionPathPlugin, DrawSVGPlugin, ScrollTrigger
-```
+## CONTEXTE
+Le Build 04 a posé un carrousel + un tracé + un détail au scroll. **5 problèmes à corriger.** Certains changent des partis pris du Build 04 (lis bien les tâches 3, 4 et 5).
 
 ---
 
-## TÂCHE 1 — Carrousel « manège » (remplace la rangée statique)
-Dans la section Flow Projets, dispose les 4 cartes comme un **manège / deck en perspective** :
-- **Carte active** : premier plan, centrée, pleine taille, nette, lumineuse.
-- **Autres cartes** : reculées en profondeur sur un arc — `scale` réduit (~0.6–0.72), `translateZ` négatif, décalées sur les côtés, `opacity` ~0.3–0.5, léger `blur`.
-- Implémentation recommandée (plus simple et responsive que un vrai cylindre 3D pour 4 cartes) : calcule le transform de chaque carte à partir de `offset = cardIndex - activeIndex`. `offset 0` = avant-centre ; `offset > 0` = arrière-droite ; `offset < 0` = **arrière-gauche empilé** (les projets déjà vus s'accumulent à gauche, « comme si le manège avait tourné »). Container avec `perspective`.
-- **Rotation** : quand `activeIndex` change, anime toutes les cartes vers leur nouveau slot avec GSAP (`--ease-float`, ~0.8s). transform + opacity (+ blur léger) uniquement.
+## PROBLÈME 1 — Premier cran « vide » à supprimer
+Le premier scroll mène à une étape quasi vide (Manifeste). **Supprime ce cran mort.** Le texte du manifeste ne doit PAS occuper une étape plein écran à lui seul : intègre-le comme **transition courte entre le Hero et le carrousel** (overlay/legende qui apparaît puis cède la place), ou fusionne-le avec la sortie du Hero. Aucune étape ne doit afficher un viewport quasi vide. Si une étape n'a pas de focal clair → fusionne-la.
 
-## TÂCHE 2 — Séquence par étapes (machine à états, précise)
-Dans Flow Projets, l'ordre exact des crans de scroll est :
-```
-P1-focus  →  P1-detail  →  P2-focus  →  P2-detail  →  P3-focus  →  P3-detail  →  P4-focus  →  P4-detail  →  (sortie vers section suivante)
-```
-- `Pn-focus` : projet n au premier plan, carrousel en place.
-- cran suivant → `Pn-detail` : le **détail s'ouvre en pop-up** (cf. tâche 3).
-- cran suivant → **referme le détail ET fait tourner le manège** vers `P(n+1)-focus` en **une seule transition combinée** (le projet n recule en arrière-gauche).
-- après `P4-detail`, le cran suivant **descend** vers la section d'après ; un cran vers le haut sur `P1-focus` remonte à la section précédente.
-- Intègre ces sous-étapes au moteur Observer existant (`currentStep` global). Conserve l'anti-rafale (un geste = une étape, `isAnimating`).
+## PROBLÈME 2 — Tracé de l'orbe : courbe naturelle, pas des segments droits
+Aujourd'hui le tracé est fait de **segments rectilignes** (monte tout droit, descend tout droit) → pas naturel.
+- Construis **UN seul tracé continu et lisse** qui passe par tous les points d'ancrage **dans l'ordre du parcours** (spline **Catmull-Rom → Bézier cubique**, ou MotionPath avec `curviness` sur un tableau de points). Courbure douce et **continue** (tangentes continues), jamais de segment droit ni de cassure brutale.
+- **Le même spline** sert à la fois au déplacement de l'orbe (MotionPath) et à la ligne visible (DrawSVG) — ils doivent être identiques.
+- Le flux général doit rester cohérent (pas d'allers-retours erratiques). Recalcule le spline au resize / quand les ancres bougent, mais garde-le lisse et continu.
 
-## TÂCHE 3 — Détail en pop-up (« ouverture d'app macOS »)
-- À `Pn-detail`, ouvre un **panneau de détail** qui occupe la grande majorité de l'écran, via **GSAP Flip** : la carte active s'**agrandit depuis sa propre position/taille** vers le panneau plein écran (transform-origin = la carte), léger overshoot (`back.out`) → effet d'app qui s'ouvre. Le reste du carrousel passe en retrait (dim/blur).
-- Le panneau est **un seul écran résumé** (pas de scroll interne, pas de multi-étapes) : titre, thesis, chiffre clé (garde le tag Fictif), stack, et un **CTA « Voir le détail complet → »**.
-- Le CTA pointe vers une **cible de deep-dive par projet** : pour `analyse-video-football`, réutilise la section **DeepDive** existante ; pour les autres, crée une **cible placeholder** (route/ancre `#/projet/<id>` ou section stub) — le contenu détaillé complet sera un build ultérieur. Câble juste la navigation maintenant.
-- Fermeture (au cran suivant) : Flip retour de la carte à sa place **pendant** que le manège tourne vers le projet suivant.
+## PROBLÈME 3 — Épingler le carrousel (il ne doit PAS défiler vers le haut)
+Bug actuel : pendant qu'on scrolle, la page descend et le carrousel s'échappe par le haut alors qu'il devrait **rester en place et tourner**.
+- Pendant toute la durée de la section carrousel (toutes ses sous-étapes), la section reste **fixe et centrée dans le viewport** (pin). **Aucun drift vertical de la page.** Seul le manège tourne sur place.
+- Plus largement : confirme que le modèle est bien « sections fixes plein écran + transitions animées » (piloté par Observer), et **pas** basé sur la position de scroll réelle. Si un reste de scroll natif provoque le drift, corrige-le.
 
-## TÂCHE 4 — Ancrer l'orbe et le tracé aux éléments réels
-L'orbe doit **suivre les éléments du portfolio**, pas flotter au hasard :
-- Marque les éléments d'ancrage avec `data-orb-anchor="<step-id>"` : le label de section, la **carte active** du carrousel, le **panneau de détail** ouvert, les titres des sections (Hero, Stack, About, Contact).
-- À chaque étape, calcule la position de l'ancre active via `getBoundingClientRect()` et fais **docker l'orbe à proximité** de cet élément. Construis le **tracé MotionPath à partir de ces points d'ancrage** (MotionPath accepte un tableau de coordonnées) — la ligne relie réellement un élément de contenu au suivant.
-- **Recalcule au resize** (et quand le carrousel tourne / le détail s'ouvre, les ancres bougent → met à jour le tracé et la position de l'orbe).
-- Le tracé non-parcouru reste discret ; parcouru = plus lumineux (DrawSVG comme avant).
+## PROBLÈME 4 — Un VRAI manège 3D (cylindre en profondeur)
+Référence : un **filtre d'aspirateur cylindrique** — chaque pli = un projet, disposés autour d'un axe, et scroller fait **tourner le cylindre** vers le projet suivant.
+- Implémente un **vrai cylindre 3D** : container `transform-style: preserve-3d` + `perspective`. Chaque carte placée sur l'anneau via `rotateY(i * 360/N) translateZ(R)`. **N = 4 projets** (90° entre chaque), rayon `R` et perspective à **calibrer** pour que les cartes latérales se lisent « en profondeur » (pas invisibles, pas écrasées).
+- **Un cran de scroll = une rotation** du cylindre de `360/N°` → le projet suivant arrive face caméra ; le précédent part en profondeur (vers l'arrière). Profondeur : cartes non-frontales **assombries + légèrement floutées + opacité réduite** selon leur angle ; carte de dos masquée (`backface-visibility:hidden`).
+- **Pas de zoom automatique** au scroll. Le scroll ne fait QUE tourner.
+- Séquence des sous-étapes : `P1 (face) → P2 (face) → P3 (face) → P4 (face) → sortie vers section suivante`. Un cran vers le haut sur P1 remonte à la section précédente.
 
-## TÂCHE 5 — Resserrer les étapes « vides » du début
-Le Manifeste paraît quasi vide entre le Hero et les projets. Donne-lui une **intention visuelle** : c'est le moment où le tracé se dessine en direction des projets (l'orbe « tire » vers le carrousel), avec le texte du manifeste comme point focal. Pas de cran mort sur du vide. Si une étape n'a pas de focal clair, fusionne-la.
+## PROBLÈME 5 — Détail au SURVOL (plus au scroll)
+Retire le mécanisme « le scroll ouvre le détail ». À la place :
+- **Au survol du titre du projet frontal (ou d'un bouton dédié)** : la fenêtre du projet **s'agrandit** (GSAP **Flip**, expansion douce depuis la carte) pour révéler **plus de détails** — une **zone média** (vidéo qui se lance / démo de site / capture), du texte étendu, et le CTA **« Voir le détail complet → »** (vers la cible deep-dive du projet ; DeepDive existant pour le hero, placeholder pour les autres).
+- La zone média est en **lazy-load** (la vidéo/démo ne charge/joue qu'à l'agrandissement). Place des **placeholders** pour l'instant (les vraies vidéos viendront plus tard).
+- **Fin du survol** → la fenêtre se replie à sa taille de carte.
+- **Mobile / tactile** : pas de hover → déclenche l'agrandissement au **tap** sur le titre/bouton, re-tap (ou bouton fermer) pour replier.
+
+---
 
 ## CONSERVER (ne pas casser)
-- Sorties de secours **obligatoires** : clavier (↓/PageDown/Espace, ↑/PageUp, Home/End), marqueurs cliquables (sauter à toute étape, y compris à un projet précis du carrousel), focus visible.
-- **Fallback** reduced-motion **ET** mobile (<768px) : pas de hijack. Le carrousel devient un **scroll horizontal natif `scroll-snap-x`** (ou pile verticale), le détail s'ouvre en simple expansion (pas de manège), l'orbe se positionne sans grosse animation.
+- Sorties de secours : clavier (↓/PageDown/Espace, ↑/PageUp, Home/End), marqueurs cliquables (sauter à toute étape, y compris à un projet précis du manège), focus visible.
+- Fallback reduced-motion **ET** mobile (<768px) : pas de hijack ni de cylindre 3D lourd → carrousel en **scroll horizontal natif `scroll-snap-x`** (ou pile verticale), détail accessible au tap, orbe positionnée sans grosse animation.
+- Tokens / easings / DA inchangés. transform + opacity (+ blur/filter parcimonieux). 60 fps.
 
 ## NE PAS FAIRE
-Pas de contenu deep-dive complet pour les 4 projets (juste le lien + cible placeholder), pas de scrub vidéo, pas de WebGL. Le `HeroField` SVG reste.
+Pas de contenu deep-dive complet par projet (juste le lien + cible placeholder), pas de vraie vidéo finale (placeholders lazy), pas de WebGL.
 
-## QUALITÉ & VÉRIF
-- Le carrousel tourne d'un projet par cran ; le détail s'ouvre/ferme proprement (effet Flip macOS) ; le manège place bien les projets vus en arrière-gauche.
-- L'orbe **docke sur les éléments réels** (carte active, panneau de détail) et le tracé les relie ; recalcul correct au resize et à la rotation.
+## QUALITÉ & VÉRIF (utilise ton skill de visualisation pour capturer chaque état)
+- Aucun cran vide ; le manifeste n'occupe plus une étape à lui seul.
+- Le tracé est une **courbe lisse continue** (aucun segment droit) et l'orbe la suit naturellement.
+- Le carrousel **reste fixe et tourne sur place** (zéro drift vertical) ; on voit bien chaque projet arriver face caméra.
+- Le manège est un **vrai cylindre 3D** en profondeur (calibre rayon/perspective/dim pour que ce soit lisible et élégant).
+- Survol titre/bouton → agrandissement Flip avec zone média lazy + CTA ; tap en fallback mobile.
 - Clavier + marqueurs OK, focus visible. reduced-motion + 390px → fallback natif, aucun blocage.
 - `npx tsc -b` + `npm run build` OK, zéro erreur console.
-- Sers-toi du skill de visualisation que tu as installé pour **capturer chaque état** (P1-focus, P1-detail, rotation vers P2, vue mobile) et vérifier visuellement avant de conclure.
 
-Termine en listant l'état + ce qui reste pour **build 05** (cibles deep-dive détaillées par projet + scrub vidéo) et **build 06** (signature WebGL de l'orbe/hero, perf, déploiement).
+Termine en listant l'état + ce qui reste pour **build 06** (cibles deep-dive détaillées + vraies vidéos/démos lazy) et **build 07** (signature WebGL de l'orbe/hero, perf Lighthouse, déploiement Vercel + OVH).

@@ -6,6 +6,9 @@ import { ProjectStubModal } from "@/components/ProjectStubModal";
 import { railProjects, heroProject, type Project } from "@/content/projects";
 import { Reveal } from "@/scroll/Reveal";
 import { useStepNav } from "@/scroll/StepNavContext";
+import { angleStep, closeHoverDetail, openHoverDetail } from "@/scroll/carousel";
+
+const RADIUS = 460;
 
 function useProjectCta() {
   const { mode, goToSection } = useStepNav();
@@ -30,10 +33,14 @@ function useProjectCta() {
 }
 
 export function FlowProjets() {
-  const { mode } = useStepNav();
+  const { mode, steps, currentStep } = useStepNav();
   const isStepping = mode === "stepping";
   const { stubProject, open, close } = useProjectCta();
   const [expanded, setExpanded] = useState<string | null>(null);
+
+  const currentStepData = steps[currentStep];
+  const activeCardIndex = currentStepData?.sectionId === "projets" ? currentStepData.cardIndex ?? 0 : 0;
+  const step = angleStep(railProjects.length);
 
   return (
     <section
@@ -47,10 +54,22 @@ export function FlowProjets() {
       </div>
 
       {isStepping ? (
-        <div id="carousel-stage" className="relative mt-10 h-[560px]" style={{ perspective: "1400px" }}>
-          {railProjects.map((project, i) => (
-            <CarouselCard key={project.id} project={project} index={i} onCtaClick={() => open(project)} />
-          ))}
+        <div id="carousel-stage" className="cylinder-stage relative mt-10 h-[78vh] min-h-[560px]">
+          <div id="carousel-ring" className="cylinder-ring">
+            {railProjects.map((project, i) => (
+              <CarouselCard
+                key={project.id}
+                project={project}
+                index={i}
+                angle={i * step}
+                radius={RADIUS}
+                isActive={i === activeCardIndex}
+                onOpenDetail={() => openHoverDetail(i)}
+                onCloseDetail={() => closeHoverDetail(true)}
+                onCtaClick={() => open(project)}
+              />
+            ))}
+          </div>
         </div>
       ) : (
         <div
@@ -73,6 +92,11 @@ export function FlowProjets() {
                 {isOpen && (
                   <div className="mt-3 w-[min(392px,85vw)] rounded-[16px] border border-white/10 bg-deep/60 p-5">
                     <p className="m-0 mb-4 text-sm leading-relaxed text-ink-muted">{project.thesis}</p>
+                    <div className="mb-4 flex aspect-video w-full items-center justify-center rounded-[12px] border border-white/10 bg-void/60">
+                      <span className="font-mono text-[10px] tracking-[0.18em] text-ink-muted uppercase">
+                        Média à venir · lazy-load
+                      </span>
+                    </div>
                     <button
                       type="button"
                       onClick={() => open(project)}
