@@ -11,6 +11,10 @@
   --color-halo: var(--halo);
   --color-halo-2: var(--halo-2);
   --color-ember: var(--ember);
+  --color-surface: var(--surface);
+  --color-cta-ink: var(--cta-ink);
+  --color-fictif-ink: var(--fictif-ink);
+  --color-fictif-border: var(--fictif-border);
 
   --font-display: var(--font-display);
   --font-body: var(--font-body);
@@ -66,8 +70,7 @@
   --accent: var(--halo);
   --accent-foreground: var(--ink);
   --destructive: #e0625f;
-  --border: rgba(234, 236, 245, 0.1);
-  --input: rgba(234, 236, 245, 0.14);
+  --input: color-mix(in srgb, var(--ink) 14%, transparent);
   --ring: var(--halo);
   --radius: 0.875rem;
   --sidebar: var(--bg-deep);
@@ -76,7 +79,7 @@
   --sidebar-primary-foreground: var(--ink);
   --sidebar-accent: var(--bg-void);
   --sidebar-accent-foreground: var(--ink);
-  --sidebar-border: rgba(234, 236, 245, 0.1);
+  --sidebar-border: var(--border);
   --sidebar-ring: var(--halo);
 }
 
@@ -92,8 +95,15 @@
     -webkit-font-smoothing: antialiased;
   }
 
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-optical-sizing: auto;
+  }
+
   ::selection {
-    background: rgba(91, 108, 255, 0.35);
+    background: color-mix(in srgb, var(--halo) 35%, transparent);
     color: var(--ink);
   }
 

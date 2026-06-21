@@ -1,45 +1,50 @@
 import { heroProject } from "@/content/projects";
+import { FictifTag } from "@/components/FictifTag";
 import { Reveal } from "@/scroll/Reveal";
 
 export function DeepDive() {
   return (
     <section
       id="deep"
+      data-snap="deep"
       className="relative flex min-h-dvh flex-col justify-center overflow-hidden px-6 py-14 sm:px-10 lg:px-20"
     >
       <div
         className="pointer-events-none absolute top-1/2 left-[30%] h-[900px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full"
         style={{
           background:
-            "radial-gradient(circle at 50% 50%, rgba(155,107,255,0.14) 0%, rgba(155,107,255,0) 60%)",
+            "radial-gradient(circle at 50% 50%, rgba(215,95,52,0.14) 0%, rgba(215,95,52,0) 60%)",
         }}
       />
 
       <div className="relative mx-auto w-full max-w-7xl">
-        <Reveal className="mb-7.5 flex flex-wrap items-end justify-between gap-6">
-          <div className="flex items-center gap-3.5 font-mono text-xs tracking-[0.22em] text-ink-muted uppercase">
-            <span className="text-[#5C6178]">[ 03 ]</span> Deep dive · projet ★
+        <Reveal className="relative mb-10 flex flex-wrap items-end gap-6">
+          <span aria-hidden="true" className="h-16 w-px self-stretch bg-gradient-to-b from-halo/40 to-transparent" />
+          <div className="ml-auto text-right">
+            <div className="mb-1.5 font-mono text-xs tracking-[0.22em] text-ink-muted uppercase">
+              Deep dive · projet ★
+            </div>
+            <h2
+              data-orb-anchor="deep"
+              className="m-0 max-w-[20ch] font-display text-2xl leading-none font-semibold tracking-[-0.03em] text-ink"
+            >
+              {heroProject.title}
+            </h2>
           </div>
-          <h2
-            data-orb-anchor="deep"
-            className="m-0 font-display text-2xl leading-none font-semibold tracking-[-0.03em] text-ink"
-          >
-            {heroProject.title}
-          </h2>
         </Reveal>
 
         {/* foreground video zone */}
-        <div className="relative h-[clamp(220px,46vh,480px)] w-full overflow-hidden rounded-[20px] border border-white/10 bg-gradient-to-br from-deep to-[#070912] shadow-[0_70px_180px_-60px_rgba(155,107,255,0.5)]">
-          <div className="absolute top-4 left-4 flex items-center gap-1.75 font-mono text-[10px] tracking-[0.16em] text-[rgba(159,176,255,0.85)] uppercase">
+        <div className="relative h-[clamp(220px,46vh,480px)] w-full overflow-hidden rounded-[20px] bg-gradient-to-br from-deep to-[#100b06] shadow-[0_70px_180px_-60px_rgba(215,95,52,0.5),inset_0_1px_0_rgba(255,255,255,0.06)]">
+          <div className="absolute top-4 left-4 flex items-center gap-1.75 font-mono text-[10px] tracking-[0.16em] text-ink-muted uppercase">
             <span className="h-1.75 w-1.75 rounded-full bg-[#E0625F] shadow-[0_0_9px_rgba(224,98,95,0.8)]" />
             Footage · tracking
           </div>
-          <div className="absolute top-4 right-4 font-mono text-[10px] tracking-[0.14em] text-[rgba(138,144,168,0.85)] tabular-nums">
+          <div className="absolute top-4 right-4 font-mono text-[10px] tracking-[0.14em] text-ink-muted/85 tabular-nums">
             1920×1080 · 30 fps
           </div>
 
           <div className="absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-3.5 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full border border-white/25 shadow-[0_0_40px_rgba(91,108,255,0.3)]">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full border border-white/25 shadow-[0_0_40px_rgba(224,145,63,0.3)]">
               <span className="ml-1 border-y-10 border-l-16 border-y-transparent border-l-white/85" />
             </div>
             <span className="max-w-[40ch] font-mono text-[11px] tracking-[0.2em] text-ink-muted uppercase">
@@ -60,12 +65,7 @@ export function DeepDive() {
                   {heroProject.chiffreCleLabel}
                 </div>
               </div>
-              {heroProject.placeholder && (
-                <span className="mb-1.5 inline-flex flex-none items-center gap-1.5 rounded-full border border-white/[0.14] px-2 py-1 font-mono text-[9.5px] tracking-[0.16em] text-ink-muted uppercase">
-                  <span className="h-1.25 w-1.25 rounded-full bg-ink-muted" />
-                  Fictif
-                </span>
-              )}
+              {heroProject.placeholder && <span className="mb-1.5"><FictifTag /></span>}
             </div>
           </div>
         </div>

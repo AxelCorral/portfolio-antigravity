@@ -34,7 +34,7 @@ export function DeepDivePage() {
         <h1 ref={headingRef} tabIndex={-1} className="m-0 font-display text-2xl font-semibold text-ink">
           Projet introuvable
         </h1>
-        <Link to="/" className="font-mono text-xs tracking-[0.08em] text-[#9FB0FF] uppercase">
+        <Link to="/" className="font-mono text-xs tracking-[0.08em] text-halo uppercase">
           ← Retour à l'accueil
         </Link>
       </main>
@@ -117,7 +117,7 @@ export function DeepDivePage() {
                       href={href}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-[#9FB0FF] no-underline hover:underline"
+                      className="text-halo no-underline hover:underline"
                     >
                       {link.value} ↗
                     </a>
@@ -207,7 +207,7 @@ export function DeepDivePage() {
           {nextProject && (
             <Link
               to={`/projet/${nextProject.id}`}
-              className="font-mono text-xs tracking-[0.08em] text-[#9FB0FF] uppercase no-underline"
+              className="font-mono text-xs tracking-[0.08em] text-halo uppercase no-underline"
             >
               Projet suivant · {nextProject.title} →
             </Link>

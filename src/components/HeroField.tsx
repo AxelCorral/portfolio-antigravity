@@ -16,21 +16,10 @@ export function HeroField() {
     >
       <defs>
         <radialGradient id="dot-glow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#9FB0FF" stopOpacity="0.9" />
-          <stop offset="100%" stopColor="#5B6CFF" stopOpacity="0" />
+          <stop offset="0%" stopColor="#F4B45C" stopOpacity="0.9" />
+          <stop offset="100%" stopColor="#E0913F" stopOpacity="0" />
         </radialGradient>
       </defs>
-      <rect
-        x="4"
-        y="4"
-        width="92"
-        height="92"
-        rx="2"
-        fill="none"
-        stroke="rgba(234,236,245,0.08)"
-        strokeWidth="0.3"
-      />
-      <line x1="50" y1="4" x2="50" y2="96" stroke="rgba(234,236,245,0.06)" strokeWidth="0.3" />
       {points.map(([x, y], i) => (
         <circle key={i} cx={x} cy={y} r={i % 5 === 0 ? 1.4 : 0.9} fill="url(#dot-glow)" />
       ))}

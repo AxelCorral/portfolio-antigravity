@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
-import { SectionLabel } from "@/components/SectionLabel";
 import { FictifTag } from "@/components/FictifTag";
 import { LazyMediaSlot } from "@/components/LazyMediaSlot";
+import { SectionLabel } from "@/components/SectionLabel";
 import { railProjects, type Project } from "@/content/projects";
 import { Reveal } from "@/scroll/Reveal";
 import { saveReturnPosition } from "@/scroll/returnPosition";
@@ -14,30 +14,66 @@ import { saveReturnPosition } from "@/scroll/returnPosition";
  * blur-soup. The radial recap from earlier builds is replaced by a quiet
  * grid closing the section, in the same flow, no overlay.
  */
-function ProjectBlock({ project, index }: { project: Project; index: number }) {
+function ProjectBlock({ project, index, total }: { project: Project; index: number; total: number }) {
   const reversed = index % 2 === 1;
+  const dominant = index === 0;
+  const counter = `${String(index + 1).padStart(2, "0")} / ${String(total).padStart(2, "0")}`;
 
   return (
     <Reveal className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-20">
       <div className={`flex flex-col gap-10 lg:items-center lg:gap-20 ${reversed ? "lg:flex-row-reverse" : "lg:flex-row"}`}>
         <div className="flex-1">
-          <div className="mb-7 flex items-center gap-4">
-            <span
-              data-orb-anchor={`project-${index}`}
-              className="font-display text-[40px] leading-none font-semibold text-white/[0.08] tabular-nums sm:text-5xl"
-            >
-              {String(index + 1).padStart(2, "0")}
-            </span>
-            <span
-              className={`rounded-full border px-2.5 py-1 font-mono text-[10px] tracking-[0.16em] uppercase ${
-                project.statut === "deploye"
-                  ? "border-[rgba(127,200,169,0.28)] text-[#7FC8A9]"
-                  : "border-white/[0.12] text-ink-muted"
-              }`}
-            >
-              {project.statutLabel}
-            </span>
-          </div>
+          {dominant ? (
+            <div className="relative mb-2">
+              <div
+                className="flex items-baseline gap-3"
+                role="text"
+                aria-label={`Projet ${counter}`}
+              >
+                <span
+                  data-orb-anchor={`project-${index}`}
+                  aria-hidden="true"
+                  className="block font-display text-[clamp(96px,15vw,210px)] leading-none font-semibold text-white/[0.08] tabular-nums"
+                >
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <span aria-hidden="true" className="font-mono text-lg text-ink-muted tabular-nums">
+                  / {String(total).padStart(2, "0")}
+                </span>
+              </div>
+              <span className="absolute right-0 bottom-2 rounded-full border border-halo/40 px-2.5 py-1 font-mono text-[10px] tracking-[0.16em] text-halo uppercase">
+                {project.statutLabel}
+              </span>
+            </div>
+          ) : (
+            <div className="mb-7 flex items-center gap-4">
+              <div
+                className="flex items-baseline gap-2"
+                role="text"
+                aria-label={`Projet ${counter}`}
+              >
+                <span
+                  data-orb-anchor={`project-${index}`}
+                  aria-hidden="true"
+                  className="font-display text-[40px] leading-none font-semibold text-white/[0.08] tabular-nums sm:text-5xl"
+                >
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <span aria-hidden="true" className="font-mono text-xs text-ink-muted tabular-nums sm:text-sm">
+                  / {String(total).padStart(2, "0")}
+                </span>
+              </div>
+              <span
+                className={`rounded-full border px-2.5 py-1 font-mono text-[10px] tracking-[0.16em] uppercase ${
+                  project.statut === "deploye"
+                    ? "border-[rgba(127,200,169,0.28)] text-[#7FC8A9]"
+                    : "border-white/[0.12] text-ink-muted"
+                }`}
+              >
+                {project.statutLabel}
+              </span>
+            </div>
+          )}
 
           <h3 className="m-0 mb-4 font-display text-[28px] leading-[1.05] font-semibold tracking-[-0.02em] text-ink sm:text-[34px]">
             {project.title}
@@ -76,7 +112,7 @@ function ProjectBlock({ project, index }: { project: Project; index: number }) {
           <Link
             to={`/projet/${project.id}`}
             onClick={saveReturnPosition}
-            className="inline-flex items-center gap-2 font-mono text-xs tracking-[0.08em] text-[#9FB0FF] uppercase no-underline"
+            className="inline-flex items-center gap-2 font-mono text-xs tracking-[0.08em] text-halo uppercase no-underline"
           >
             Voir le détail <span>→</span>
           </Link>
@@ -90,19 +126,21 @@ function ProjectBlock({ project, index }: { project: Project; index: number }) {
   );
 }
 
+const RECAP_SPANS = ["sm:col-span-7", "sm:col-span-5", "sm:col-span-5", "sm:col-span-7"];
+
 function RecapGrid() {
   return (
-    <Reveal className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-20">
+    <Reveal className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-20" data-snap="recap">
       <p className="m-0 mb-6 font-mono text-xs tracking-[0.22em] text-ink-muted uppercase">
         Récap · tous les projets
       </p>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-12">
         {railProjects.map((project, i) => (
           <Link
             key={project.id}
             to={`/projet/${project.id}`}
             onClick={saveReturnPosition}
-            className="rounded-[16px] border border-white/[0.08] bg-deep/40 p-5 no-underline transition-colors duration-200 hover:border-white/20"
+            className={`col-span-1 rounded-[16px] bg-deep/40 p-6 no-underline transition-colors duration-200 hover:bg-deep/70 ${RECAP_SPANS[i % RECAP_SPANS.length]}`}
           >
             <span className="font-mono text-[11px] tracking-[0.14em] text-ink-muted">
               {String(i + 1).padStart(2, "0")}
@@ -118,16 +156,16 @@ function RecapGrid() {
 
 export function FlowProjets() {
   return (
-    <section id="projets" className="relative py-24 sm:py-32 lg:py-40">
+    <section id="projets" data-snap="projets" className="relative py-24 sm:py-32 lg:py-40">
       <div className="mx-auto mb-20 max-w-7xl px-6 sm:px-10 sm:mb-28 lg:px-20">
         <Reveal>
-          <SectionLabel index="02" label="Flow projets" />
+          <SectionLabel label="Flow projets" />
         </Reveal>
       </div>
 
       <div className="flex flex-col gap-24 sm:gap-32 lg:gap-40">
         {railProjects.map((project, i) => (
-          <ProjectBlock key={project.id} project={project} index={i} />
+          <ProjectBlock key={project.id} project={project} index={i} total={railProjects.length} />
         ))}
       </div>
 

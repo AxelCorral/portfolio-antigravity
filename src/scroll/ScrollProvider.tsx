@@ -4,6 +4,10 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import { consumeReturnPosition } from "./returnPosition";
+import { attachScrollSnap } from "./scrollSnap";
+
+/** Touch/coarse pointers get native scroll feel; snap is a fine-pointer-only nicety. */
+const SNAP_QUERY = "(hover: hover) and (pointer: fine)";
 
 /** Smooth (Lenis + scrub) only kicks in for motion-safe desktop — mobile and
  *  reduced-motion always get plain native scroll, per the build's fallback rule. */
@@ -68,6 +72,10 @@ export function ScrollProvider({ children }: { children: ReactNode }) {
         });
       }
 
+      const detachSnap = window.matchMedia(SNAP_QUERY).matches
+        ? attachScrollSnap(lenis)
+        : undefined;
+
       const triggers = NAV_SECTIONS.map((id) => {
         const el = document.getElementById(id);
         if (!el) return null;
@@ -82,6 +90,7 @@ export function ScrollProvider({ children }: { children: ReactNode }) {
       });
 
       return () => {
+        detachSnap?.();
         triggers.forEach((t) => t?.kill());
         gsap.ticker.remove(tick);
         lenis.destroy();

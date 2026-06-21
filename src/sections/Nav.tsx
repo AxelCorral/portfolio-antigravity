@@ -22,7 +22,7 @@ export function Nav() {
         onClick={(e) => handleClick(e, "hero")}
         className="flex items-center gap-3.5"
       >
-        <span className="flex h-8.5 w-8.5 items-center justify-center rounded-[9px] border border-white/[0.22] font-display text-[15px] font-semibold tracking-[-0.02em] text-ink shadow-[inset_0_0_16px_rgba(91,108,255,0.18)]">
+        <span className="flex h-8.5 w-8.5 items-center justify-center rounded-[9px] border border-white/[0.22] font-display text-[15px] font-semibold tracking-[-0.02em] text-ink shadow-[inset_0_0_16px_rgba(224,145,63,0.18)]">
           AC
         </span>
         <span className="flex flex-col leading-tight">

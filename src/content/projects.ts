@@ -35,7 +35,7 @@ export const projects: Project[] = [
     id: "football-pipeline",
     role: "rail",
     statut: "en-cours",
-    statutLabel: "Rail",
+    statutLabel: "En cours",
     title: "football-pipeline",
     thesis:
       "Automatiser la collecte et la mise en forme de données football jusqu'à un dashboard live, déployé et maintenu comme un vrai produit (pas un notebook).",
@@ -49,7 +49,7 @@ export const projects: Project[] = [
     id: "scout-ia",
     role: "rail",
     statut: "en-cours",
-    statutLabel: "Rail",
+    statutLabel: "En cours",
     title: "scout-ia",
     thesis:
       "Construire un outil de scouting qui transforme les données d'événements StatsBomb en métriques de joueurs comparables, avec une couche de transformation versionnée et testée.",
@@ -62,7 +62,7 @@ export const projects: Project[] = [
     id: "jobtrackr",
     role: "rail",
     statut: "deploye",
-    statutLabel: "Rail · Déployé",
+    statutLabel: "Déployé",
     title: "JobTrackr",
     thesis:
       "Un « Career OS » qui centralise toute une recherche d'emploi — du suivi des candidatures à l'agrégation automatique d'offres et au scoring IA de compatibilité.",

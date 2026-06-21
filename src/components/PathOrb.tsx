@@ -103,7 +103,7 @@ export function PathOrb() {
       </defs>
 
       {/* dim reference for the whole route */}
-      <path ref={dimPathRef} d="" fill="none" stroke="rgba(91,108,255,0.13)" strokeWidth="1.5" />
+      <path ref={dimPathRef} d="" fill="none" stroke="rgba(224,145,63,0.13)" strokeWidth="1.5" />
 
       {/* bright, traveled portion — same `d`, just a shorter DrawSVG window */}
       <path

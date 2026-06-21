@@ -7,9 +7,10 @@ interface RevealProps {
   className?: string;
   style?: CSSProperties;
   id?: string;
+  "data-snap"?: string;
 }
 
-export function Reveal({ children, className, style, id }: RevealProps) {
+export function Reveal({ children, className, style, id, "data-snap": dataSnap }: RevealProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
@@ -19,7 +20,7 @@ export function Reveal({ children, className, style, id }: RevealProps) {
   }, []);
 
   return (
-    <div ref={ref} id={id} className={className} style={style}>
+    <div ref={ref} id={id} className={className} style={style} data-snap={dataSnap}>
       {children}
     </div>
   );
