@@ -203,6 +203,11 @@ export function CinematicOpening({ onOpenBuildMode }: { onOpenBuildMode: () => v
               information into clear decisions. My work sits between business intelligence,
               data engineering and rigorous quantitative analysis.
             </p>
+            <div className="hero-proof-strip" aria-label="Profile highlights">
+              {["Power BI", "SQL + Python", "AWS-ready pipelines"].map((item) => (
+                <span key={item}>{item}</span>
+              ))}
+            </div>
             <div className="mt-6 flex flex-wrap items-center gap-5">
               <Magnet>
                 <a className="primary-cta group" href="#selected-work">
