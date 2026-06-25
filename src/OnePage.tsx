@@ -18,59 +18,111 @@ import { BuildMode } from "@/components/BuildMode";
 import { ProjectDetailModal } from "@/components/build-mode/ProjectDetailModal";
 import { CinematicOpening } from "@/components/CinematicOpening";
 import { AnimatedLetter, WordsPullUpMultiStyle } from "@/components/PortfolioMotion";
-import { projects, type Project } from "@/data/projects";
+import { getLocalizedProjects, type Project } from "@/data/projects";
+import { useLanguage, type Language } from "@/i18n/language";
 
-const capabilities: Array<{
+function getCapabilities(language: Language): Array<{
   number: string;
   title: string;
   icon: LucideIcon;
   items: string[];
-}> = [
-  {
-    number: "01",
-    title: "Business Intelligence.",
-    icon: BarChart3,
-    items: [
-      "Power BI dashboards and reporting models",
-      "SharePoint, Power Query and data preparation",
-      "KPI design, filters and visual hierarchy",
-      "Business-readable analytics",
-    ],
-  },
-  {
-    number: "02",
-    title: "Data Engineering.",
-    icon: Database,
-    items: [
-      "Python and SQL data workflows",
-      "ETL logic, cleaning and transformation",
-      "AWS-oriented pipeline architecture",
-      "Versioned datasets and reproducible outputs",
-    ],
-  },
-  {
-    number: "03",
-    title: "Analytical Projects.",
-    icon: LineChart,
-    items: [
-      "Quantitative analysis and methodology",
-      "Open-source portfolio projects",
-      "Data storytelling and technical writing",
-      "Clear conclusions from complex subjects",
-    ],
-  },
-  {
-    number: "04",
-    title: "Portfolio Systems.",
-    icon: Boxes,
-    items: [
-      "GitHub projects and versioning",
-      "Clear technical documentation",
-      "Reviewable project structures",
-      "Method-focused project storytelling",
-    ],
-  },
-];
+}> {
+  if (language === "fr") {
+    return [
+      {
+        number: "01",
+        title: "Business Intelligence.",
+        icon: BarChart3,
+        items: [
+          "Dashboards Power BI et modèles de reporting",
+          "SharePoint, Power Query et préparation de données",
+          "Design de KPI, filtres et hiérarchie visuelle",
+          "Analyses lisibles par les métiers",
+        ],
+      },
+      {
+        number: "02",
+        title: "Ingénierie des données.",
+        icon: Database,
+        items: [
+          "Workflows data en Python et SQL",
+          "Logique ETL, nettoyage et transformation",
+          "Architecture pipeline orientée AWS",
+          "Datasets versionnés et sorties reproductibles",
+        ],
+      },
+      {
+        number: "03",
+        title: "Projets analytiques.",
+        icon: LineChart,
+        items: [
+          "Analyse quantitative et méthodologie",
+          "Projets portfolio open source",
+          "Storytelling data et rédaction technique",
+          "Conclusions claires à partir de sujets complexes",
+        ],
+      },
+      {
+        number: "04",
+        title: "Systèmes portfolio.",
+        icon: Boxes,
+        items: [
+          "Projets GitHub et versioning",
+          "Documentation technique claire",
+          "Structures de projet inspectables",
+          "Présentation orientée méthode et preuve",
+        ],
+      },
+    ];
+  }
+
+  return [
+    {
+      number: "01",
+      title: "Business Intelligence.",
+      icon: BarChart3,
+      items: [
+        "Power BI dashboards and reporting models",
+        "SharePoint, Power Query and data preparation",
+        "KPI design, filters and visual hierarchy",
+        "Business-readable analytics",
+      ],
+    },
+    {
+      number: "02",
+      title: "Data Engineering.",
+      icon: Database,
+      items: [
+        "Python and SQL data workflows",
+        "ETL logic, cleaning and transformation",
+        "AWS-oriented pipeline architecture",
+        "Versioned datasets and reproducible outputs",
+      ],
+    },
+    {
+      number: "03",
+      title: "Analytical Projects.",
+      icon: LineChart,
+      items: [
+        "Quantitative analysis and methodology",
+        "Open-source portfolio projects",
+        "Data storytelling and technical writing",
+        "Clear conclusions from complex subjects",
+      ],
+    },
+    {
+      number: "04",
+      title: "Portfolio Systems.",
+      icon: Boxes,
+      items: [
+        "GitHub projects and versioning",
+        "Clear technical documentation",
+        "Reviewable project structures",
+        "Method-focused project storytelling",
+      ],
+    },
+  ];
+}
 
 const contactLinks = [
   {
@@ -91,10 +143,12 @@ function ProjectShowcaseCard({
   project,
   index,
   onOpenProject,
+  labels,
 }: {
   project: Project;
   index: number;
   onOpenProject: (project: Project) => void;
+  labels: ReturnType<typeof useLanguage>["t"]["projects"];
 }) {
   const primaryLink = project.links?.[0];
   const reportLink = project.links?.find((link) => link.type === "report");
@@ -107,7 +161,7 @@ function ProjectShowcaseCard({
       <article className="home-project-card">
         <div className="home-project-copy">
           <div className="home-project-meta">
-            <span>Project {project.id}</span>
+            <span>{labels.project} {project.id}</span>
             <span>{project.status}</span>
           </div>
           <span className="home-project-category">{project.category}</span>
@@ -117,7 +171,7 @@ function ProjectShowcaseCard({
 
           {project.whyItMatters ? (
             <div className="home-project-why">
-              <span>Why it matters</span>
+              <span>{labels.whyItMatters}</span>
               <p>{project.whyItMatters}</p>
             </div>
           ) : null}
@@ -147,19 +201,19 @@ function ProjectShowcaseCard({
             {project.caseStudy?.length ? (
               <button type="button" onClick={() => onOpenProject(project)}>
                 <BookOpen size={16} aria-hidden="true" />
-                Open case study
+                {labels.openCaseStudy}
               </button>
             ) : null}
             {primaryLink ? (
               <a href={primaryLink.url} target="_blank" rel="noreferrer">
                 <GitBranch size={16} aria-hidden="true" />
-                View repository
+                {labels.viewRepository}
               </a>
             ) : null}
             {reportLink ? (
               <a href={reportLink.url} target="_blank" rel="noreferrer">
                 <FileText size={16} aria-hidden="true" />
-                View report
+                {labels.viewReport}
               </a>
             ) : null}
           </div>
@@ -172,9 +226,9 @@ function ProjectShowcaseCard({
             <div className="home-project-proof-index">{project.id}</div>
           )}
           <div>
-            <span>{project.evidence.length} evidence points</span>
+            <span>{project.evidence.length} {labels.evidencePoints}</span>
             <strong>{project.sourcePath}</strong>
-            {project.caseStudy?.length ? <em>Context, pipeline, evidence and takeaway</em> : null}
+            {project.caseStudy?.length ? <em>{labels.caseStudyPreview}</em> : null}
           </div>
         </div>
       </article>
@@ -185,9 +239,13 @@ function ProjectShowcaseCard({
 function SelectedProjectsSection({
   onOpenBuildMode,
   onOpenProject,
+  projects,
+  labels,
 }: {
   onOpenBuildMode: () => void;
   onOpenProject: (project: Project) => void;
+  projects: Project[];
+  labels: ReturnType<typeof useLanguage>["t"]["projects"];
 }) {
   return (
     <section
@@ -197,12 +255,9 @@ function SelectedProjectsSection({
     >
       <div className="home-section-shell">
         <div className="home-section-heading">
-          <p>Selected projects / proof first</p>
-          <h2 id="selected-work-title">Data work you can inspect.</h2>
-          <span>
-            Three projects with repositories, methods, outputs and evidence points surfaced before
-            the skill list.
-          </span>
+          <p>{labels.kicker}</p>
+          <h2 id="selected-work-title">{labels.title}</h2>
+          <span>{labels.intro}</span>
         </div>
 
         <div className="home-project-list">
@@ -212,16 +267,17 @@ function SelectedProjectsSection({
               index={index}
               key={project.id}
               onOpenProject={onOpenProject}
+              labels={labels}
             />
           ))}
         </div>
 
         <div className="home-projects-footer">
           <button className="build-mode-trigger build-mode-trigger-strong" type="button" onClick={onOpenBuildMode}>
-            Discover the personal layer
+            {labels.discoverPersonal}
           </button>
           <a className="subtle-link" href="#contact">
-            Contact Axel
+            {labels.contactAxel}
           </a>
         </div>
       </div>
@@ -232,9 +288,11 @@ function SelectedProjectsSection({
 function CapabilityCard({
   capability,
   index,
+  learnMore,
 }: {
-  capability: (typeof capabilities)[number];
+  capability: ReturnType<typeof getCapabilities>[number];
   index: number;
+  learnMore: string;
 }) {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: "-100px" });
@@ -271,7 +329,7 @@ function CapabilityCard({
       </div>
 
       <a className="card-link group" href="#contact">
-        Learn more
+        {learnMore}
         <ArrowRight
           className="transition-transform duration-300 group-hover:translate-x-1"
           size={16}
@@ -283,17 +341,14 @@ function CapabilityCard({
   );
 }
 
-function ContactSection() {
+function ContactSection({ labels }: { labels: ReturnType<typeof useLanguage>["t"]["contact"] }) {
   return (
     <section className="contact-section" id="contact" aria-labelledby="contact-title">
       <div className="contact-panel">
         <div>
-          <p className="contact-kicker">Contact / next step</p>
-          <h2 id="contact-title">Let us talk about dashboards, pipelines and analytical systems.</h2>
-          <p>
-            Available for data analyst and junior data engineering opportunities, portfolio
-            reviews and practical analytics projects.
-          </p>
+          <p className="contact-kicker">{labels.kicker}</p>
+          <h2 id="contact-title">{labels.title}</h2>
+          <p>{labels.body}</p>
         </div>
 
         <div className="contact-links">
@@ -317,15 +372,19 @@ function ContactSection() {
 }
 
 function OnePage() {
+  const { language, t } = useLanguage();
   const [buildModeOpen, setBuildModeOpen] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const reduceMotion = useReducedMotion();
+  const localizedProjects = getLocalizedProjects(language);
+  const capabilities = getCapabilities(language);
+  const selectedProject =
+    localizedProjects.find((project) => project.id === selectedProjectId) ?? null;
   const openBuildMode = useCallback(() => setBuildModeOpen(true), []);
   const closeBuildMode = useCallback(() => setBuildModeOpen(false), []);
-  const openProject = useCallback((project: Project) => setSelectedProject(project), []);
-  const closeProject = useCallback(() => setSelectedProject(null), []);
-  const aboutText =
-    "I am currently building my path toward data analysis and data engineering, with experience across business intelligence, Power BI, SQL, Python, reporting automation and open data projects. My work combines technical execution with a practical understanding of business needs, from production dashboards to portfolio projects designed to demonstrate method, rigor and autonomy.";
+  const openProject = useCallback((project: Project) => setSelectedProjectId(project.id), []);
+  const closeProject = useCallback(() => setSelectedProjectId(null), []);
+  const aboutText = t.about.body;
   const paragraphRef = useRef<HTMLParagraphElement>(null);
   const { scrollYProgress } = useScroll({
     target: paragraphRef,
@@ -335,29 +394,34 @@ function OnePage() {
   return (
     <div className="portfolio-page">
       <a className="skip-link" href="#main">
-        Skip to content
+        {t.skip}
       </a>
 
       <main id="main">
         <CinematicOpening onOpenBuildMode={openBuildMode} />
 
-        <SelectedProjectsSection onOpenBuildMode={openBuildMode} onOpenProject={openProject} />
+        <SelectedProjectsSection
+          onOpenBuildMode={openBuildMode}
+          onOpenProject={openProject}
+          projects={localizedProjects}
+          labels={t.projects}
+        />
 
         <section className="about-section" id="about" aria-labelledby="about-title">
           <div className="about-card">
             <p className="mb-9 text-[10px] uppercase tracking-[0.2em] text-primary sm:text-xs">
-              Analytical profile
+              {t.about.kicker}
             </p>
             <h2 id="about-title" className="about-title">
               <WordsPullUpMultiStyle
                 segments={[
-                  { text: "I’m Axel Corral,", className: "font-normal" },
+                  { text: t.about.segments[0], className: "font-normal" },
                   {
-                    text: "a data profile shaped by field experience.",
+                    text: t.about.segments[1],
                     className: "font-serif italic",
                   },
                   {
-                    text: "I work on dashboards, pipelines, reporting systems and quantitative analysis with a strong focus on clarity.",
+                    text: t.about.segments[2],
                     className: "font-normal",
                   },
                 ]}
@@ -391,28 +455,31 @@ function OnePage() {
               <span className="block text-primary">
                 <WordsPullUpMultiStyle
                   align="left"
-                  segments={[{ text: "Capabilities connected to real projects." }]}
+                  segments={[{ text: t.capabilities.title }]}
                 />
               </span>
               <span className="block text-gray-500">
                 <WordsPullUpMultiStyle
                   align="left"
-                  segments={[
-                    { text: "Dashboards, pipelines, models and analytical storytelling." },
-                  ]}
+                  segments={[{ text: t.capabilities.subtitle }]}
                 />
               </span>
             </h2>
 
             <div className="work-grid">
               {capabilities.map((capability, index) => (
-                <CapabilityCard capability={capability} index={index} key={capability.number} />
+                <CapabilityCard
+                  capability={capability}
+                  index={index}
+                  key={capability.number}
+                  learnMore={t.capabilities.learnMore}
+                />
               ))}
             </div>
           </div>
         </section>
 
-        <ContactSection />
+        <ContactSection labels={t.contact} />
       </main>
       <BuildMode open={buildModeOpen} onClose={closeBuildMode} />
       <ProjectDetailModal

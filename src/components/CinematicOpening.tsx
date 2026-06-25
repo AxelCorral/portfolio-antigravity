@@ -10,6 +10,7 @@ import {
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Magnet } from "@/components/Magnet";
 import { CharacterLines, WordsPullUp } from "@/components/PortfolioMotion";
+import { useLanguage } from "@/i18n/language";
 
 const CITY_VIDEO =
   "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260403_050628_c4e32401-fab4-4a27-b7a8-6e9291cd5959.mp4";
@@ -23,6 +24,7 @@ const CLIFF_VIDEO =
  * swap, so there is no "naked" mid-step and no city/cliff ping-pong.
  */
 export function CinematicOpening({ onOpenBuildMode }: { onOpenBuildMode: () => void }) {
+  const { t } = useLanguage();
   const ref = useRef<HTMLElement>(null);
   const reduceMotion = useReducedMotion();
   const { scrollY } = useScroll();
@@ -106,18 +108,18 @@ export function CinematicOpening({ onOpenBuildMode }: { onOpenBuildMode: () => v
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/70" />
 
         <header className="city-header">
-          <nav className="liquid-glass city-nav" aria-label="Primary navigation">
-            <a className="city-logo" href="#opening" aria-label="Axel Corral, top of page">
+          <nav className="liquid-glass city-nav" aria-label={t.nav.aria}>
+            <a className="city-logo" href="#opening" aria-label={t.nav.top}>
               AXEL
             </a>
             <div className="city-nav-links">
-              <a href="#profile">Profile</a>
-              <a href="#selected-work">Projects</a>
-              <a href="#selected-work">Skills</a>
-              <a href="#about">Experience</a>
+              <a href="#profile">{t.nav.profile}</a>
+              <a href="#selected-work">{t.nav.projects}</a>
+              <a href="#capabilities">{t.nav.skills}</a>
+              <a href="#about">{t.nav.experience}</a>
             </div>
             <a className="city-contact" href="#contact">
-              Contact
+              {t.nav.contact}
             </a>
           </nav>
         </header>
@@ -130,9 +132,9 @@ export function CinematicOpening({ onOpenBuildMode }: { onOpenBuildMode: () => v
             pointerEvents: stateBActive ? "auto" : "none",
           }}
           onClick={onOpenBuildMode}
-          aria-label="Open creator mode"
+          aria-label={t.hero.openPersonalLayer}
         >
-          <span>Open build mode</span>
+          <span>{t.hero.personalLayer}</span>
         </motion.button>
 
         <motion.div
@@ -149,25 +151,24 @@ export function CinematicOpening({ onOpenBuildMode }: { onOpenBuildMode: () => v
         >
           <div className="max-w-3xl">
             <p className="mb-5 text-xs uppercase tracking-[0.18em] text-primary/75">
-              Axel Corral · Toulouse / France
+              {t.hero.introLabel}
             </p>
-            <p className="city-heading" aria-label="Shaping data with clarity and action.">
-              <CharacterLines lines={["Shaping data", "with clarity and action."]} />
+            <p className="city-heading" aria-label={t.hero.cityAria}>
+              <CharacterLines lines={[...t.hero.cityLines]} />
             </p>
             <p className="mb-5 max-w-2xl text-base leading-relaxed text-gray-300 md:text-lg">
-              I design dashboards, data workflows and analytical systems that make complex
-              information easier to understand, trust and use.
+              {t.hero.cityText}
             </p>
             <div className="flex flex-wrap gap-3">
               <Magnet>
-                <a className="opening-primary" href="#about">
-                  Continue
+                <a className="opening-primary" href="#selected-work">
+                  {t.hero.viewProjects}
                   <ArrowRight size={16} aria-hidden="true" />
                 </a>
               </Magnet>
               <Magnet>
                 <a className="liquid-glass opening-secondary" href="#selected-work">
-                  View selected work
+                  {t.hero.viewSelectedWork}
                   <ArrowRight size={16} aria-hidden="true" />
                 </a>
               </Magnet>
@@ -175,7 +176,7 @@ export function CinematicOpening({ onOpenBuildMode }: { onOpenBuildMode: () => v
           </div>
 
           <p className="liquid-glass city-tag">
-            Business Intelligence. Data Engineering. Analysis.
+            {t.hero.tag}
           </p>
         </motion.div>
 
@@ -190,43 +191,37 @@ export function CinematicOpening({ onOpenBuildMode }: { onOpenBuildMode: () => v
         >
           <div className="hero-title-column">
             <p className="mb-5 text-xs tracking-[0.08em] text-primary/70 sm:text-sm">
-              Data Analyst · Data Engineer Junior · Toulouse / France
+              {t.hero.role}
             </p>
             <h1 id="hero-title" className="hero-title">
               <WordsPullUp text="Axel Corral" showAsterisk />
             </h1>
           </div>
 
-          <div className="hero-intro" id="contact">
+          <div className="hero-intro">
             <p className="max-w-md text-sm leading-[1.35] text-primary/70 md:text-base">
-              I build analytical systems, dashboards and data workflows that turn complex
-              information into clear decisions. My work sits between business intelligence,
-              data engineering and rigorous quantitative analysis.
+              {t.hero.profileText}
             </p>
             <div className="hero-proof-strip" aria-label="Profile highlights">
-              {["Power BI", "SQL + Python", "AWS-ready pipelines"].map((item) => (
+              {t.hero.proof.map((item) => (
                 <span key={item}>{item}</span>
               ))}
             </div>
             <div className="mt-6 flex flex-wrap items-center gap-5">
               <Magnet>
                 <a className="primary-cta group" href="#selected-work">
-                  <span>View selected work</span>
+                  <span>{t.hero.viewSelectedWork}</span>
                   <span className="cta-icon">
                     <ArrowRight size={17} strokeWidth={1.8} aria-hidden="true" />
                   </span>
                 </a>
               </Magnet>
-              <button className="build-mode-trigger" type="button" onClick={onOpenBuildMode}>
-                Open build mode
-              </button>
+              <button className="build-mode-trigger" type="button" onClick={onOpenBuildMode}>{t.hero.personalLayer}</button>
               <div className="flex gap-4 text-xs text-primary/60">
-                <a className="subtle-link" href="#selected-work">
+                <a className="subtle-link" href="https://github.com/AxelCorral" target="_blank" rel="noreferrer">
                   GitHub
                 </a>
-                <a className="subtle-link" href="#about">
-                  LinkedIn
-                </a>
+                <a className="subtle-link" href="#contact">{t.nav.contact}</a>
               </div>
             </div>
           </div>
@@ -236,7 +231,7 @@ export function CinematicOpening({ onOpenBuildMode }: { onOpenBuildMode: () => v
           className="transition-prompt"
           style={{ opacity: reduceMotion ? 0 : promptOpacity }}
         >
-          Scroll to move from context to craft
+          {t.hero.scrollPrompt}
         </motion.p>
       </div>
     </section>

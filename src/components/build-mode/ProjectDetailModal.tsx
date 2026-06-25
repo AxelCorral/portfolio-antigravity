@@ -14,16 +14,9 @@ import {
   type MouseEvent,
 } from "react";
 import type { Project } from "@/data/projects";
+import { useLanguage } from "@/i18n/language";
 
 type ProjectTab = "overview" | "results" | "outputs" | "links" | "tech";
-
-const tabLabels: Record<ProjectTab, string> = {
-  overview: "Overview",
-  results: "Results",
-  outputs: "Outputs",
-  links: "Links",
-  tech: "Tech",
-};
 
 function ProjectLinks({ project }: { project: Project }) {
   return (
@@ -89,6 +82,7 @@ export function ProjectDetailModal({
   onClose: () => void;
   reduceMotion: boolean | null;
 }) {
+  const { t } = useLanguage();
   const closeRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<ProjectTab>("overview");
@@ -180,13 +174,13 @@ export function ProjectDetailModal({
                 className="project-detail-close"
                 type="button"
                 onClick={onClose}
-                aria-label={`Close ${project.title} details`}
+                aria-label={`${t.modal.closePrefix} ${project.title} ${t.modal.closeSuffix}`.trim()}
               >
                 <X size={19} aria-hidden="true" />
               </button>
             </header>
 
-            <div className="project-detail-tabs" role="tablist" aria-label="Project details">
+            <div className="project-detail-tabs" role="tablist" aria-label={t.modal.projectDetails}>
               {tabs.map((tab, index) => (
                 <button
                   id={`project-tab-${tab}`}
@@ -199,7 +193,7 @@ export function ProjectDetailModal({
                   onClick={() => setActiveTab(tab)}
                   onKeyDown={(event) => handleTabKeyDown(event, index)}
                 >
-                  {tabLabels[tab]}
+                  {t.modal[tab]}
                 </button>
               ))}
             </div>
@@ -242,17 +236,17 @@ export function ProjectDetailModal({
                     </ul>
                     {project.keyTakeaway ? (
                       <div className="project-key-takeaway">
-                        <span>Key takeaway</span>
+                        <span>{t.modal.keyTakeaway}</span>
                         <p>{project.keyTakeaway}</p>
                       </div>
                     ) : null}
                   </div>
                   <aside>
-                    <span>Status</span>
+                    <span>{t.modal.status}</span>
                     <strong>{project.status}</strong>
-                    <span>Source folder</span>
+                    <span>{t.modal.sourceFolder}</span>
                     <code>{project.sourcePath}</code>
-                    <span>Workspace evidence</span>
+                    <span>{t.modal.workspaceEvidence}</span>
                     <ul>
                       {project.evidence.map((item) => (
                         <li key={item}>{item}</li>

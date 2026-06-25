@@ -1,12 +1,8 @@
-export type ProjectCategory =
-  | "Data Engineering"
-  | "Open Data Analysis"
-  | "Analytics Engineering";
+import type { Language } from "@/i18n/language";
 
-export type ProjectStatus =
-  | "Portfolio project"
-  | "Research project"
-  | "Personal project";
+export type ProjectCategory = string;
+
+export type ProjectStatus = string;
 
 export type ProjectResult = {
   label: string;
@@ -53,7 +49,39 @@ export type Project = {
   evidence: string[];
   previewImage?: string;
   previewAlt?: string;
+  translations?: Partial<Record<Exclude<Language, "en">, ProjectTranslation>>;
 };
+
+export type ProjectTranslation = Partial<
+  Pick<
+    Project,
+    | "title"
+    | "category"
+    | "status"
+    | "description"
+    | "longDescription"
+    | "hook"
+    | "whyItMatters"
+    | "keyTakeaway"
+    | "highlights"
+    | "results"
+    | "screenshots"
+    | "links"
+    | "evidence"
+    | "previewAlt"
+  >
+> & {
+  caseStudy?: ProjectCaseStudySection[];
+};
+
+export function getLocalizedProjects(language: Language): Project[] {
+  if (language === "en") return projects;
+
+  return projects.map((project) => ({
+    ...project,
+    ...(project.translations?.[language] ?? {}),
+  }));
+}
 
 export const projects: Project[] = [
   {
@@ -173,6 +201,101 @@ export const projects: Project[] = [
       "6 cached Parquet datasets",
       "6 focused test modules",
     ],
+    translations: {
+      fr: {
+        category: "Ingénierie des données",
+        status: "Projet portfolio",
+        hook:
+          "Des appels API football-data.org jusqu’à un produit data lisible par un recruteur.",
+        description:
+          "Un pipeline end-to-end qui collecte les données de matchs depuis football-data.org, les normalise en jeux de données Parquet, prépare l’analyse Athena et entraîne un modèle de prédiction de résultat pour une interface Streamlit.",
+        whyItMatters:
+          "Ce projet montre qu’Axel sait relier ingestion, stockage, analyse, ML et dashboard dans un workflow reproductible, au lieu de s’arrêter à un notebook isolé.",
+        longDescription:
+          "Le projet est structuré comme un workflow data de production plutôt qu’un notebook : ingestion API, couches raw et curated, SQL analytique, feature engineering, comparaison de modèles, tests et couche de consommation Streamlit. Le README présente clairement l’architecture du pipeline comme le résultat principal, avec des performances de modèle documentées face à une baseline naïve.",
+        keyTakeaway:
+          "Le signal le plus fort n’est pas un score de prédiction spectaculaire : c’est le chemin complet de l’API source vers Parquet, SQL analytique, comparaison ML testée et dashboard capable de fonctionner hors ligne.",
+        caseStudy: [
+          {
+            eyebrow: "Contexte / problème",
+            title: "Les données football deviennent utiles quand elles sont structurées.",
+            body:
+              "Les données de matchs football-data.org arrivent via des réponses API qu’il faut collecter, normaliser, mettre en cache et rendre interrogeables avant de pouvoir alimenter une analyse ou un dashboard.",
+            points: [
+              "Source : API REST v4 football-data.org.",
+              "Périmètre documenté dans le README : PL, FL1, BL1, SA et PD pour la saison 2025/26.",
+            ],
+          },
+          {
+            eyebrow: "Pipeline / méthode",
+            title: "Un workflow local-first pensé comme une stack data AWS.",
+            body:
+              "Le dépôt modélise le stockage JSON brut, les sorties Parquet curated, du SQL orienté Athena et une app Streamlit capable de tourner localement grâce aux fichiers de cache versionnés.",
+            points: [
+              "Couche raw : JSON par compétition et par date.",
+              "Couche curated : Parquet partitionné par compétition et saison.",
+              "Couche de consommation : dashboard Streamlit alimenté par data/cache.",
+            ],
+          },
+          {
+            eyebrow: "Preuve / résultat",
+            title: "1 752 matchs sont documentés sur cinq championnats européens.",
+            body:
+              "Le README indique 1 752 matchs au total et présente une évaluation ML par championnat face à une baseline victoire domicile, tout en rappelant que la qualité du pipeline prime sur la performance absolue.",
+            points: [
+              "Cinq datasets de ligue en cache plus un fichier consolidé matches_all_2025 en Parquet.",
+              "Le SQL analytique couvre avantage domicile, meilleurs buteurs et moyenne de buts par journée.",
+              "Le ML compare Logistic Regression et Random Forest avec un split temporel 80/20.",
+            ],
+          },
+          {
+            eyebrow: "Ce que ça démontre",
+            title: "Du jugement data engineering, pas seulement un dashboard propre.",
+            body:
+              "Le projet donne à un recruteur des preuves d’ingestion API, de normalisation de schéma, de fichiers reproductibles, d’analyse SQL, d’évaluation ML simple, de tests et de dashboard orienté produit.",
+            points: [
+              "Les tests couvrent extraction, ingestion, transformation, chargement, ML et requêtes.",
+              "Les stages GitLab CI/CD sont documentés pour lint, test, model, build et deploy.",
+            ],
+          },
+        ],
+        highlights: [
+          "Ingestion avec retry handling et stockage JSON brut sur S3.",
+          "Couche Parquet curated partitionnée par compétition et saison.",
+          "SQL Athena pour scoring, avantage domicile et tendances de buts.",
+          "Split temporel du modèle avec baseline naïve documentée.",
+          "Suite de tests et stages GitLab CI/CD pour lint, test, model et deploy.",
+        ],
+        results: [
+          {
+            label: "Couche data curated",
+            description:
+              "Six fichiers de cache Parquet versionnés couvrent les cinq compétitions documentées plus le dataset consolidé 2025.",
+          },
+          {
+            label: "SQL analytique",
+            description:
+              "Les requêtes Athena couvrent scoring par équipe, avantage domicile et tendances hebdomadaires de buts sur le schéma de matchs curated.",
+          },
+          {
+            label: "Évaluation du modèle",
+            description:
+              "Logistic Regression et Random Forest sont comparés avec un split temporel 80/20 ; les gains documentés vont de +0,5 à +5,1 points face à la baseline victoire domicile selon la ligue.",
+          },
+          {
+            label: "Workflow de livraison",
+            description:
+              "Le dépôt inclut des tests ciblés et des stages GitLab CI/CD pour linting, tests, exécution du modèle, build et déploiement.",
+          },
+        ],
+        evidence: [
+          "1 752 matchs documentés",
+          "5 ligues européennes",
+          "6 datasets Parquet en cache",
+          "6 modules de tests ciblés",
+        ],
+      },
+    },
   },
   {
     id: "02",
@@ -275,6 +398,96 @@ export const projects: Project[] = [
       "/projects/retirement-analysis/equilibrium-frontier.webp",
     previewAlt:
       "Equilibrium frontier chart from the retirement sustainability project",
+    translations: {
+      fr: {
+        title: "Modèle de soutenabilité des retraites",
+        category: "Analyse open data",
+        status: "Projet de recherche",
+        description:
+          "Un modèle comptable reproductible du système français de retraite par répartition, construit à partir des projections démographiques Insee 2026 et comparé au rapport COR 2026.",
+        longDescription:
+          "Ce projet de recherche rend explicite la logique d’équilibre via une équation comptable fermée et une configuration sourcée des hypothèses. Il sépare la pression démographique de la dynamique relative des pensions, évalue plusieurs scénarios Insee jusqu’en 2070 et valide des trajectoires clés face aux références COR 2026.",
+        highlights: [
+          "Équation d’équilibre explicite séparant effets démographiques et économiques.",
+          "Cinq scénarios démographiques Insee jusqu’en 2070.",
+          "Hypothèses sourcées centralisées dans une configuration YAML.",
+          "Pipelines de génération de figures académiques et sociales.",
+          "Tests automatisés de calibration démographique, économique et du modèle compagnon.",
+        ],
+        results: [
+          {
+            label: "Modèle reproductible",
+            description:
+              "Le taux de cotisation d’équilibre est calculé à partir d’un ratio de dépendance et d’une équation de pension relative explicites.",
+          },
+          {
+            label: "Analyse de scénarios",
+            description:
+              "Cinq scénarios démographiques Insee et deux approches d’indexation sont représentés sur l’horizon 2026-2070.",
+          },
+          {
+            label: "Calibration",
+            description:
+              "Le README documente 21 tests automatisés couvrant la calibration démographique, économique et du modèle compagnon.",
+          },
+          {
+            label: "Livrables publiés",
+            description:
+              "Le dépôt génère des figures académiques, des graphiques au format social et un rapport PDF complet.",
+          },
+        ],
+        screenshots: [
+          {
+            title: "Ciseaux démographiques",
+            description:
+              "Comparaison documentée des composantes démographiques et économiques du système.",
+            src: "/projects/retirement-analysis/demographic-scissors.webp",
+            type: "chart",
+          },
+          {
+            title: "Éventail de scénarios",
+            description:
+              "Plage de projection générée à partir des scénarios démographiques documentés.",
+            src: "/projects/retirement-analysis/scenario-fan.webp",
+            type: "chart",
+          },
+          {
+            title: "Frontière d’équilibre 2070",
+            description:
+              "Cartographie générée de la relation entre niveau de pension et âge de départ.",
+            src: "/projects/retirement-analysis/equilibrium-frontier.webp",
+            type: "chart",
+          },
+          {
+            title: "Validation benchmark COR",
+            description:
+              "Sortie de validation comparant le ratio de dépendance du modèle avec les points de référence COR.",
+            src: "/projects/retirement-analysis/cor-validation.webp",
+            type: "chart",
+          },
+        ],
+        links: [
+          {
+            label: "GitHub",
+            url: "https://github.com/AxelCorral/retraites-cor2026",
+            type: "github",
+          },
+          {
+            label: "Rapport de recherche",
+            url: "/projects/retirement-analysis/memoire-retraites-cor-2026.pdf",
+            type: "report",
+          },
+        ],
+        evidence: [
+          "21 tests documentés",
+          "5 scénarios démographiques",
+          "Horizon 2026-2070",
+          "Validation benchmark COR",
+        ],
+        previewAlt:
+          "Graphique de frontière d’équilibre du projet de soutenabilité des retraites",
+      },
+    },
   },
   {
     id: "03",
