@@ -13,6 +13,13 @@ export type ProjectResult = {
   description: string;
 };
 
+export type ProjectCaseStudySection = {
+  eyebrow: string;
+  title: string;
+  body: string;
+  points?: string[];
+};
+
 export type ProjectScreenshot = {
   title: string;
   description?: string;
@@ -33,6 +40,10 @@ export type Project = {
   status: ProjectStatus;
   description: string;
   longDescription: string;
+  hook?: string;
+  whyItMatters?: string;
+  caseStudy?: ProjectCaseStudySection[];
+  keyTakeaway?: string;
   technologies: string[];
   highlights: string[];
   results: ProjectResult[];
@@ -50,10 +61,59 @@ export const projects: Project[] = [
     title: "Football Data Pipeline",
     category: "Data Engineering",
     status: "Portfolio project",
+    hook: "From live football-data.org API calls to a recruiter-readable data product.",
     description:
       "An end-to-end pipeline that collects match data from football-data.org, normalizes it into Parquet datasets, supports Athena analysis and trains a result-prediction model for a Streamlit interface.",
+    whyItMatters:
+      "It proves Axel can connect ingestion, storage, analytics, ML and dashboard delivery in one reproducible workflow instead of stopping at an isolated notebook.",
     longDescription:
       "The project is organized as a production-style data workflow rather than a notebook: API ingestion, raw and curated storage layers, analytical SQL, feature engineering, model comparison, tests and a Streamlit consumption layer. Its README explicitly frames the pipeline architecture as the primary outcome, with model performance documented against a naive baseline.",
+    keyTakeaway:
+      "The strongest signal is not a spectacular prediction score: it is the complete path from source API to curated Parquet, analytical SQL, tested ML comparison and an offline-capable dashboard.",
+    caseStudy: [
+      {
+        eyebrow: "Context / problem",
+        title: "Football data is only useful once it is structured.",
+        body:
+          "Match data from football-data.org arrives through API responses that need to be collected, normalized, cached and made queryable before it can support analysis or a dashboard.",
+        points: [
+          "Source: football-data.org REST API v4.",
+          "Scope documented in the README: PL, FL1, BL1, SA and PD for the 2025/26 season.",
+        ],
+      },
+      {
+        eyebrow: "Pipeline / method",
+        title: "A local-first workflow shaped like an AWS data stack.",
+        body:
+          "The repository models raw JSON storage, curated Parquet outputs, Athena-oriented SQL and a Streamlit app that can still run locally from versioned cache files.",
+        points: [
+          "Raw layer: JSON by competition and date.",
+          "Curated layer: Parquet partitioned by competition and season.",
+          "Consumption layer: Streamlit dashboard backed by data/cache.",
+        ],
+      },
+      {
+        eyebrow: "Evidence / result",
+        title: "1,752 matches are documented across five European leagues.",
+        body:
+          "The README reports 1,752 total matches and shows per-league ML evaluation against a naive home-win baseline, with the author explicitly framing model performance as secondary to pipeline quality.",
+        points: [
+          "Five cached league datasets plus a consolidated matches_all_2025 Parquet file.",
+          "Analytical SQL covers home advantage, top scorers and average goals per round.",
+          "ML compares Logistic Regression and Random Forest with a temporal 80/20 split.",
+        ],
+      },
+      {
+        eyebrow: "What it demonstrates",
+        title: "Data engineering judgment, not just dashboard polish.",
+        body:
+          "The project gives a recruiter evidence of API ingestion, schema normalization, reproducible files, SQL analysis, basic ML evaluation, tests and a product-facing dashboard.",
+        points: [
+          "Tests cover extraction, ingestion, transformation, loading, ML and query layers.",
+          "GitLab CI/CD stages are documented for lint, test, model, build and deploy.",
+        ],
+      },
+    ],
     technologies: [
       "Python",
       "pandas",
@@ -86,7 +146,7 @@ export const projects: Project[] = [
       {
         label: "Model evaluation",
         description:
-          "Logistic Regression and Random Forest are compared with a time-based 80/20 split and a documented home-win baseline.",
+          "Logistic Regression and Random Forest are compared with a time-based 80/20 split; documented gains range from +0.5 to +5.1 points over the home-win baseline depending on league.",
       },
       {
         label: "Delivery workflow",

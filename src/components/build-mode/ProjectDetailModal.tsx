@@ -217,11 +217,35 @@ export function ProjectDetailModal({
                 <div className="project-overview-grid">
                   <div>
                     <p>{project.longDescription}</p>
+                    {project.caseStudy?.length ? (
+                      <div className="project-case-study">
+                        {project.caseStudy.map((section) => (
+                          <article key={section.eyebrow}>
+                            <span>{section.eyebrow}</span>
+                            <h4>{section.title}</h4>
+                            <p>{section.body}</p>
+                            {section.points?.length ? (
+                              <ul>
+                                {section.points.map((point) => (
+                                  <li key={point}>{point}</li>
+                                ))}
+                              </ul>
+                            ) : null}
+                          </article>
+                        ))}
+                      </div>
+                    ) : null}
                     <ul className="project-detail-highlights">
                       {project.highlights.map((highlight) => (
                         <li key={highlight}>{highlight}</li>
                       ))}
                     </ul>
+                    {project.keyTakeaway ? (
+                      <div className="project-key-takeaway">
+                        <span>Key takeaway</span>
+                        <p>{project.keyTakeaway}</p>
+                      </div>
+                    ) : null}
                   </div>
                   <aside>
                     <span>Status</span>
