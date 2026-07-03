@@ -12,6 +12,8 @@ import {
   Mail,
   type LucideIcon,
 } from "lucide-react";
+import { ProjectCarousel } from "@/components/carousel/ProjectCarousel";
+import { footballPipelineSlides } from "@/data/projects/football-pipeline";
 import { motion, useInView, useReducedMotion, useScroll } from "framer-motion";
 import { useCallback, useRef, useState } from "react";
 import { BuildMode } from "@/components/BuildMode";
@@ -219,18 +221,27 @@ function ProjectShowcaseCard({
           </div>
         </div>
 
-        <div className="home-project-proof" aria-hidden="true">
-          {project.previewImage ? (
-            <img src={project.previewImage} alt="" loading="lazy" />
-          ) : (
-            <div className="home-project-proof-index">{project.id}</div>
-          )}
-          <div>
-            <span>{project.evidence.length} {labels.evidencePoints}</span>
-            <strong>{project.sourcePath}</strong>
-            {project.caseStudy?.length ? <em>{labels.caseStudyPreview}</em> : null}
+        {project.id === "01" ? (
+          <div className="home-project-proof home-project-proof--carousel">
+            <ProjectCarousel
+              projectId={project.id}
+              slides={footballPipelineSlides}
+            />
           </div>
-        </div>
+        ) : (
+          <div className="home-project-proof" aria-hidden="true">
+            {project.previewImage ? (
+              <img src={project.previewImage} alt="" loading="lazy" />
+            ) : (
+              <div className="home-project-proof-index">{project.id}</div>
+            )}
+            <div>
+              <span>{project.evidence.length} {labels.evidencePoints}</span>
+              <strong>{project.sourcePath}</strong>
+              {project.caseStudy?.length ? <em>{labels.caseStudyPreview}</em> : null}
+            </div>
+          </div>
+        )}
       </article>
     </div>
   );

@@ -3,110 +3,249 @@ import {
   AnimatePresence,
   motion,
   useReducedMotion,
-  useScroll,
-  useTransform,
 } from "framer-motion";
 import {
   useEffect,
   useRef,
   useState,
-  type MouseEvent,
-  type RefObject,
 } from "react";
 import { Magnet } from "@/components/Magnet";
-import { ProjectDetailModal } from "@/components/build-mode/ProjectDetailModal";
-import {
-  projects,
-  projectSkills,
-  type Project,
-} from "@/data/projects";
 import avatarHead from "../../profil_3D.png";
 
-const capabilities = [
+const thoughtBubbles = [
   {
-    number: "01",
-    title: "Business Intelligence",
-    items: ["Power BI dashboards", "SharePoint / Power Query", "KPI design", "Reporting automation"],
+    id: "builder",
+    label: "I build what I need",
+    eyebrow: "Builder reflex",
+    title: "Tools usually start with a real need.",
+    body:
+      "I like turning recurring needs into tools: apps, automations, bots or small systems that make daily life clearer.",
+    points: [
+      "JobTrackr started from a real job-search need.",
+      "Personal automations and AI-assisted workflows follow the same reflex.",
+      "When I need a tool, I try to build it.",
+    ],
+    position: { x: 28, y: 18 },
   },
   {
-    number: "02",
-    title: "Data Engineering",
-    items: ["Python workflows", "SQL transformations", "AWS-oriented architecture", "Reproducible outputs"],
+    id: "football",
+    label: "Football brain",
+    eyebrow: "Football & data",
+    title: "Football is a playground for uncertainty.",
+    body:
+      "Football is one of my natural playgrounds for data: form, momentum, trajectories, decisions, uncertainty and emotion.",
+    points: [
+      "It connects naturally to analysis, scouting and storytelling.",
+      "The professional portfolio includes a football-pipeline project built around this interest.",
+    ],
+    link: {
+      label: "See football-pipeline",
+      href: "https://github.com/AxelCorral/football-pipeline",
+    },
+    position: { x: 12, y: 34 },
   },
   {
-    number: "03",
-    title: "Analytical Projects",
-    items: ["Quantitative analysis", "Open data", "Methodology", "Clear conclusions"],
+    id: "ai",
+    label: "AI playground",
+    eyebrow: "AI experiments",
+    title: "AI is a creative and technical accelerator.",
+    body:
+      "I use AI as a practical accelerator: prompts, visual concepts, video experiments, automation loops, Codex-style building and iterative product improvement.",
+    points: [
+      "The point is not hype; it is faster learning and sharper iteration.",
+      "AI helps me prototype, critique, polish and ship with tighter loops.",
+    ],
+    position: { x: 58, y: 12 },
   },
   {
-    number: "04",
-    title: "Portfolio Systems",
-    items: ["GitHub projects", "Documentation", "Versioning", "Project storytelling"],
+    id: "systems",
+    label: "Systems curiosity",
+    eyebrow: "Systems curiosity",
+    title: "I am drawn to systems that shape decisions.",
+    body:
+      "I am interested in systems that shape real decisions: markets, incentives, public decisions, organizations, sport and data-driven tools.",
+    points: [
+      "I like connecting data with real-world constraints.",
+      "The angle stays analytical, neutral and non-partisan.",
+    ],
+    position: { x: 78, y: 28 },
+  },
+  {
+    id: "visual",
+    label: "Visual instinct",
+    eyebrow: "Creative direction",
+    title: "How it feels matters as much as how it works.",
+    body:
+      "I care about how things feel, not only how they work. A useful data product should be clear, readable and visually intentional.",
+    points: [
+      "Dark graphite, cream highlights and cinematic motion are part of the portfolio language.",
+      "Good visual hierarchy makes complex systems easier to trust.",
+    ],
+    position: { x: 82, y: 52 },
+  },
+  {
+    id: "learning",
+    label: "Learning by building",
+    eyebrow: "Self-learning",
+    title: "Make the idea real, then improve it.",
+    body:
+      "I learn by building, testing, breaking, correcting and shipping. The method is simple: make the idea real, then improve it.",
+    points: [
+      "Curiosity becomes useful when it turns into something testable.",
+      "Iteration is where the idea gets sharper.",
+    ],
+    position: { x: 20, y: 64 },
+  },
+  {
+    id: "digital",
+    label: "First link to tech",
+    eyebrow: "Digital doorway",
+    title: "Digital worlds were an early doorway.",
+    body:
+      "Before data projects, there was curiosity for digital worlds. Not an identity, more like an early doorway into systems, interfaces and logic.",
+    points: [
+      "Interfaces, rules and feedback loops made technology feel tangible.",
+      "That curiosity now shows up in tools, dashboards and visual systems.",
+    ],
+    position: { x: 42, y: 6 },
   },
 ];
 
-function CapabilityCard({
-  capability,
-  index,
+const personalSignals = [
+  "football analysis",
+  "3D avatar",
+  "interface design",
+  "open learning",
+  "Toulouse",
+  "systems thinking",
+  "portfolio craft",
+  "personal projects",
+];
+
+type ThoughtBubble = (typeof thoughtBubbles)[number];
+
+function ThoughtMap({
+  activeThought,
+  setActiveThought,
   reduceMotion,
 }: {
-  capability: (typeof capabilities)[number];
-  index: number;
+  activeThought: ThoughtBubble | null;
+  setActiveThought: (thought: ThoughtBubble | null) => void;
   reduceMotion: boolean | null;
 }) {
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
-
-  function handleMove(event: MouseEvent<HTMLElement>) {
-    if (reduceMotion) return;
-    const bounds = event.currentTarget.getBoundingClientRect();
-    const x = (event.clientX - bounds.left) / bounds.width - 0.5;
-    const y = (event.clientY - bounds.top) / bounds.height - 0.5;
-    setTilt({ x: y * -3.5, y: x * 4.5 });
-  }
-
   return (
-    <Magnet
-      className={`h-full build-card-wrap build-card-wrap-${index + 1}`}
-      disabled={Boolean(reduceMotion)}
-      strength={22}
-    >
-      <motion.article
-        className="build-card"
-        onMouseMove={handleMove}
-        onMouseLeave={() => setTilt({ x: 0, y: 0 })}
-        initial={reduceMotion ? false : { opacity: 0, scale: 0.94, y: 38 }}
-        whileInView={{ opacity: 1, scale: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.2 }}
-        transition={{
-          delay: index * 0.08,
-          duration: 0.72,
-          ease: [0.16, 1, 0.3, 1],
-        }}
-        style={{ rotateX: tilt.x, rotateY: tilt.y, transformPerspective: 900 }}
-      >
-        <div className="build-card-glow" aria-hidden="true" />
-        <div className="relative z-10 flex items-center justify-between">
-          <span className="text-xs text-primary/45">{capability.number}</span>
-          <ArrowUpRight
-            size={18}
-            className="build-card-arrow text-primary/55"
-            aria-hidden="true"
-          />
-        </div>
-        <div className="relative z-10">
-          <h3 className="mb-5 text-2xl text-primary">{capability.title}</h3>
-          <ul className="space-y-2 text-sm text-gray-400">
-            {capability.items.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </div>
-      </motion.article>
-    </Magnet>
+    <div className="thought-map" aria-label="Personal thoughts around Axel">
+      <div className="thought-map-lines" aria-hidden="true" />
+      {thoughtBubbles.map((thought, index) => (
+        <motion.button
+          className="thought-bubble"
+          type="button"
+          key={thought.id}
+          style={{
+            left: `${thought.position.x}%`,
+            top: `${thought.position.y}%`,
+          }}
+          aria-expanded={activeThought?.id === thought.id}
+          aria-label={`Open thought: ${thought.label}`}
+          onClick={() => setActiveThought(activeThought?.id === thought.id ? null : thought)}
+          initial={reduceMotion ? false : { opacity: 0, scale: 0.72 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.45 + index * 0.07, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <span />
+          <strong>{thought.label}</strong>
+        </motion.button>
+      ))}
+
+      <AnimatePresence>
+        {activeThought ? (
+          <motion.aside
+            className="thought-panel"
+            key={activeThought.id}
+            initial={reduceMotion ? false : { opacity: 0, y: 12, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={reduceMotion ? undefined : { opacity: 0, y: 8, scale: 0.98 }}
+            transition={{ duration: 0.24 }}
+            aria-live="polite"
+          >
+            <button
+              className="thought-panel-close"
+              type="button"
+              onClick={() => setActiveThought(null)}
+              aria-label={`Close ${activeThought.label}`}
+            >
+              <X size={15} aria-hidden="true" />
+            </button>
+            <p>{activeThought.eyebrow}</p>
+            <h3>{activeThought.title}</h3>
+            <span>{activeThought.body}</span>
+            <ul>
+              {activeThought.points.map((point) => (
+                <li key={point}>{point}</li>
+              ))}
+            </ul>
+            {activeThought.link ? (
+              <a href={activeThought.link.href} target="_blank" rel="noreferrer">
+                {activeThought.link.label}
+                <ArrowUpRight size={15} aria-hidden="true" />
+              </a>
+            ) : null}
+          </motion.aside>
+        ) : null}
+      </AnimatePresence>
+    </div>
   );
 }
 
-function BuildModeHero({ reduceMotion }: { reduceMotion: boolean | null }) {
+function MobileThoughtList({
+  activeThought,
+  setActiveThought,
+}: {
+  activeThought: ThoughtBubble | null;
+  setActiveThought: (thought: ThoughtBubble | null) => void;
+}) {
+  return (
+    <div className="mobile-thought-list">
+      {thoughtBubbles.map((thought) => {
+        const open = activeThought?.id === thought.id;
+        return (
+          <article className="mobile-thought-card" key={thought.id}>
+            <button
+              type="button"
+              aria-expanded={open}
+              onClick={() => setActiveThought(open ? null : thought)}
+            >
+              <span>{thought.eyebrow}</span>
+              <strong>{thought.label}</strong>
+            </button>
+            {open ? (
+              <div>
+                <h3>{thought.title}</h3>
+                <p>{thought.body}</p>
+                {thought.link ? (
+                  <a href={thought.link.href} target="_blank" rel="noreferrer">
+                    {thought.link.label}
+                    <ArrowUpRight size={15} aria-hidden="true" />
+                  </a>
+                ) : null}
+              </div>
+            ) : null}
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
+function BuildModeHero({
+  activeThought,
+  setActiveThought,
+  reduceMotion,
+}: {
+  activeThought: ThoughtBubble | null;
+  setActiveThought: (thought: ThoughtBubble | null) => void;
+  reduceMotion: boolean | null;
+}) {
   return (
     <section className="build-hero" aria-labelledby="build-mode-title">
       <div className="build-hero-orbits" aria-hidden="true">
@@ -121,7 +260,7 @@ function BuildModeHero({ reduceMotion }: { reduceMotion: boolean | null }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.08, duration: 0.6 }}
         >
-          AXEL CORRAL — BUILD LAYER
+          AXEL CORRAL — PERSONAL LAYER
         </motion.p>
         <motion.h2
           id="build-mode-title"
@@ -130,7 +269,7 @@ function BuildModeHero({ reduceMotion }: { reduceMotion: boolean | null }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.12, duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
         >
-          Build mode
+          Personal layer
         </motion.h2>
         <motion.p
           className="build-hero-subtitle"
@@ -138,8 +277,16 @@ function BuildModeHero({ reduceMotion }: { reduceMotion: boolean | null }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25, duration: 0.7 }}
         >
-          A hidden layer for the systems, dashboards and analytical projects behind the portfolio.
+          The part behind the projects: curiosity, tools, football, AI experiments and systems I build for myself.
         </motion.p>
+        <motion.span
+          className="thought-hint"
+          initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.55 }}
+        >
+          Move around to reveal what sits behind the work.
+        </motion.span>
       </div>
 
       <div className="build-portrait-stage">
@@ -162,125 +309,19 @@ function BuildModeHero({ reduceMotion }: { reduceMotion: boolean | null }) {
             />
           </Magnet>
         </motion.div>
+
+        <ThoughtMap
+          activeThought={activeThought}
+          setActiveThought={setActiveThought}
+          reduceMotion={reduceMotion}
+        />
       </div>
 
-      <a className="build-scroll-cue" href="#selected-builds">
-        Explore the layer
+      <a className="build-scroll-cue" href="#personal-universe">
+        More signals
         <ArrowDown size={16} aria-hidden="true" />
       </a>
     </section>
-  );
-}
-
-function ProjectEvidence({ project }: { project: Project }) {
-  return (
-    <div className="project-evidence">
-      {project.previewImage ? (
-        <img
-          className="project-evidence-image"
-          src={project.previewImage}
-          alt={project.previewAlt ?? ""}
-          loading="lazy"
-        />
-      ) : (
-        <div className="project-evidence-index" aria-hidden="true">
-          {project.id}
-        </div>
-      )}
-      <div className="project-evidence-content">
-        <p>Verified in workspace</p>
-        <ul>
-          {project.evidence.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-        <span>{project.sourcePath}</span>
-      </div>
-    </div>
-  );
-}
-
-function StickyProjectCard({
-  project,
-  index,
-  total,
-  scrollContainer,
-  reduceMotion,
-  onOpen,
-}: {
-  project: Project;
-  index: number;
-  total: number;
-  scrollContainer: RefObject<HTMLDivElement | null>;
-  reduceMotion: boolean | null;
-  onOpen: (project: Project, trigger: HTMLElement) => void;
-}) {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    container: scrollContainer,
-    target: cardRef,
-    offset: ["start 0.82", "end 0.2"],
-  });
-  const targetScale = 1 - (total - 1 - index) * 0.03;
-  const scale = useTransform(scrollYProgress, [0.15, 1], [1, targetScale]);
-  const opacity = useTransform(scrollYProgress, [0, 0.12], [0.72, 1]);
-
-  return (
-    <div
-      ref={cardRef}
-      className="sticky-project-step"
-      style={{ top: `calc(5.5rem + ${index * 28}px)`, zIndex: index + 1 }}
-    >
-      <motion.article
-        className="sticky-project-card"
-        role="button"
-        tabIndex={0}
-        aria-label={`Open details for ${project.title}`}
-        onClick={(event) => onOpen(project, event.currentTarget)}
-        onKeyDown={(event) => {
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            onOpen(project, event.currentTarget);
-          }
-        }}
-        whileHover={reduceMotion ? undefined : { y: -5 }}
-        whileTap={reduceMotion ? undefined : { scale: 0.995 }}
-        style={{
-          scale: reduceMotion ? 1 : scale,
-          opacity: reduceMotion ? 1 : opacity,
-        }}
-      >
-        <div className="sticky-project-main">
-          <div className="sticky-project-meta">
-            <span>Project {project.id}</span>
-            <span>{project.status}</span>
-          </div>
-          <span className="sticky-project-category">{project.category}</span>
-          <h3>{project.title}</h3>
-          <p>{project.description}</p>
-          <ul className="sticky-project-highlights">
-            {project.highlights.map((highlight) => (
-              <li key={highlight}>{highlight}</li>
-            ))}
-          </ul>
-          <div className="sticky-project-tags">
-            {project.technologies.map((tag) => (
-              <span key={tag}>{tag}</span>
-            ))}
-          </div>
-          <div className="sticky-project-footer">
-            <span className="sticky-project-action">
-              Open case study
-              <ArrowUpRight size={17} aria-hidden="true" />
-            </span>
-            <span className="sticky-project-proof">
-              {project.evidence.length} evidence points
-            </span>
-          </div>
-        </div>
-        <ProjectEvidence project={project} />
-      </motion.article>
-    </div>
   );
 }
 
@@ -292,12 +333,12 @@ function SkillsMarquee({ reduceMotion }: { reduceMotion: boolean | null }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.7 }}
-      aria-label={`Tools and skills found in project files: ${projectSkills.join(", ")}`}
+      aria-label={`Personal signals: ${personalSignals.join(", ")}`}
     >
       <div className="build-marquee-track" aria-hidden="true">
-        {[...projectSkills, ...projectSkills].map((skill, index) => (
-          <span className="build-skill" key={`${skill}-${index}`}>
-            {skill}
+        {[...personalSignals, ...personalSignals].map((signal, index) => (
+          <span className="build-skill" key={`${signal}-${index}`}>
+            {signal}
           </span>
         ))}
       </div>
@@ -313,9 +354,7 @@ export function BuildMode({
   onClose: () => void;
 }) {
   const closeRef = useRef<HTMLButtonElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const returnFocusRef = useRef<HTMLElement | null>(null);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [activeThought, setActiveThought] = useState<ThoughtBubble | null>(thoughtBubbles[0]);
   const reduceMotion = useReducedMotion();
 
   useEffect(() => {
@@ -333,32 +372,20 @@ export function BuildMode({
     if (!open) return;
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key !== "Escape") return;
-      if (selectedProject) {
-        setSelectedProject(null);
-        requestAnimationFrame(() => returnFocusRef.current?.focus());
-      } else {
-        onClose();
+      if (activeThought) {
+        setActiveThought(null);
+        return;
       }
+      onClose();
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [open, onClose, selectedProject]);
-
-  function openProject(project: Project, trigger: HTMLElement) {
-    returnFocusRef.current = trigger;
-    setSelectedProject(project);
-  }
-
-  function closeProject() {
-    setSelectedProject(null);
-    requestAnimationFrame(() => returnFocusRef.current?.focus());
-  }
+  }, [activeThought, open, onClose]);
 
   return (
     <AnimatePresence>
       {open ? (
         <motion.div
-          ref={scrollRef}
           className="build-mode"
           role="dialog"
           aria-modal="true"
@@ -387,7 +414,7 @@ export function BuildMode({
                 className="build-close"
                 type="button"
                 onClick={onClose}
-                aria-label="Close build mode"
+                aria-label="Close personal layer"
               >
                 Close
                 <X size={17} aria-hidden="true" />
@@ -396,65 +423,52 @@ export function BuildMode({
           </div>
 
           <div className="build-mode-inner">
-            <BuildModeHero reduceMotion={reduceMotion} />
-
-            <section
-              className="sticky-projects"
-              id="selected-builds"
-              aria-labelledby="selected-builds-title"
-            >
-              <div className="build-section-heading selected-builds-heading">
-                <p>Selected builds / {projects.length.toString().padStart(2, "0")}</p>
-                <h3 id="selected-builds-title">Selected builds</h3>
-                <span>
-                  Real projects traced to README files, source code, tests, SQL models and generated outputs in the workspace.
-                </span>
-              </div>
-              <div className="sticky-project-list">
-                {projects.map((project, index) => (
-                  <StickyProjectCard
-                    project={project}
-                    index={index}
-                    total={projects.length}
-                    key={project.id}
-                    reduceMotion={reduceMotion}
-                    scrollContainer={scrollRef}
-                    onOpen={openProject}
-                  />
-                ))}
-              </div>
-            </section>
+            <BuildModeHero
+              activeThought={activeThought}
+              setActiveThought={setActiveThought}
+              reduceMotion={reduceMotion}
+            />
 
             <section
               className="build-capabilities-section"
-              id="build-capabilities"
-              aria-labelledby="capabilities-title"
+              id="personal-universe"
+              aria-labelledby="personal-universe-title"
             >
               <div className="build-section-heading">
-                <p>Capabilities / 04</p>
-                <h3 id="capabilities-title">Systems behind the work.</h3>
+                <p>Behind the work / personal universe</p>
+                <h3 id="personal-universe-title">Signals beneath the surface.</h3>
+                <span>
+                  The bubbles above are the primary experience. This fallback keeps the same thoughts readable on touch screens and slower browsing moments.
+                </span>
               </div>
-              <div className="build-grid">
-                {capabilities.map((capability, index) => (
-                  <CapabilityCard
-                    capability={capability}
-                    index={index}
-                    key={capability.number}
-                    reduceMotion={reduceMotion}
-                  />
-                ))}
-              </div>
+
+              <MobileThoughtList
+                activeThought={activeThought}
+                setActiveThought={setActiveThought}
+              />
             </section>
 
             <SkillsMarquee reduceMotion={reduceMotion} />
-          </div>
 
-          <ProjectDetailModal
-            key={selectedProject?.id ?? "closed"}
-            project={selectedProject}
-            onClose={closeProject}
-            reduceMotion={reduceMotion}
-          />
+            <section className="personal-layer-close" aria-label="Personal layer closing actions">
+              <p>
+                This layer is personal, but it points back to the same professional promise:
+                useful systems, fast learning and clear interfaces.
+              </p>
+              <div>
+                <button type="button" onClick={onClose}>
+                  Back to professional work
+                </button>
+                <a href="#contact" onClick={onClose}>
+                  Contact
+                </a>
+                <a href="https://github.com/AxelCorral" target="_blank" rel="noreferrer">
+                  GitHub
+                  <ArrowUpRight size={15} aria-hidden="true" />
+                </a>
+              </div>
+            </section>
+          </div>
         </motion.div>
       ) : null}
     </AnimatePresence>
