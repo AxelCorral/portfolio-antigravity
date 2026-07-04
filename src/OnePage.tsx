@@ -14,6 +14,10 @@ import {
 } from "lucide-react";
 import { ProjectCarousel } from "@/components/carousel/ProjectCarousel";
 import { footballPipelineSlides } from "@/data/projects/football-pipeline";
+import {
+  retirementAnalysisSlidesEn,
+  retirementAnalysisSlidesFr,
+} from "@/data/projects/retirement-analysis";
 import { motion, useInView, useReducedMotion, useScroll } from "framer-motion";
 import { useCallback, useRef, useState } from "react";
 import { BuildMode } from "@/components/BuildMode";
@@ -146,11 +150,13 @@ function ProjectShowcaseCard({
   index,
   onOpenProject,
   labels,
+  language,
 }: {
   project: Project;
   index: number;
   onOpenProject: (project: Project) => void;
   labels: ReturnType<typeof useLanguage>["t"]["projects"];
+  language: Language;
 }) {
   const primaryLink = project.links?.[0];
   const reportLink = project.links?.find((link) => link.type === "report");
@@ -228,6 +234,13 @@ function ProjectShowcaseCard({
               slides={footballPipelineSlides}
             />
           </div>
+        ) : project.id === "03" ? (
+          <div className="home-project-proof home-project-proof--carousel">
+            <ProjectCarousel
+              projectId={project.id}
+              slides={language === "fr" ? retirementAnalysisSlidesFr : retirementAnalysisSlidesEn}
+            />
+          </div>
         ) : (
           <div className="home-project-proof" aria-hidden="true">
             {project.previewImage ? (
@@ -252,11 +265,13 @@ function SelectedProjectsSection({
   onOpenProject,
   projects,
   labels,
+  language,
 }: {
   onOpenBuildMode: () => void;
   onOpenProject: (project: Project) => void;
   projects: Project[];
   labels: ReturnType<typeof useLanguage>["t"]["projects"];
+  language: Language;
 }) {
   return (
     <section
@@ -279,6 +294,7 @@ function SelectedProjectsSection({
               key={project.id}
               onOpenProject={onOpenProject}
               labels={labels}
+              language={language}
             />
           ))}
         </div>
@@ -416,6 +432,7 @@ function OnePage() {
           onOpenProject={openProject}
           projects={localizedProjects}
           labels={t.projects}
+          language={language}
         />
 
         <section className="about-section" id="about" aria-labelledby="about-title">

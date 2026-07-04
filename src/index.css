@@ -3080,6 +3080,33 @@ a {
   max-width: 44ch;
 }
 
+.pc-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  margin-top: 0.2rem;
+}
+
+.pc-link {
+  font-family: var(--pc-font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  color: var(--pc-amber);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(224, 145, 63, 0.35);
+  padding-bottom: 1px;
+  transition: border-color 160ms ease;
+}
+
+.pc-link:hover {
+  border-color: var(--pc-amber);
+}
+
+.pc-link:focus-visible {
+  outline: 2px solid var(--pc-amber);
+  outline-offset: 2px;
+}
+
 /* Visual diagram area */
 .pc-visual {
   flex: none;

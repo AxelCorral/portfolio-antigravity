@@ -2,7 +2,14 @@ import type { ComponentType } from "react";
 import type { Slide, VisualKind } from "@/data/projects/football-pipeline";
 import { BarsVisual } from "./visuals/BarsVisual";
 import { DemoVisual } from "./visuals/DemoVisual";
+import { DeliverablesVisual } from "./visuals/DeliverablesVisual";
+import { EquationVisual } from "./visuals/EquationVisual";
 import { FlowVisual } from "./visuals/FlowVisual";
+import { LeversVisual } from "./visuals/LeversVisual";
+import { LimitsVisual } from "./visuals/LimitsVisual";
+import { ScenariosVisual } from "./visuals/ScenariosVisual";
+import { ScissorsVisual } from "./visuals/ScissorsVisual";
+import { SourcesVisual } from "./visuals/SourcesVisual";
 import { SqlVisual } from "./visuals/SqlVisual";
 import { SplitVisual } from "./visuals/SplitVisual";
 import { StagesVisual } from "./visuals/StagesVisual";
@@ -16,6 +23,13 @@ export const VISUALS: Record<VisualKind, ComponentType> = {
   split: SplitVisual,
   stages: StagesVisual,
   tree: TreeVisual,
+  levers: LeversVisual,
+  sources: SourcesVisual,
+  equation: EquationVisual,
+  scenarios: ScenariosVisual,
+  scissors: ScissorsVisual,
+  limits: LimitsVisual,
+  deliverables: DeliverablesVisual,
 };
 
 export function CoverSlide({ slide }: { slide: Slide }) {
@@ -59,6 +73,21 @@ export function StepSlide({ slide }: { slide: Slide }) {
           <VisualComponent />
         </div>
       )}
+      {slide.links?.length ? (
+        <div className="pc-links">
+          {slide.links.map((link) => (
+            <a
+              key={link.url}
+              className="pc-link"
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {link.label} ↗
+            </a>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }
