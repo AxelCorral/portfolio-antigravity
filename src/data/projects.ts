@@ -299,6 +299,113 @@ export const projects: Project[] = [
   },
   {
     id: "02",
+    title: "JobTrackr",
+    category: "Full-Stack Engineering",
+    status: "Deployed project",
+    description:
+      "A full-stack \"Career OS\" that centralizes a job search: automatic job aggregation from multiple sources, application tracking and AI-based CV/job compatibility scoring.",
+    longDescription:
+      "JobTrackr aggregates job postings from France Travail, Adzuna and RSS feeds into a single pipeline, stores tracked applications in a PostgreSQL database and uses the Gemini API to score compatibility between a candidate's CV and each offer. It ships as a deployed Next.js product rather than a local script.",
+    technologies: ["Next.js", "TypeScript", "PostgreSQL", "Neon", "Vercel", "Gemini API"],
+    highlights: [
+      "Automatic multi-source job aggregation: France Travail, Adzuna and RSS feeds.",
+      "Application tracking with a Kanban-style workflow.",
+      "AI-based CV/job compatibility scoring via the Gemini API.",
+      "Full-stack Next.js app backed by a PostgreSQL (Neon) database.",
+      "Deployed and running in production on Vercel.",
+    ],
+    results: [
+      {
+        label: "Source aggregation",
+        description:
+          "Three job sources — France Travail, Adzuna and RSS feeds — are aggregated automatically into a single tracked feed.",
+      },
+      {
+        label: "Deployment",
+        description:
+          "The application runs as a deployed full-stack product on Vercel, not a local prototype.",
+      },
+      {
+        label: "AI scoring",
+        description:
+          "Job/CV compatibility is scored using the Gemini API to help prioritize applications.",
+      },
+      {
+        label: "Data layer",
+        description:
+          "Applications and aggregated offers are persisted in a PostgreSQL database hosted on Neon.",
+      },
+    ],
+    links: [
+      {
+        label: "GitHub",
+        url: "https://github.com/AxelCorral/jobtrackr",
+        type: "github",
+      },
+    ],
+    sourcePath: "jobtrackr/",
+    evidence: [
+      "3 job sources aggregated automatically",
+      "Deployed on Vercel",
+      "PostgreSQL (Neon) database",
+      "AI-based compatibility scoring",
+    ],
+    translations: {
+      fr: {
+        title: "JobTrackr",
+        category: "Ingénierie full-stack",
+        status: "Projet déployé",
+        description:
+          "Un « Career OS » full-stack qui centralise une recherche d'emploi : agrégation automatique d'offres depuis plusieurs sources, suivi des candidatures et scoring IA de compatibilité CV/offre.",
+        longDescription:
+          "JobTrackr agrège les offres d'emploi depuis France Travail, Adzuna et des flux RSS dans un pipeline unique, stocke les candidatures suivies dans une base PostgreSQL et utilise l'API Gemini pour scorer la compatibilité entre le CV d'un candidat et chaque offre. L'application est livrée comme un produit Next.js déployé, pas comme un script local.",
+        highlights: [
+          "Agrégation automatique multi-sources : France Travail, Adzuna et flux RSS.",
+          "Suivi des candidatures avec un workflow de type Kanban.",
+          "Scoring de compatibilité CV/offre par IA via l'API Gemini.",
+          "Application Next.js full-stack adossée à une base PostgreSQL (Neon).",
+          "Déployée et fonctionnelle en production sur Vercel.",
+        ],
+        results: [
+          {
+            label: "Agrégation des sources",
+            description:
+              "Trois sources d'offres — France Travail, Adzuna et flux RSS — sont agrégées automatiquement dans un flux unique suivi.",
+          },
+          {
+            label: "Déploiement",
+            description:
+              "L'application tourne comme un produit full-stack déployé sur Vercel, pas comme un prototype local.",
+          },
+          {
+            label: "Scoring IA",
+            description:
+              "La compatibilité CV/offre est scorée via l'API Gemini pour aider à prioriser les candidatures.",
+          },
+          {
+            label: "Couche de données",
+            description:
+              "Les candidatures et les offres agrégées sont persistées dans une base PostgreSQL hébergée sur Neon.",
+          },
+        ],
+        links: [
+          {
+            label: "GitHub",
+            url: "https://github.com/AxelCorral/jobtrackr",
+            type: "github",
+          },
+        ],
+        evidence: [
+          "3 sources d'offres agrégées automatiquement",
+          "Déployé sur Vercel",
+          "Base de données PostgreSQL (Neon)",
+          "Scoring de compatibilité par IA",
+        ],
+      },
+    },
+  },
+  {
+    id: "03",
     title: "Retirement Sustainability Model",
     category: "Open Data Analysis",
     status: "Research project",
@@ -488,63 +595,6 @@ export const projects: Project[] = [
           "Graphique de frontière d’équilibre du projet de soutenabilité des retraites",
       },
     },
-  },
-  {
-    id: "03",
-    title: "Scout IA",
-    category: "Analytics Engineering",
-    status: "Personal project",
-    description:
-      "A football scouting pipeline that loads StatsBomb Open Data into DuckDB, models player metrics with dbt and identifies unusual statistical profiles using position-based percentiles.",
-    longDescription:
-      "Scout IA is structured around a local analytical warehouse and a dbt transformation layer. Raw StatsBomb event data is staged in DuckDB, transformed into player-level marts and scored through position-specific per-90 percentiles before concise reports are assembled from the supplied metrics.",
-    technologies: [
-      "Python",
-      "SQL",
-      "DuckDB",
-      "dbt",
-      "StatsBomb",
-      "pandas",
-      "Streamlit",
-      "pytest",
-      "Anthropic API",
-    ],
-    highlights: [
-      "StatsBomb JSON ingestion into a local DuckDB warehouse.",
-      "Three staging models and four player-level marts in dbt.",
-      "Per-90 statistics and position-specific percentile calculations.",
-      "Minimum 450-minute threshold before player scoring.",
-      "Structured scouting reports generated only from supplied metrics.",
-    ],
-    results: [
-      {
-        label: "Warehouse layer",
-        description:
-          "StatsBomb JSON ingestion is designed to populate a local DuckDB warehouse with matches, lineups and events.",
-      },
-      {
-        label: "dbt lineage",
-        description:
-          "Three staging models feed four documented player-level marts for minutes, totals, per-90 metrics and percentiles.",
-      },
-      {
-        label: "Comparable metrics",
-        description:
-          "Eleven per-90 measures are ranked by player position after a documented 450-minute eligibility threshold.",
-      },
-      {
-        label: "Structured reports",
-        description:
-          "The report generator is constrained to the supplied statistics and produces profile, attention and recommendation sections.",
-      },
-    ],
-    sourcePath: "scout-ia/",
-    evidence: [
-      "7 dbt models",
-      "11 percentile metrics",
-      "450-minute eligibility floor",
-      "Staging → marts lineage",
-    ],
   },
 ];
 

@@ -35,17 +35,6 @@
 
 ---
 
-## scout-ia
-- **role** : rail
-- **statut** : en cours (démarrage)
-- **thesis** : Construire un outil de scouting qui transforme les données d'événements StatsBomb en métriques de joueurs comparables, avec une couche de transformation versionnée et testée.
-- **chiffre_cle** : 3,1 M d'événements StatsBomb modélisés via 40 modèles dbt
-- **placeholder** : true 🔴
-- **stack** : Python · dbt · StatsBomb Open Data · SQL
-- **a_remplacer** : vrai nombre d'événements / matchs traités + nombre réel de modèles dbt
-
----
-
 ## jobtrackr
 - **role** : rail
 - **statut** : déployé

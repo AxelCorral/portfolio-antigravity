@@ -61,33 +61,6 @@ Dashboard déployé et accessible publiquement. [À COMPLÉTER] — source de do
 
 ---
 
-## scout-ia
-
-### Problème
-Les données d'événements brutes (type StatsBomb) ne sont pas directement comparables entre joueurs ou matchs — il faut une couche de transformation fiable pour en tirer des métriques de scouting exploitables.
-
-### Approche
-Une couche de transformation dbt, versionnée et testée, modélise les événements StatsBomb en métriques de joueurs comparables — pensée comme un vrai pipeline de données, pas une suite de notebooks.
-
-### Résultat
-[À COMPLÉTER] — volume réel d'événements/matchs traités et nombre réel de modèles dbt. Les repères affichés ailleurs sur le site (3,1 M d'événements · 40 modèles) sont des valeurs fictives en attendant cette mesure.
-
-### Média
-- [capture : lineage dbt]
-- [capture : métriques de joueurs comparables]
-
-### Points techniques
-- Source de données StatsBomb Open Data
-- Couche de transformation dbt versionnée et testée
-- Modélisation SQL des métriques de joueurs
-- [À COMPLÉTER] — détail de l'architecture de tests dbt
-
-### Liens
-- GitHub: https://github.com/AxelCorral
-- Démo: [À COMPLÉTER]
-
----
-
 ## jobtrackr
 
 ### Problème

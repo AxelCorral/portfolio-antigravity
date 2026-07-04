@@ -22,6 +22,7 @@ export const translations = {
       projects: "Projects",
       skills: "Skills",
       experience: "Experience",
+      cv: "CV",
       contact: "Contact",
     },
     hero: {
@@ -40,6 +41,8 @@ export const translations = {
       personalLayer: "Personal layer",
       scrollPrompt: "Scroll to move from context to craft",
       openPersonalLayer: "Open personal layer",
+      viewCV: "View CV",
+      downloadCV: "Download",
     },
     projects: {
       kicker: "Selected projects / proof first",
@@ -103,6 +106,7 @@ export const translations = {
       projects: "Projets",
       skills: "Compétences",
       experience: "Expérience",
+      cv: "CV",
       contact: "Contact",
     },
     hero: {
@@ -121,6 +125,8 @@ export const translations = {
       personalLayer: "Couche personnelle",
       scrollPrompt: "Faites défiler pour passer du contexte au savoir-faire",
       openPersonalLayer: "Ouvrir la couche personnelle",
+      viewCV: "Voir mon CV",
+      downloadCV: "Télécharger",
     },
     projects: {
       kicker: "Projets sélectionnés / preuve d’abord",

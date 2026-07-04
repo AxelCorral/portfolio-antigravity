@@ -117,6 +117,9 @@ export function CinematicOpening({ onOpenBuildMode }: { onOpenBuildMode: () => v
               <a href="#selected-work">{t.nav.projects}</a>
               <a href="#capabilities">{t.nav.skills}</a>
               <a href="#about">{t.nav.experience}</a>
+              <a href="/cv-axel-corral.pdf" target="_blank" rel="noopener noreferrer">
+                {t.nav.cv}
+              </a>
             </div>
             <a className="city-contact" href="#contact">
               {t.nav.contact}
@@ -218,6 +221,12 @@ export function CinematicOpening({ onOpenBuildMode }: { onOpenBuildMode: () => v
               </Magnet>
               <button className="build-mode-trigger" type="button" onClick={onOpenBuildMode}>{t.hero.personalLayer}</button>
               <div className="flex gap-4 text-xs text-primary/60">
+                <a className="subtle-link" href="/cv-axel-corral.pdf" target="_blank" rel="noopener noreferrer">
+                  {t.hero.viewCV}
+                </a>
+                <a className="subtle-link" href="/cv-axel-corral.pdf" download="cv-axel-corral.pdf">
+                  {t.hero.downloadCV}
+                </a>
                 <a className="subtle-link" href="https://github.com/AxelCorral" target="_blank" rel="noreferrer">
                   GitHub
                 </a>

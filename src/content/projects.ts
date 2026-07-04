@@ -46,19 +46,6 @@ export const projects: Project[] = [
     lien: "football-pipeline-axel.streamlit.app",
   },
   {
-    id: "scout-ia",
-    role: "rail",
-    statut: "en-cours",
-    statutLabel: "En cours",
-    title: "scout-ia",
-    thesis:
-      "Construire un outil de scouting qui transforme les données d'événements StatsBomb en métriques de joueurs comparables, avec une couche de transformation versionnée et testée.",
-    chiffreCle: "3,1 M",
-    chiffreCleLabel: "événements StatsBomb modélisés · 40 modèles dbt",
-    placeholder: true,
-    stack: ["Python", "dbt", "StatsBomb", "SQL"],
-  },
-  {
     id: "jobtrackr",
     role: "rail",
     statut: "deploye",
