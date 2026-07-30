@@ -2,14 +2,7 @@ import type { ComponentType } from "react";
 import type { Slide, VisualKind } from "@/data/projects/football-pipeline";
 import { BarsVisual } from "./visuals/BarsVisual";
 import { DemoVisual } from "./visuals/DemoVisual";
-import { DeliverablesVisual } from "./visuals/DeliverablesVisual";
-import { EquationVisual } from "./visuals/EquationVisual";
 import { FlowVisual } from "./visuals/FlowVisual";
-import { LeversVisual } from "./visuals/LeversVisual";
-import { LimitsVisual } from "./visuals/LimitsVisual";
-import { ScenariosVisual } from "./visuals/ScenariosVisual";
-import { ScissorsVisual } from "./visuals/ScissorsVisual";
-import { SourcesVisual } from "./visuals/SourcesVisual";
 import { SqlVisual } from "./visuals/SqlVisual";
 import { SplitVisual } from "./visuals/SplitVisual";
 import { StagesVisual } from "./visuals/StagesVisual";
@@ -23,13 +16,6 @@ export const VISUALS: Record<VisualKind, ComponentType> = {
   split: SplitVisual,
   stages: StagesVisual,
   tree: TreeVisual,
-  levers: LeversVisual,
-  sources: SourcesVisual,
-  equation: EquationVisual,
-  scenarios: ScenariosVisual,
-  scissors: ScissorsVisual,
-  limits: LimitsVisual,
-  deliverables: DeliverablesVisual,
 };
 
 export function CoverSlide({ slide }: { slide: Slide }) {
@@ -68,22 +54,57 @@ export function StepSlide({ slide }: { slide: Slide }) {
       {slide.label && <span className="pc-label">{slide.label}</span>}
       {slide.headline && <h4 className="pc-headline">{slide.headline}</h4>}
       {slide.body && <p className="pc-body">{slide.body}</p>}
+
+      {slide.list?.length ? (
+        <div className="pc-list">
+          {slide.list.map((item) => (
+            <div className="pc-list-item" key={item.number}>
+              <span className="pc-list-number">{item.number}</span>
+              <div>
+                <strong className="pc-list-title">{item.title}</strong>
+                <span className="pc-list-sub">{item.sub}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : null}
+
+      {slide.stat ? (
+        <div className="pc-stat">
+          <span className="pc-stat-value">{slide.stat.value}</span>
+          <span className="pc-stat-caption">{slide.stat.caption}</span>
+        </div>
+      ) : null}
+
+      {slide.chartImage ? (
+        <div className="pc-chart">
+          <img src={slide.chartImage.src} alt={slide.chartImage.alt} loading="lazy" />
+        </div>
+      ) : null}
+
       {VisualComponent && (
         <div className="pc-visual" aria-hidden="true">
           <VisualComponent />
         </div>
       )}
+
       {slide.links?.length ? (
         <div className="pc-links">
           {slide.links.map((link) => (
             <a
               key={link.url}
-              className="pc-link"
+              className="pc-cta"
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
             >
-              {link.label} ↗
+              <span>
+                <strong className="pc-cta-label">{link.label}</strong>
+                {link.sub && <span className="pc-cta-sub">{link.sub}</span>}
+              </span>
+              <span className="pc-cta-arrow" aria-hidden="true">
+                →
+              </span>
             </a>
           ))}
         </div>

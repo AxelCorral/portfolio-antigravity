@@ -5,18 +5,28 @@ export type VisualKind =
   | "split"
   | "bars"
   | "stages"
-  | "demo"
-  | "levers"
-  | "sources"
-  | "equation"
-  | "scenarios"
-  | "scissors"
-  | "limits"
-  | "deliverables";
+  | "demo";
 
 export interface SlideLink {
   label: string;
   url: string;
+  sub?: string;
+}
+
+export interface SlideListItem {
+  number: string;
+  title: string;
+  sub: string;
+}
+
+export interface SlideStat {
+  value: string;
+  caption: string;
+}
+
+export interface SlideChartImage {
+  src: string;
+  alt: string;
 }
 
 export interface Slide {
@@ -30,6 +40,9 @@ export interface Slide {
   file?: string;
   visual?: VisualKind;
   links?: SlideLink[];
+  list?: SlideListItem[];
+  stat?: SlideStat;
+  chartImage?: SlideChartImage;
 }
 
 export const footballPipelineSlides: readonly Slide[] = [
