@@ -3411,17 +3411,84 @@ a {
   }
 }
 
-/* Mobile: give the proof panel space; hide visuals and center text instead */
+/* Mobile: give the proof panel space; hide visuals and top-align text instead.
+   .pc is absolutely positioned (inset:0), so it never contributes to
+   .home-project-proof--carousel's height — that min-height IS the panel's
+   fixed content budget on these breakpoints. justify-content:flex-start
+   (instead of the desktop center) means any residual overflow clips only
+   trailing content at the bottom; the kicker/headline at the top are never
+   the ones cut. */
 @media (max-width: 1023px) {
   .home-project-proof--carousel {
-    min-height: 320px;
+    min-height: 360px;
   }
   .pc-visual,
   .pc-chart {
     display: none;
   }
+  .pc-cover,
   .pc-step {
-    justify-content: center;
+    justify-content: flex-start;
+    padding-top: 0.4rem;
+  }
+}
+
+/* Small phones: current content doesn't fit the 1023px-tier budget at full
+   desktop type scale, so trim the scale specifically here rather than
+   growing the panel indefinitely. */
+@media (max-width: 639px) {
+  .home-project-proof--carousel {
+    min-height: 470px;
+  }
+  .pc-slide {
+    padding: 0.875rem;
+  }
+  .pc-cover {
+    gap: 0.55rem;
+  }
+  .pc-step {
+    gap: 0.4rem;
+  }
+  .pc-thesis {
+    font-size: 1.125rem;
+    max-width: 30ch;
+  }
+  .pc-sub {
+    font-size: 0.6875rem;
+    line-height: 1.5;
+    max-width: 38ch;
+  }
+  .pc-headline {
+    font-size: 0.8125rem;
+    line-height: 1.3;
+  }
+  .pc-body {
+    font-size: 0.75rem;
+    line-height: 1.5;
+  }
+  .pc-meta-strip {
+    font-size: 0.5625rem;
+    line-height: 1.45;
+  }
+  .pc-stat {
+    gap: 0.6rem;
+  }
+  .pc-stat-value {
+    font-size: 1.375rem;
+  }
+  .pc-stat-caption {
+    font-size: 0.5rem;
+    max-width: 20ch;
+  }
+  .pc-list-item {
+    padding: 0.3rem 0;
+  }
+  .pc-list-title {
+    font-size: 0.8125rem;
+  }
+  .pc-list-sub {
+    font-size: 0.625rem;
+    margin-top: 0.05rem;
   }
 }
 
