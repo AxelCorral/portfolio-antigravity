@@ -13,8 +13,14 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { ProjectCarousel } from "@/components/carousel/ProjectCarousel";
-import { footballPipelineSlides } from "@/data/projects/football-pipeline";
-import { jobtrackrSlides } from "@/data/projects/jobtrackr";
+import {
+  footballPipelineSlidesEn,
+  footballPipelineSlidesFr,
+} from "@/data/projects/football-pipeline";
+import {
+  jobtrackrSlidesEn,
+  jobtrackrSlidesFr,
+} from "@/data/projects/jobtrackr";
 import {
   retirementAnalysisSlidesEn,
   retirementAnalysisSlidesFr,
@@ -232,14 +238,14 @@ function ProjectShowcaseCard({
           <div className="home-project-proof home-project-proof--carousel">
             <ProjectCarousel
               projectId={project.id}
-              slides={footballPipelineSlides}
+              slides={language === "fr" ? footballPipelineSlidesFr : footballPipelineSlidesEn}
             />
           </div>
         ) : project.id === "02" ? (
           <div className="home-project-proof home-project-proof--carousel">
             <ProjectCarousel
               projectId={project.id}
-              slides={jobtrackrSlides}
+              slides={language === "fr" ? jobtrackrSlidesFr : jobtrackrSlidesEn}
             />
           </div>
         ) : project.id === "03" ? (

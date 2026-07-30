@@ -2,7 +2,7 @@ import type { Slide } from "./football-pipeline";
 
 const GITHUB_URL = "https://github.com/AxelCorral/jobtrackr";
 
-export const jobtrackrSlides: readonly Slide[] = [
+export const jobtrackrSlidesEn: readonly Slide[] = [
   {
     kind: "cover",
     label: "Project 02 · Data Pipeline",
@@ -70,6 +70,81 @@ export const jobtrackrSlides: readonly Slide[] = [
     links: [
       {
         label: "View repository",
+        sub: "github.com/AxelCorral/jobtrackr",
+        url: GITHUB_URL,
+      },
+    ],
+  },
+];
+
+export const jobtrackrSlidesFr: readonly Slide[] = [
+  {
+    kind: "cover",
+    label: "Projet 02 · Pipeline de données",
+    thesis: "Le pipeline qui alimente ma propre recherche d'emploi.",
+    thesisAccent: "ma propre",
+    sub: "Agrège les offres d'emploi, les score face à mon CV, et suit chaque candidature.",
+    file: "jobtrackr/",
+  },
+  {
+    kind: "step",
+    label: "Le problème",
+    headline: "Chercher un emploi, c'est des données éparpillées.",
+    body: "Plusieurs job boards, aucun moyen de classer ce qui vaut une candidature. Un pipeline, un flux scoré, un tracker.",
+    metaStrip: "37 routes · 14 modèles · Neon · Vercel",
+  },
+  {
+    kind: "step",
+    visual: "ingest",
+    label: "Ingestion",
+    headline: "Deux APIs officielles, un flux normalisé.",
+    body: "France Travail (OAuth2 client credentials, mapping de 32 villes vers départements, 9 codes de contrat) et Adzuna. Sources en parallèle via Promise.allSettled — une source qui échoue ne tue jamais la synchro. Tout est normalisé vers un schéma unique.",
+  },
+  {
+    kind: "step",
+    label: "Leçons de production",
+    headline: "Un pipeline, c'est aussi des sources qui meurent.",
+    headlineAccent: "meurent",
+    body: "Indeed a bloqué les IP de Vercel. Welcome to the Jungle a supprimé son flux RSS. Les deux ont été retirées proprement — pas de source fantôme, pas de scraping.",
+    stat: {
+      value: "4 → 2",
+      caption: "Sources survivantes",
+    },
+  },
+  {
+    kind: "step",
+    label: "Contrainte serverless",
+    headline: "La synchro en secondes, le scoring à son rythme.",
+    body: "Fetch + scoring IA : 8 à 38 s, au-delà de la limite. Fix : écritures idempotentes, batchs de 5, throttle 500 ms, borné à 50.",
+    stat: {
+      value: "10 s",
+      caption: "A tout façonné",
+    },
+  },
+  {
+    kind: "step",
+    label: "Scoring IA",
+    headline: "Chaque offre scorée face à mon vrai CV.",
+    body: "Gemini score chaque offre face à mon CV. Limite assumée : produit intégralement par le LLM — reproductibilité non garantie.",
+    stat: {
+      value: "0–100 × 2",
+      caption: "Par offre",
+    },
+  },
+  {
+    kind: "step",
+    label: "Audit sécurité",
+    headline: "Audité comme s'il était ouvert au public.",
+    body: "Zéro IDOR par construction — chaque route vérifie la propriété. Puis un audit complet : SSRF corrigée (résolution DNS, blocage IP privées), allowlists en écriture, limites bornées, headers de sécurité, bcrypt cost 12.",
+  },
+  {
+    kind: "step",
+    label: "Déployé · et inachevé",
+    headline: "Déployé. Utilisé chaque jour. Pas terminé.",
+    body: "En ligne sur Vercel + Neon, au service de ma recherche au quotidien. Ce qui manque : rate limiting, tests du pipeline — la prochaine itération.",
+    links: [
+      {
+        label: "Voir le repository",
         sub: "github.com/AxelCorral/jobtrackr",
         url: GITHUB_URL,
       },
