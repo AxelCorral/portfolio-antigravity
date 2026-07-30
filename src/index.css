@@ -3072,12 +3072,28 @@ a {
   color: var(--pc-ink);
 }
 
+.pc-headline-accent {
+  color: var(--pc-amber);
+}
+
 .pc-body {
   margin: 0;
   font-size: 0.8125rem;
   line-height: 1.62;
   color: var(--pc-ink-muted);
   max-width: 44ch;
+}
+
+/* Discreet meta strip — thin banner of technical facts under a body paragraph */
+.pc-meta-strip {
+  margin: 0.15rem 0 0;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--pc-border);
+  font-family: var(--pc-font-mono);
+  font-size: 0.625rem;
+  line-height: 1.6;
+  letter-spacing: 0.03em;
+  color: var(--pc-ink-muted);
 }
 
 .pc-links {

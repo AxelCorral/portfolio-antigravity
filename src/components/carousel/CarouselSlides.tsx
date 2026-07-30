@@ -3,6 +3,7 @@ import type { Slide, VisualKind } from "@/data/projects/football-pipeline";
 import { BarsVisual } from "./visuals/BarsVisual";
 import { DemoVisual } from "./visuals/DemoVisual";
 import { FlowVisual } from "./visuals/FlowVisual";
+import { IngestVisual } from "./visuals/IngestVisual";
 import { SqlVisual } from "./visuals/SqlVisual";
 import { SplitVisual } from "./visuals/SplitVisual";
 import { StagesVisual } from "./visuals/StagesVisual";
@@ -12,35 +13,40 @@ export const VISUALS: Record<VisualKind, ComponentType> = {
   bars: BarsVisual,
   demo: DemoVisual,
   flow: FlowVisual,
+  ingest: IngestVisual,
   sql: SqlVisual,
   split: SplitVisual,
   stages: StagesVisual,
   tree: TreeVisual,
 };
 
-export function CoverSlide({ slide }: { slide: Slide }) {
-  const renderThesis = () => {
-    if (!slide.thesis) return null;
-    const accent = slide.thesisAccent;
-    if (accent) {
-      const idx = slide.thesis.lastIndexOf(accent);
-      if (idx !== -1) {
-        return (
-          <p className="pc-thesis">
-            {slide.thesis.slice(0, idx)}
-            <span className="pc-thesis-accent">{accent}</span>
-          </p>
-        );
-      }
+/** Splits `text` around `accent` (last occurrence) into three parts, wrapping the accent in `className`. */
+function renderAccentedText(text: string, accent: string | undefined, className: string) {
+  if (accent) {
+    const idx = text.lastIndexOf(accent);
+    if (idx !== -1) {
+      return (
+        <>
+          {text.slice(0, idx)}
+          <span className={className}>{accent}</span>
+          {text.slice(idx + accent.length)}
+        </>
+      );
     }
-    return <p className="pc-thesis">{slide.thesis}</p>;
-  };
+  }
+  return text;
+}
 
+export function CoverSlide({ slide }: { slide: Slide }) {
   return (
     <div className="pc-cover">
       {slide.label && <span className="pc-label">{slide.label}</span>}
       <div className="pc-cover-rule" aria-hidden="true" />
-      {renderThesis()}
+      {slide.thesis && (
+        <p className="pc-thesis">
+          {renderAccentedText(slide.thesis, slide.thesisAccent, "pc-thesis-accent")}
+        </p>
+      )}
       {slide.sub && <p className="pc-sub">{slide.sub}</p>}
       {slide.file && <code className="pc-file">{slide.file}</code>}
     </div>
@@ -52,8 +58,13 @@ export function StepSlide({ slide }: { slide: Slide }) {
   return (
     <div className="pc-step">
       {slide.label && <span className="pc-label">{slide.label}</span>}
-      {slide.headline && <h4 className="pc-headline">{slide.headline}</h4>}
+      {slide.headline && (
+        <h4 className="pc-headline">
+          {renderAccentedText(slide.headline, slide.headlineAccent, "pc-headline-accent")}
+        </h4>
+      )}
       {slide.body && <p className="pc-body">{slide.body}</p>}
+      {slide.metaStrip && <p className="pc-meta-strip">{slide.metaStrip}</p>}
 
       {slide.list?.length ? (
         <div className="pc-list">

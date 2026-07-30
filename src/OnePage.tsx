@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { ProjectCarousel } from "@/components/carousel/ProjectCarousel";
 import { footballPipelineSlides } from "@/data/projects/football-pipeline";
+import { jobtrackrSlides } from "@/data/projects/jobtrackr";
 import {
   retirementAnalysisSlidesEn,
   retirementAnalysisSlidesFr,
@@ -232,6 +233,13 @@ function ProjectShowcaseCard({
             <ProjectCarousel
               projectId={project.id}
               slides={footballPipelineSlides}
+            />
+          </div>
+        ) : project.id === "02" ? (
+          <div className="home-project-proof home-project-proof--carousel">
+            <ProjectCarousel
+              projectId={project.id}
+              slides={jobtrackrSlides}
             />
           </div>
         ) : project.id === "03" ? (

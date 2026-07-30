@@ -5,7 +5,8 @@ export type VisualKind =
   | "split"
   | "bars"
   | "stages"
-  | "demo";
+  | "demo"
+  | "ingest";
 
 export interface SlideLink {
   label: string;
@@ -33,6 +34,7 @@ export interface Slide {
   kind: "cover" | "step";
   label?: string;
   headline?: string;
+  headlineAccent?: string;
   body?: string;
   thesis?: string;
   thesisAccent?: string;
@@ -43,6 +45,7 @@ export interface Slide {
   list?: SlideListItem[];
   stat?: SlideStat;
   chartImage?: SlideChartImage;
+  metaStrip?: string;
 }
 
 export const footballPipelineSlides: readonly Slide[] = [

@@ -53,8 +53,8 @@ export const projects: Project[] = [
     title: "JobTrackr",
     thesis:
       "Un « Career OS » qui centralise toute une recherche d'emploi — du suivi des candidatures à l'agrégation automatique d'offres et au scoring IA de compatibilité.",
-    chiffreCle: "3",
-    chiffreCleLabel: "sources d'offres agrégées automatiquement · France Travail · Adzuna · RSS",
+    chiffreCle: "2",
+    chiffreCleLabel: "sources d'offres agrégées automatiquement · France Travail · Adzuna",
     placeholder: false,
     chiffreSecondaire: "180+",
     chiffreSecondaireLabel: "candidatures suivies",

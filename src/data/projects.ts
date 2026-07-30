@@ -305,10 +305,10 @@ export const projects: Project[] = [
     description:
       "A full-stack \"Career OS\" that centralizes a job search: automatic job aggregation from multiple sources, application tracking and AI-based CV/job compatibility scoring.",
     longDescription:
-      "JobTrackr aggregates job postings from France Travail, Adzuna and RSS feeds into a single pipeline, stores tracked applications in a PostgreSQL database and uses the Gemini API to score compatibility between a candidate's CV and each offer. It ships as a deployed Next.js product rather than a local script.",
+      "JobTrackr aggregates job postings from two official APIs — France Travail and Adzuna — into a single pipeline, stores tracked applications in a PostgreSQL database and uses the Gemini API to score compatibility between a candidate's CV and each offer. It ships as a deployed Next.js product rather than a local script.",
     technologies: ["Next.js", "TypeScript", "PostgreSQL", "Neon", "Vercel", "Gemini API"],
     highlights: [
-      "Automatic multi-source job aggregation: France Travail, Adzuna and RSS feeds.",
+      "Automatic job aggregation from two official APIs: France Travail (OAuth2) and Adzuna.",
       "Application tracking with a Kanban-style workflow.",
       "AI-based CV/job compatibility scoring via the Gemini API.",
       "Full-stack Next.js app backed by a PostgreSQL (Neon) database.",
@@ -318,7 +318,7 @@ export const projects: Project[] = [
       {
         label: "Source aggregation",
         description:
-          "Three job sources — France Travail, Adzuna and RSS feeds — are aggregated automatically into a single tracked feed.",
+          "Two official APIs — France Travail (OAuth2) and Adzuna — are aggregated automatically into a single tracked feed.",
       },
       {
         label: "Deployment",
@@ -345,7 +345,7 @@ export const projects: Project[] = [
     ],
     sourcePath: "jobtrackr/",
     evidence: [
-      "3 job sources aggregated automatically",
+      "2 official APIs aggregated automatically",
       "Deployed on Vercel",
       "PostgreSQL (Neon) database",
       "AI-based compatibility scoring",
@@ -358,9 +358,9 @@ export const projects: Project[] = [
         description:
           "Un « Career OS » full-stack qui centralise une recherche d'emploi : agrégation automatique d'offres depuis plusieurs sources, suivi des candidatures et scoring IA de compatibilité CV/offre.",
         longDescription:
-          "JobTrackr agrège les offres d'emploi depuis France Travail, Adzuna et des flux RSS dans un pipeline unique, stocke les candidatures suivies dans une base PostgreSQL et utilise l'API Gemini pour scorer la compatibilité entre le CV d'un candidat et chaque offre. L'application est livrée comme un produit Next.js déployé, pas comme un script local.",
+          "JobTrackr agrège les offres d'emploi depuis deux API officielles — France Travail et Adzuna — dans un pipeline unique, stocke les candidatures suivies dans une base PostgreSQL et utilise l'API Gemini pour scorer la compatibilité entre le CV d'un candidat et chaque offre. L'application est livrée comme un produit Next.js déployé, pas comme un script local.",
         highlights: [
-          "Agrégation automatique multi-sources : France Travail, Adzuna et flux RSS.",
+          "Agrégation automatique depuis deux API officielles : France Travail (OAuth2) et Adzuna.",
           "Suivi des candidatures avec un workflow de type Kanban.",
           "Scoring de compatibilité CV/offre par IA via l'API Gemini.",
           "Application Next.js full-stack adossée à une base PostgreSQL (Neon).",
@@ -370,7 +370,7 @@ export const projects: Project[] = [
           {
             label: "Agrégation des sources",
             description:
-              "Trois sources d'offres — France Travail, Adzuna et flux RSS — sont agrégées automatiquement dans un flux unique suivi.",
+              "Deux API officielles — France Travail (OAuth2) et Adzuna — sont agrégées automatiquement dans un flux unique suivi.",
           },
           {
             label: "Déploiement",
@@ -396,7 +396,7 @@ export const projects: Project[] = [
           },
         ],
         evidence: [
-          "3 sources d'offres agrégées automatiquement",
+          "2 API officielles agrégées automatiquement",
           "Déployé sur Vercel",
           "Base de données PostgreSQL (Neon)",
           "Scoring de compatibilité par IA",
