@@ -12,6 +12,11 @@ import {
 import { Magnet } from "@/components/Magnet";
 import avatarHead from "../../profil_3D.png";
 
+// 5 hotspots (reduced from an earlier 7 — see redesign notes): positions
+// are % coordinates within .thought-map, which now spans the full portrait
+// stage. Each sits in genuine negative space around the avatar (top
+// corners, left gap by the jaw, lower corners on the jacket) rather than
+// scattered across the hair.
 const thoughtBubbles = [
   {
     id: "builder",
@@ -25,7 +30,20 @@ const thoughtBubbles = [
       "Personal automations and AI-assisted workflows follow the same reflex.",
       "When I need a tool, I try to build it.",
     ],
-    position: { x: 28, y: 18 },
+    position: { x: 9, y: 7 },
+  },
+  {
+    id: "ai",
+    label: "AI playground",
+    eyebrow: "AI experiments",
+    title: "AI is a creative and technical accelerator.",
+    body:
+      "I use AI as a practical accelerator: prompts, visual concepts, video experiments, automation loops, Codex-style building and iterative product improvement.",
+    points: [
+      "The point is not hype; it is faster learning and sharper iteration.",
+      "AI helps me prototype, critique, polish and ship with tighter loops.",
+    ],
+    position: { x: 89, y: 9 },
   },
   {
     id: "football",
@@ -42,33 +60,7 @@ const thoughtBubbles = [
       label: "See football-pipeline",
       href: "https://github.com/AxelCorral/football-pipeline",
     },
-    position: { x: 12, y: 34 },
-  },
-  {
-    id: "ai",
-    label: "AI playground",
-    eyebrow: "AI experiments",
-    title: "AI is a creative and technical accelerator.",
-    body:
-      "I use AI as a practical accelerator: prompts, visual concepts, video experiments, automation loops, Codex-style building and iterative product improvement.",
-    points: [
-      "The point is not hype; it is faster learning and sharper iteration.",
-      "AI helps me prototype, critique, polish and ship with tighter loops.",
-    ],
-    position: { x: 58, y: 12 },
-  },
-  {
-    id: "systems",
-    label: "Systems curiosity",
-    eyebrow: "Systems curiosity",
-    title: "I am drawn to systems that shape decisions.",
-    body:
-      "I am interested in systems that shape real decisions: markets, incentives, public decisions, organizations, sport and data-driven tools.",
-    points: [
-      "I like connecting data with real-world constraints.",
-      "The angle stays analytical, neutral and non-partisan.",
-    ],
-    position: { x: 78, y: 28 },
+    position: { x: 4, y: 46 },
   },
   {
     id: "visual",
@@ -81,33 +73,20 @@ const thoughtBubbles = [
       "Dark graphite, cream highlights and cinematic motion are part of the portfolio language.",
       "Good visual hierarchy makes complex systems easier to trust.",
     ],
-    position: { x: 82, y: 52 },
+    position: { x: 16, y: 88 },
   },
   {
-    id: "learning",
-    label: "Learning by building",
-    eyebrow: "Self-learning",
-    title: "Make the idea real, then improve it.",
+    id: "systems",
+    label: "Systems curiosity",
+    eyebrow: "Systems curiosity",
+    title: "I am drawn to systems that shape decisions.",
     body:
-      "I learn by building, testing, breaking, correcting and shipping. The method is simple: make the idea real, then improve it.",
+      "I am interested in systems that shape real decisions: markets, incentives, public decisions, organizations, sport and data-driven tools.",
     points: [
-      "Curiosity becomes useful when it turns into something testable.",
-      "Iteration is where the idea gets sharper.",
+      "I like connecting data with real-world constraints.",
+      "The angle stays analytical, neutral and non-partisan.",
     ],
-    position: { x: 20, y: 64 },
-  },
-  {
-    id: "digital",
-    label: "First link to tech",
-    eyebrow: "Digital doorway",
-    title: "Digital worlds were an early doorway.",
-    body:
-      "Before data projects, there was curiosity for digital worlds. Not an identity, more like an early doorway into systems, interfaces and logic.",
-    points: [
-      "Interfaces, rules and feedback loops made technology feel tangible.",
-      "That curiosity now shows up in tools, dashboards and visual systems.",
-    ],
-    position: { x: 42, y: 6 },
+    position: { x: 87, y: 84 },
   },
 ];
 
@@ -133,66 +112,76 @@ function ThoughtMap({
   setActiveThought: (thought: ThoughtBubble | null) => void;
   reduceMotion: boolean | null;
 }) {
-  return (
-    <div className="thought-map" aria-label="Personal thoughts around Axel">
-      <div className="thought-map-lines" aria-hidden="true" />
-      {thoughtBubbles.map((thought, index) => (
-        <motion.button
-          className="thought-bubble"
-          type="button"
-          key={thought.id}
-          style={{
-            left: `${thought.position.x}%`,
-            top: `${thought.position.y}%`,
-          }}
-          aria-expanded={activeThought?.id === thought.id}
-          aria-label={`Open thought: ${thought.label}`}
-          onClick={() => setActiveThought(activeThought?.id === thought.id ? null : thought)}
-          initial={reduceMotion ? false : { opacity: 0, scale: 0.72 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.45 + index * 0.07, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <span />
-          <strong>{thought.label}</strong>
-        </motion.button>
-      ))}
+  const mapRef = useRef<HTMLDivElement>(null);
 
-      <AnimatePresence>
-        {activeThought ? (
-          <motion.aside
-            className="thought-panel"
-            key={activeThought.id}
-            initial={reduceMotion ? false : { opacity: 0, y: 12, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={reduceMotion ? undefined : { opacity: 0, y: 8, scale: 0.98 }}
-            transition={{ duration: 0.24 }}
-            aria-live="polite"
+  // Touch/click-opened cards close on a tap outside any hotspot — mouse
+  // hover and keyboard focus are handled separately, in CSS.
+  useEffect(() => {
+    if (!activeThought) return;
+    function handlePointerDown(event: PointerEvent) {
+      if (mapRef.current && !mapRef.current.contains(event.target as Node)) {
+        setActiveThought(null);
+      }
+    }
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [activeThought, setActiveThought]);
+
+  return (
+    <div className="thought-map" aria-label="Personal thoughts around Axel" ref={mapRef}>
+      <div className="thought-map-lines" aria-hidden="true" />
+      {thoughtBubbles.map((thought, index) => {
+        const isOpen = activeThought?.id === thought.id;
+        // Cards always open toward the center of the scene so they never
+        // spill past the stage edge, regardless of which corner the dot sits in.
+        const openRight = thought.position.x < 50;
+        const openDown = thought.position.y < 40;
+
+        return (
+          <div
+            className="thought-node"
+            key={thought.id}
+            style={{ left: `${thought.position.x}%`, top: `${thought.position.y}%` }}
           >
-            <button
-              className="thought-panel-close"
+            <motion.button
+              className="thought-bubble"
               type="button"
-              onClick={() => setActiveThought(null)}
-              aria-label={`Close ${activeThought.label}`}
+              aria-expanded={isOpen}
+              aria-label={`${thought.label} — ${thought.title}`}
+              onClick={() => setActiveThought(isOpen ? null : thought)}
+              initial={reduceMotion ? false : { opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.45 + index * 0.07, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             >
-              <X size={15} aria-hidden="true" />
-            </button>
-            <p>{activeThought.eyebrow}</p>
-            <h3>{activeThought.title}</h3>
-            <span>{activeThought.body}</span>
-            <ul>
-              {activeThought.points.map((point) => (
-                <li key={point}>{point}</li>
-              ))}
-            </ul>
-            {activeThought.link ? (
-              <a href={activeThought.link.href} target="_blank" rel="noreferrer">
-                {activeThought.link.label}
-                <ArrowUpRight size={15} aria-hidden="true" />
-              </a>
-            ) : null}
-          </motion.aside>
-        ) : null}
-      </AnimatePresence>
+              <span className="thought-dot" aria-hidden="true" />
+            </motion.button>
+
+            <div
+              className="thought-card"
+              data-open={isOpen ? "true" : undefined}
+              style={{
+                ...(openRight ? { left: "26px" } : { right: "26px" }),
+                ...(openDown ? { top: "-10px" } : { bottom: "-10px" }),
+              }}
+            >
+              <p className="thought-card-kicker">{thought.eyebrow}</p>
+              <h3>{thought.title}</h3>
+              <p className="thought-card-body">{thought.body}</p>
+              <ul>
+                {thought.points.map((point) => (
+                  <li key={point}>{point}</li>
+                ))}
+              </ul>
+              {thought.link ? (
+                <a href={thought.link.href} target="_blank" rel="noreferrer">
+                  {thought.link.label}
+                  <ArrowUpRight size={13} aria-hidden="true" />
+                </a>
+              ) : null}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -354,7 +343,7 @@ export function BuildMode({
   onClose: () => void;
 }) {
   const closeRef = useRef<HTMLButtonElement>(null);
-  const [activeThought, setActiveThought] = useState<ThoughtBubble | null>(thoughtBubbles[0]);
+  const [activeThought, setActiveThought] = useState<ThoughtBubble | null>(null);
   const reduceMotion = useReducedMotion();
 
   useEffect(() => {
