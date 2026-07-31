@@ -342,6 +342,11 @@ export const projects: Project[] = [
         url: "https://jobtrackr-lake.vercel.app/",
         type: "demo",
       },
+      {
+        label: "GitHub",
+        url: "https://github.com/AxelCorral/jobtrackr",
+        type: "github",
+      },
     ],
     sourcePath: "jobtrackr/",
     evidence: [
@@ -393,6 +398,11 @@ export const projects: Project[] = [
             label: "Démo en ligne",
             url: "https://jobtrackr-lake.vercel.app/",
             type: "demo",
+          },
+          {
+            label: "GitHub",
+            url: "https://github.com/AxelCorral/jobtrackr",
+            type: "github",
           },
         ],
         evidence: [

@@ -1,6 +1,7 @@
 import type { Slide } from "./football-pipeline";
 
 const DEMO_URL = "https://jobtrackr-lake.vercel.app/";
+const GITHUB_URL = "https://github.com/AxelCorral/jobtrackr";
 
 export const jobtrackrSlidesEn: readonly Slide[] = [
   {
@@ -72,6 +73,11 @@ export const jobtrackrSlidesEn: readonly Slide[] = [
         label: "View live demo",
         sub: "jobtrackr-lake.vercel.app",
         url: DEMO_URL,
+      },
+      {
+        label: "View repository",
+        sub: "github.com/AxelCorral/jobtrackr",
+        url: GITHUB_URL,
       },
     ],
   },
@@ -147,6 +153,11 @@ export const jobtrackrSlidesFr: readonly Slide[] = [
         label: "Voir la démo en ligne",
         sub: "jobtrackr-lake.vercel.app",
         url: DEMO_URL,
+      },
+      {
+        label: "Voir le dépôt",
+        sub: "github.com/AxelCorral/jobtrackr",
+        url: GITHUB_URL,
       },
     ],
   },
