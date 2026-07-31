@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Work-session artifacts (debug captures, tool leftovers)
+.playwright-cli/
+/*.png
+/*.pdf
+/cv-axel-corral.html
