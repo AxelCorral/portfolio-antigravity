@@ -3721,3 +3721,473 @@ a {
     aspect-ratio: 1 / 1;
   }
 }
+
+/* ==========================================================================
+   CV page (/cv) — same DA as the rest of the site: graphite background,
+   cream ink, amber accent, uppercase tracked kickers, Instrument Serif
+   italic for the rare accent line.
+   ========================================================================== */
+
+.cv-page {
+  min-height: 100dvh;
+  background: #000;
+  padding: 6rem 1rem 5rem;
+  color: #e1e0cc;
+}
+
+.cv-shell {
+  max-width: 52rem;
+  margin: 0 auto;
+}
+
+.cv-topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+
+.cv-back {
+  display: inline-grid;
+  min-height: 44px;
+  align-items: center;
+  color: rgba(225, 224, 204, 0.6);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: color 200ms ease;
+}
+
+.cv-back:hover {
+  color: #e1e0cc;
+}
+
+.cv-download {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid rgba(225, 224, 204, 0.18);
+  border-radius: 999px;
+  background: rgba(225, 224, 204, 0.08);
+  padding: 0.55rem 1.1rem;
+  color: #e1e0cc;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition:
+    background 200ms ease,
+    border-color 200ms ease;
+}
+
+.cv-download:hover {
+  border-color: rgba(225, 224, 204, 0.32);
+  background: rgba(225, 224, 204, 0.14);
+}
+
+.cv-header {
+  margin-bottom: 2.5rem;
+  border-bottom: 1px solid rgba(225, 224, 204, 0.12);
+  padding-bottom: 2.5rem;
+}
+
+.cv-kicker {
+  margin: 0 0 0.75rem;
+  color: rgba(225, 224, 204, 0.52);
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.cv-name {
+  margin: 0;
+  color: #e1e0cc;
+  font-size: clamp(2.4rem, 7vw, 4rem);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.cv-title {
+  margin: 0.75rem 0 0;
+  color: #dedbc8;
+  font-size: clamp(1.05rem, 2.4vw, 1.35rem);
+  font-weight: 400;
+}
+
+.cv-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  margin-top: 1rem;
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+.cv-availability {
+  color: #e0913f;
+}
+
+.cv-contacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+
+.cv-contacts a {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  gap: 0.4rem;
+  color: #dedbc8;
+  font-size: 0.8125rem;
+  text-decoration: none;
+  transition: color 200ms ease;
+}
+
+.cv-contacts a:hover {
+  color: #e1e0cc;
+}
+
+.cv-hook {
+  max-width: 56ch;
+  margin: 0 0 3.5rem;
+  color: #9ca3af;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+.cv-section {
+  margin-bottom: 3.5rem;
+}
+
+.cv-section-kicker {
+  margin: 0 0 1.5rem;
+  color: rgba(225, 224, 204, 0.52);
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.cv-timeline {
+  display: grid;
+  gap: 2.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cv-timeline > li {
+  position: relative;
+  border-left: 1px solid rgba(225, 224, 204, 0.16);
+  padding-left: 1.5rem;
+}
+
+.cv-timeline > li::before {
+  position: absolute;
+  left: -4px;
+  top: 0.35rem;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #e0913f;
+  content: "";
+}
+
+.cv-timeline-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+
+.cv-timeline-head h3 {
+  margin: 0;
+  color: #e1e0cc;
+  font-size: 1.15rem;
+  font-weight: 500;
+}
+
+.cv-timeline-dates {
+  flex: none;
+  color: rgba(225, 224, 204, 0.5);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.cv-timeline-role {
+  margin: 0.35rem 0 0;
+  color: #dedbc8;
+  font-size: 0.9375rem;
+}
+
+.cv-timeline-note {
+  margin: 0.5rem 0 0;
+  color: #e0913f;
+  font-family: "Instrument Serif", serif;
+  font-size: 0.9375rem;
+  font-style: italic;
+}
+
+.cv-timeline-bullets {
+  display: grid;
+  gap: 0.55rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cv-timeline-bullets li {
+  color: #9ca3af;
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+.cv-projects-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.cv-project-card {
+  display: block;
+  border: 1px solid rgba(225, 224, 204, 0.08);
+  border-radius: 1rem;
+  background: #101010;
+  padding: 1.25rem 1.5rem;
+  text-decoration: none;
+  transition:
+    border-color 200ms ease,
+    background 200ms ease;
+}
+
+.cv-project-card:hover {
+  border-color: rgba(225, 224, 204, 0.2);
+  background: #151515;
+}
+
+.cv-project-title {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: #e1e0cc;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.cv-project-card p {
+  margin: 0 0 0.75rem;
+  color: #9ca3af;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.cv-project-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #e0913f;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.cv-two-col {
+  display: grid;
+  gap: 3rem;
+  margin-bottom: 3.5rem;
+}
+
+.cv-education,
+.cv-languages {
+  display: grid;
+  gap: 1.1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cv-education li {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.cv-education strong {
+  color: #e1e0cc;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.cv-education span {
+  color: #9ca3af;
+  font-size: 0.8125rem;
+}
+
+.cv-highlight {
+  color: #e0913f;
+  font-family: "Instrument Serif", serif;
+  font-style: italic;
+}
+
+.cv-education-dates {
+  color: rgba(225, 224, 204, 0.45);
+  font-size: 0.75rem;
+}
+
+.cv-languages li {
+  color: #9ca3af;
+  font-size: 0.9375rem;
+}
+
+.cv-skills-groups {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.cv-skill-group h3 {
+  margin: 0 0 0.85rem;
+  color: #e1e0cc;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.cv-skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.cv-skill-tags span {
+  border: 1px solid rgba(225, 224, 204, 0.14);
+  border-radius: 999px;
+  padding: 0.4rem 0.85rem;
+  color: rgba(225, 224, 204, 0.82);
+  font-size: 0.78125rem;
+}
+
+.cv-skill-group--1 .cv-skill-tags span {
+  border-color: rgba(224, 145, 63, 0.32);
+  background: rgba(224, 145, 63, 0.08);
+  color: #e1e0cc;
+}
+
+.cv-skill-group--2 .cv-skill-tags span,
+.cv-skill-group--3 .cv-skill-tags span {
+  background: rgba(225, 224, 204, 0.04);
+}
+
+.cv-print-note {
+  margin-top: 3rem;
+  color: rgba(225, 224, 204, 0.35);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .cv-page {
+    padding: 7rem 1.5rem 6rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .cv-two-col {
+    grid-template-columns: 1.3fr 1fr;
+  }
+
+  .cv-projects-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .cv-skills-groups {
+    grid-template-columns: 1.4fr 1fr 1fr;
+    align-items: start;
+  }
+}
+
+/* Print — a recruiter can Ctrl/Cmd+P this page and get a clean, readable
+   copy: light background, no animation, no navigation chrome. */
+@media print {
+  .language-toggle,
+  .cv-topbar,
+  .cv-print-note {
+    display: none !important;
+  }
+
+  .cv-page {
+    min-height: 0;
+    background: #fff;
+    padding: 0;
+    color: #111;
+  }
+
+  .cv-shell {
+    max-width: none;
+  }
+
+  .cv-name,
+  .cv-timeline-head h3,
+  .cv-project-title,
+  .cv-skill-group h3,
+  .cv-education strong {
+    color: #000;
+  }
+
+  .cv-title {
+    color: #222;
+  }
+
+  .cv-hook,
+  .cv-timeline-role,
+  .cv-timeline-bullets li,
+  .cv-project-card p,
+  .cv-education span,
+  .cv-languages li,
+  .cv-contacts a {
+    color: #333;
+  }
+
+  .cv-section-kicker,
+  .cv-kicker,
+  .cv-timeline-dates,
+  .cv-education-dates {
+    color: #555;
+  }
+
+  .cv-availability,
+  .cv-highlight,
+  .cv-timeline-note,
+  .cv-project-link {
+    color: #a15a1f;
+  }
+
+  .cv-project-card {
+    border-color: #ddd;
+    background: #fff;
+    break-inside: avoid;
+  }
+
+  .cv-timeline > li {
+    border-left-color: #ccc;
+    break-inside: avoid;
+  }
+
+  .cv-skill-group--1 .cv-skill-tags span,
+  .cv-skill-group--2 .cv-skill-tags span,
+  .cv-skill-group--3 .cv-skill-tags span {
+    border-color: #ccc;
+    background: #fff;
+    color: #222;
+  }
+
+  * {
+    animation: none !important;
+    transition: none !important;
+    box-shadow: none !important;
+  }
+}

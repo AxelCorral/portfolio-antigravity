@@ -26,7 +26,7 @@ import {
   retirementAnalysisSlidesFr,
 } from "@/data/projects/retirement-analysis";
 import { motion, useInView, useReducedMotion, useScroll } from "framer-motion";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { BuildMode } from "@/components/BuildMode";
 import { ProjectDetailModal } from "@/components/build-mode/ProjectDetailModal";
 import { CinematicOpening } from "@/components/CinematicOpening";
@@ -170,6 +170,7 @@ function ProjectShowcaseCard({
 
   return (
     <div
+      id={`project-${project.id}`}
       className="home-project-step"
       style={{ top: `calc(5.5rem + ${index * 28}px)`, zIndex: index + 1 }}
     >
@@ -431,6 +432,18 @@ function OnePage() {
     target: paragraphRef,
     offset: ["start 0.8", "end 0.2"],
   });
+
+  // Cross-route deep links (e.g. from /cv) land with a URL hash before this
+  // page's content has painted, so the browser's native scroll-to-fragment
+  // finds nothing — retry once React has rendered.
+  useEffect(() => {
+    if (!window.location.hash) return;
+    const id = window.location.hash.slice(1);
+    const frame = requestAnimationFrame(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   return (
     <div className="portfolio-page">

@@ -197,6 +197,141 @@ export const translations = {
         },
       ],
     },
+    resume: {
+      pageTitle: "CV",
+      metaDescription:
+        "Axel Corral — Analytics Engineer / Junior Data Engineer. Experience, skills and education.",
+      backToSite: "← Back to site",
+      hook: "I started in BI and analytics — dashboards, DAX, KPIs. Then I kept pulling the thread: automating data flows, building ingestion pipelines, modeling data properly. Now I build the layer between raw data and decisions.",
+      identity: {
+        title: "Analytics Engineer / Junior Data Engineer",
+        location: "South-West France · open to full-remote & Luxembourg",
+        availability: "Available from September 2026 (apprenticeship ends August 28, 2026)",
+        email: "Axel.Corral.Pro@gmail.com",
+        github: "github.com/AxelCorral",
+      },
+      sectionLabels: {
+        experience: "Experience",
+        projects: "Portfolio projects",
+        education: "Education",
+        languages: "Languages",
+        skills: "Skills",
+      },
+      downloadPdf: "Download the PDF",
+      printNote: "Print-friendly · Ctrl/Cmd+P for a clean copy",
+      viewCaseStudy: "View case study",
+      experience: [
+        {
+          org: "DRT (DSM-Firmenich group)",
+          role: "Data Analyst Apprenticeship — Data Management Ingredient (DMI)",
+          dates: "Sept. 2024 – Aug. 2026",
+          roleNote: "Role evolved from BI toward data-flow automation and data-product delivery for business teams.",
+          bullets: [
+            "Designed and shipped an end-to-end business workflow for engineering change requests (ECR): 5 structured SharePoint lists, ~4 Power Automate flows from submission to final decision, automated Excel output via Office Script (TypeScript).",
+            "Built automated notification flows (Power Automate, adaptive cards, daily scheduled trigger) for team task tracking.",
+            "Extracted and transformed data with Python and Power Query (Table.NestedJoin, UnpivotOtherColumns) to feed downstream dashboards.",
+            "Designed and deployed decision-support Power BI dashboards with advanced DAX (COALESCE fallback chains on LOOKUPVALUE, outlier detection via PERCENTILE.INC) and custom Deneb/Vega-Lite visuals (KPI cards, gauges, escalation charts).",
+            "Wrote professional handover guides (Word) for 3 systems ahead of contract end, with transfer to a designated successor.",
+          ],
+        },
+        {
+          org: "UPPA — Management Control department",
+          role: "Data Analyst Internship",
+          dates: "Apr. 2024 – Aug. 2024",
+          bullets: [
+            "Produced the university's carbon footprint assessments across the institution and its laboratories: multi-source data extraction, cleaning and transformation.",
+            "Incorporated calculation assumptions and managed uncertainty; built visualizations for interpretation; analyzed emissions and costs.",
+            "Adapted databases to laboratory-specific needs.",
+          ],
+        },
+        {
+          org: "Établissement Français du Sang — Bordeaux",
+          role: "Project Lead Apprenticeship — Risk & Quality department",
+          dates: "Sept. 2023 – Apr. 2024",
+          bullets: [
+            "Created and deployed quality-monitoring dashboards for the transfusion chain for the Nouvelle-Aquitaine division, later extended nationally.",
+            "Selected KPIs with business stakeholders; extracted, cleaned and structured data; documented the process.",
+          ],
+        },
+        {
+          org: "NA PALI (Boardriders)",
+          role: "Data Analyst Internship",
+          dates: "Apr. 2022 – Jun. 2022",
+          bullets: [
+            "Real-time decision-support dashboards (Google Data Studio) for e-commerce order and returns tracking.",
+            "Data extraction and transformation via SQL from BigQuery.",
+          ],
+        },
+      ],
+      education: [
+        {
+          degree: "Master MIASHS — ISMAG track",
+          detail: "Business-oriented data science & engineering",
+          institution: "Université Toulouse Jean Jaurès",
+          dates: "2024–2026",
+        },
+        {
+          degree: "BUT Data Science (formerly STID)",
+          detail: "Top of cohort",
+          highlight: true,
+          institution: "Université de Pau et des Pays de l'Adour",
+          dates: "2020–2024",
+        },
+        {
+          degree: "General Baccalaureate — Mathematics specialization",
+          institution: "",
+          dates: "2020",
+        },
+      ],
+      languages: [
+        "French (native)",
+        "English C1 (3-month immersive stay in New Zealand, English-speaking high school)",
+        "Spanish B1",
+      ],
+      skills: {
+        groups: [
+          {
+            label: "Data & Analytics Engineering",
+            items: [
+              "SQL",
+              "Python (pandas, numpy, scikit-learn)",
+              "dbt (basics)",
+              "Data modeling",
+              "AWS (S3, Athena, Parquet)",
+              "Git/GitHub",
+              "Power Automate",
+              "PostgreSQL",
+              "Ingestion pipelines (REST APIs, OAuth2)",
+            ],
+          },
+          {
+            label: "BI & Visualization",
+            items: ["Power BI", "DAX", "Deneb/Vega-Lite", "Qlik Sense", "Tableau", "Looker Studio"],
+          },
+          {
+            label: "Other",
+            items: ["Next.js/TypeScript", "R", "Talend", "Excel/VBA", "Streamlit"],
+          },
+        ],
+      },
+      projects: [
+        {
+          id: "01",
+          title: "Football Data Pipeline",
+          line: "From live football-data.org API calls to a recruiter-readable data product.",
+        },
+        {
+          id: "02",
+          title: "JobTrackr",
+          line: "A full-stack \"Career OS\" that centralizes a job search: automatic aggregation, application tracking and AI-based CV/job scoring.",
+        },
+        {
+          id: "03",
+          title: "Retirement Sustainability Model",
+          line: "A reproducible accounting model of the French pay-as-you-go pension system, benchmarked against the COR 2026 report.",
+        },
+      ],
+    },
     skip: "Skip to content",
   },
   fr: {
@@ -381,6 +516,141 @@ export const translations = {
             "L'angle reste analytique, neutre et non partisan.",
           ],
           linkLabel: null,
+        },
+      ],
+    },
+    resume: {
+      pageTitle: "CV",
+      metaDescription:
+        "Axel Corral — Analytics Engineer / Data Engineer Junior. Expérience, compétences et formation.",
+      backToSite: "← Retour au site",
+      hook: "J'ai commencé par la BI et l'analyse — dashboards, DAX, KPIs. Puis j'ai tiré le fil : automatisation de flux de données, pipelines d'ingestion, modélisation. Aujourd'hui je construis la couche entre la donnée brute et la décision.",
+      identity: {
+        title: "Analytics Engineer / Data Engineer Junior",
+        location: "Sud-Ouest France · ouvert au full-remote et au Luxembourg",
+        availability: "Disponible à partir de septembre 2026 (fin d'alternance le 28 août 2026)",
+        email: "Axel.Corral.Pro@gmail.com",
+        github: "github.com/AxelCorral",
+      },
+      sectionLabels: {
+        experience: "Expérience",
+        projects: "Projets portfolio",
+        education: "Formation",
+        languages: "Langues",
+        skills: "Compétences",
+      },
+      downloadPdf: "Télécharger le PDF",
+      printNote: "Optimisé pour l'impression · Ctrl/Cmd+P pour une copie propre",
+      viewCaseStudy: "Voir l'étude de cas",
+      experience: [
+        {
+          org: "DRT (groupe DSM-Firmenich)",
+          role: "Alternance Data Analyst — Data Management Ingredient (DMI)",
+          dates: "Sept. 2024 – Août 2026",
+          roleNote: "Rôle ayant évolué de la BI vers l'automatisation de flux de données et la livraison de produits data pour les métiers.",
+          bullets: [
+            "Conception et déploiement de bout en bout d'un workflow métier de gestion des demandes de changement (ECR) : 5 listes SharePoint structurées, ~4 flux Power Automate de la soumission à la décision finale, sortie Excel automatisée via Office Script (TypeScript).",
+            "Mise en place de flux de notifications automatisés (Power Automate, cartes adaptatives, déclenchement quotidien planifié) pour le suivi des tâches de l'équipe.",
+            "Extraction et transformation de données via Python et Power Query (Table.NestedJoin, UnpivotOtherColumns) pour alimenter les dashboards.",
+            "Conception et déploiement de tableaux de bord décisionnels Power BI avec DAX avancé (chaînes de fallback COALESCE sur LOOKUPVALUE, détection d'outliers via PERCENTILE.INC) et visualisations custom Deneb/Vega-Lite (KPI cards, jauges, graphiques d'escalade).",
+            "Rédaction de guides de passation professionnels (Word) pour 3 systèmes avant fin de contrat, avec transfert à un successeur désigné.",
+          ],
+        },
+        {
+          org: "UPPA — Service contrôle de gestion",
+          role: "Stage Data Analyst",
+          dates: "Avr. 2024 – Août 2024",
+          bullets: [
+            "Réalisation des bilans carbone de l'université et de ses laboratoires : extraction, nettoyage et transformation de données multi-sources.",
+            "Intégration d'hypothèses de calcul et gestion des incertitudes ; visualisations pour l'interprétation ; analyse des émissions et des coûts.",
+            "Adaptation des bases de données aux besoins des laboratoires.",
+          ],
+        },
+        {
+          org: "Établissement Français du Sang — Bordeaux",
+          role: "Alternance chef de projet — département risque & qualité",
+          dates: "Sept. 2023 – Avr. 2024",
+          bullets: [
+            "Création et déploiement de tableaux de bord de surveillance qualité de la chaîne transfusionnelle pour la direction Nouvelle-Aquitaine, étendus au niveau national.",
+            "Sélection des KPIs avec les responsables métier ; extraction, nettoyage et structuration des données ; documentation.",
+          ],
+        },
+        {
+          org: "NA PALI (Boardriders)",
+          role: "Stage Data Analyst",
+          dates: "Avr. 2022 – Juin 2022",
+          bullets: [
+            "Tableaux de bord décisionnels temps réel (Google Data Studio) pour le suivi des commandes et retours e-commerce.",
+            "Extraction et transformation via SQL depuis BigQuery.",
+          ],
+        },
+      ],
+      education: [
+        {
+          degree: "Master MIASHS — parcours ISMAG",
+          detail: "Ingénierie et science des données orientées métiers",
+          institution: "Université Toulouse Jean Jaurès",
+          dates: "2024–2026",
+        },
+        {
+          degree: "BUT Sciences des Données (ex-STID)",
+          detail: "Major de promotion",
+          highlight: true,
+          institution: "Université de Pau et des Pays de l'Adour",
+          dates: "2020–2024",
+        },
+        {
+          degree: "Baccalauréat scientifique, spécialité mathématiques",
+          institution: "",
+          dates: "2020",
+        },
+      ],
+      languages: [
+        "Français (natif)",
+        "Anglais C1 (séjour immersif de 3 mois en Nouvelle-Zélande, lycée anglophone)",
+        "Espagnol B1",
+      ],
+      skills: {
+        groups: [
+          {
+            label: "Data & Analytics Engineering",
+            items: [
+              "SQL",
+              "Python (pandas, numpy, scikit-learn)",
+              "dbt (bases)",
+              "Modélisation de données",
+              "AWS (S3, Athena, Parquet)",
+              "Git/GitHub",
+              "Power Automate",
+              "PostgreSQL",
+              "Pipelines d'ingestion (APIs REST, OAuth2)",
+            ],
+          },
+          {
+            label: "BI & Visualisation",
+            items: ["Power BI", "DAX", "Deneb/Vega-Lite", "Qlik Sense", "Tableau", "Looker Studio"],
+          },
+          {
+            label: "Autres",
+            items: ["Next.js/TypeScript", "R", "Talend", "Excel/VBA", "Streamlit"],
+          },
+        ],
+      },
+      projects: [
+        {
+          id: "01",
+          title: "Football Data Pipeline",
+          line: "Des appels API football-data.org jusqu'à un produit data lisible par un recruteur.",
+        },
+        {
+          id: "02",
+          title: "JobTrackr",
+          line: "Un « Career OS » full-stack qui centralise une recherche d'emploi : agrégation automatique, suivi des candidatures et scoring IA CV/offre.",
+        },
+        {
+          id: "03",
+          title: "Modèle de soutenabilité des retraites",
+          line: "Un modèle comptable reproductible du système français de retraite par répartition, comparé au rapport COR 2026.",
         },
       ],
     },
