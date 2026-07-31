@@ -26,7 +26,7 @@ export type ProjectScreenshot = {
 export type ProjectLink = {
   label: string;
   url: string;
-  type: "github" | "repository" | "report";
+  type: "github" | "repository" | "report" | "demo";
 };
 
 export type Project = {
@@ -338,9 +338,9 @@ export const projects: Project[] = [
     ],
     links: [
       {
-        label: "GitHub",
-        url: "https://github.com/AxelCorral/jobtrackr",
-        type: "github",
+        label: "Live demo",
+        url: "https://jobtrackr-lake.vercel.app/",
+        type: "demo",
       },
     ],
     sourcePath: "jobtrackr/",
@@ -390,9 +390,9 @@ export const projects: Project[] = [
         ],
         links: [
           {
-            label: "GitHub",
-            url: "https://github.com/AxelCorral/jobtrackr",
-            type: "github",
+            label: "Démo en ligne",
+            url: "https://jobtrackr-lake.vercel.app/",
+            type: "demo",
           },
         ],
         evidence: [

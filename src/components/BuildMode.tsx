@@ -10,104 +10,47 @@ import {
   useState,
 } from "react";
 import { Magnet } from "@/components/Magnet";
+import { useLanguage } from "@/i18n/language";
 import avatarHead from "../../profil_3D.png";
 
 // 5 hotspots (reduced from an earlier 7 — see redesign notes): positions
 // are % coordinates within .thought-map, which now spans the full portrait
 // stage. Each sits in genuine negative space around the avatar (top
 // corners, left gap by the jaw, lower corners on the jacket) rather than
-// scattered across the hair.
-const thoughtBubbles = [
-  {
-    id: "builder",
-    label: "I build what I need",
-    eyebrow: "Builder reflex",
-    title: "Tools usually start with a real need.",
-    body:
-      "I like turning recurring needs into tools: apps, automations, bots or small systems that make daily life clearer.",
-    points: [
-      "JobTrackr started from a real job-search need.",
-      "Personal automations and AI-assisted workflows follow the same reflex.",
-      "When I need a tool, I try to build it.",
-    ],
-    position: { x: 9, y: 7 },
-  },
-  {
-    id: "ai",
-    label: "AI playground",
-    eyebrow: "AI experiments",
-    title: "AI is a creative and technical accelerator.",
-    body:
-      "I use AI as a practical accelerator: prompts, visual concepts, video experiments, automation loops, Codex-style building and iterative product improvement.",
-    points: [
-      "The point is not hype; it is faster learning and sharper iteration.",
-      "AI helps me prototype, critique, polish and ship with tighter loops.",
-    ],
-    position: { x: 89, y: 9 },
-  },
-  {
-    id: "football",
-    label: "Football brain",
-    eyebrow: "Football & data",
-    title: "Football is a playground for uncertainty.",
-    body:
-      "Football is one of my natural playgrounds for data: form, momentum, trajectories, decisions, uncertainty and emotion.",
-    points: [
-      "It connects naturally to analysis, scouting and storytelling.",
-      "The professional portfolio includes a football-pipeline project built around this interest.",
-    ],
-    link: {
-      label: "See football-pipeline",
-      href: "https://github.com/AxelCorral/football-pipeline",
-    },
+// scattered across the hair. Text content lives in the i18n translations
+// (t.buildMode.bubbles) — this table only holds the non-translatable
+// layout/link data, keyed by bubble id.
+const bubbleLayout: Record<string, { position: { x: number; y: number }; href?: string }> = {
+  builder: { position: { x: 9, y: 7 } },
+  ai: { position: { x: 89, y: 9 } },
+  football: {
     position: { x: 4, y: 46 },
+    href: "https://github.com/AxelCorral/football-pipeline",
   },
-  {
-    id: "visual",
-    label: "Visual instinct",
-    eyebrow: "Creative direction",
-    title: "How it feels matters as much as how it works.",
-    body:
-      "I care about how things feel, not only how they work. A useful data product should be clear, readable and visually intentional.",
-    points: [
-      "Dark graphite, cream highlights and cinematic motion are part of the portfolio language.",
-      "Good visual hierarchy makes complex systems easier to trust.",
-    ],
-    position: { x: 16, y: 88 },
-  },
-  {
-    id: "systems",
-    label: "Systems curiosity",
-    eyebrow: "Systems curiosity",
-    title: "I am drawn to systems that shape decisions.",
-    body:
-      "I am interested in systems that shape real decisions: markets, incentives, public decisions, organizations, sport and data-driven tools.",
-    points: [
-      "I like connecting data with real-world constraints.",
-      "The angle stays analytical, neutral and non-partisan.",
-    ],
-    position: { x: 87, y: 84 },
-  },
-];
+  visual: { position: { x: 16, y: 88 } },
+  systems: { position: { x: 87, y: 84 } },
+};
 
-const personalSignals = [
-  "football analysis",
-  "3D avatar",
-  "interface design",
-  "open learning",
-  "Toulouse",
-  "systems thinking",
-  "portfolio craft",
-  "personal projects",
-];
-
-type ThoughtBubble = (typeof thoughtBubbles)[number];
+type ThoughtBubble = {
+  id: string;
+  label: string;
+  eyebrow: string;
+  title: string;
+  body: string;
+  points: readonly string[];
+  position: { x: number; y: number };
+  link?: { label: string; href: string };
+};
 
 function ThoughtMap({
+  thoughtBubbles,
+  mapAriaLabel,
   activeThought,
   setActiveThought,
   reduceMotion,
 }: {
+  thoughtBubbles: ThoughtBubble[];
+  mapAriaLabel: string;
   activeThought: ThoughtBubble | null;
   setActiveThought: (thought: ThoughtBubble | null) => void;
   reduceMotion: boolean | null;
@@ -128,7 +71,7 @@ function ThoughtMap({
   }, [activeThought, setActiveThought]);
 
   return (
-    <div className="thought-map" aria-label="Personal thoughts around Axel" ref={mapRef}>
+    <div className="thought-map" aria-label={mapAriaLabel} ref={mapRef}>
       <div className="thought-map-lines" aria-hidden="true" />
       {thoughtBubbles.map((thought, index) => {
         const isOpen = activeThought?.id === thought.id;
@@ -187,9 +130,11 @@ function ThoughtMap({
 }
 
 function MobileThoughtList({
+  thoughtBubbles,
   activeThought,
   setActiveThought,
 }: {
+  thoughtBubbles: ThoughtBubble[];
   activeThought: ThoughtBubble | null;
   setActiveThought: (thought: ThoughtBubble | null) => void;
 }) {
@@ -227,10 +172,21 @@ function MobileThoughtList({
 }
 
 function BuildModeHero({
+  thoughtBubbles,
+  copy,
   activeThought,
   setActiveThought,
   reduceMotion,
 }: {
+  thoughtBubbles: ThoughtBubble[];
+  copy: {
+    kicker: string;
+    title: string;
+    subtitle: string;
+    hint: string;
+    mapAriaLabel: string;
+    moreSignals: string;
+  };
   activeThought: ThoughtBubble | null;
   setActiveThought: (thought: ThoughtBubble | null) => void;
   reduceMotion: boolean | null;
@@ -249,7 +205,7 @@ function BuildModeHero({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.08, duration: 0.6 }}
         >
-          AXEL CORRAL — PERSONAL LAYER
+          {copy.kicker}
         </motion.p>
         <motion.h2
           id="build-mode-title"
@@ -258,7 +214,7 @@ function BuildModeHero({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.12, duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
         >
-          Personal layer
+          {copy.title}
         </motion.h2>
         <motion.p
           className="build-hero-subtitle"
@@ -266,7 +222,7 @@ function BuildModeHero({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25, duration: 0.7 }}
         >
-          The part behind the projects: curiosity, tools, football, AI experiments and systems I build for myself.
+          {copy.subtitle}
         </motion.p>
         <motion.span
           className="thought-hint"
@@ -274,7 +230,7 @@ function BuildModeHero({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.55 }}
         >
-          Move around to reveal what sits behind the work.
+          {copy.hint}
         </motion.span>
       </div>
 
@@ -300,6 +256,8 @@ function BuildModeHero({
         </motion.div>
 
         <ThoughtMap
+          thoughtBubbles={thoughtBubbles}
+          mapAriaLabel={copy.mapAriaLabel}
           activeThought={activeThought}
           setActiveThought={setActiveThought}
           reduceMotion={reduceMotion}
@@ -307,14 +265,22 @@ function BuildModeHero({
       </div>
 
       <a className="build-scroll-cue" href="#personal-universe">
-        More signals
+        {copy.moreSignals}
         <ArrowDown size={16} aria-hidden="true" />
       </a>
     </section>
   );
 }
 
-function SkillsMarquee({ reduceMotion }: { reduceMotion: boolean | null }) {
+function SkillsMarquee({
+  signals,
+  ariaLabel,
+  reduceMotion,
+}: {
+  signals: readonly string[];
+  ariaLabel: string;
+  reduceMotion: boolean | null;
+}) {
   return (
     <motion.div
       className="build-marquee"
@@ -322,10 +288,10 @@ function SkillsMarquee({ reduceMotion }: { reduceMotion: boolean | null }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.7 }}
-      aria-label={`Personal signals: ${personalSignals.join(", ")}`}
+      aria-label={ariaLabel}
     >
       <div className="build-marquee-track" aria-hidden="true">
-        {[...personalSignals, ...personalSignals].map((signal, index) => (
+        {[...signals, ...signals].map((signal, index) => (
           <span className="build-skill" key={`${signal}-${index}`}>
             {signal}
           </span>
@@ -342,9 +308,23 @@ export function BuildMode({
   open: boolean;
   onClose: () => void;
 }) {
+  const { t } = useLanguage();
   const closeRef = useRef<HTMLButtonElement>(null);
   const [activeThought, setActiveThought] = useState<ThoughtBubble | null>(null);
   const reduceMotion = useReducedMotion();
+
+  const thoughtBubbles: ThoughtBubble[] = t.buildMode.bubbles.map((bubble) => ({
+    id: bubble.id,
+    label: bubble.label,
+    eyebrow: bubble.eyebrow,
+    title: bubble.title,
+    body: bubble.body,
+    points: bubble.points,
+    position: bubbleLayout[bubble.id].position,
+    link: bubble.linkLabel
+      ? { label: bubble.linkLabel, href: bubbleLayout[bubble.id].href! }
+      : undefined,
+  }));
 
   useEffect(() => {
     if (!open) return;
@@ -403,9 +383,9 @@ export function BuildMode({
                 className="build-close"
                 type="button"
                 onClick={onClose}
-                aria-label="Close personal layer"
+                aria-label={t.buildMode.closeAriaLabel}
               >
-                Close
+                {t.buildMode.closeLabel}
                 <X size={17} aria-hidden="true" />
               </button>
             </Magnet>
@@ -413,6 +393,15 @@ export function BuildMode({
 
           <div className="build-mode-inner">
             <BuildModeHero
+              thoughtBubbles={thoughtBubbles}
+              copy={{
+                kicker: t.buildMode.kicker,
+                title: t.buildMode.title,
+                subtitle: t.buildMode.subtitle,
+                hint: t.buildMode.hint,
+                mapAriaLabel: t.buildMode.mapAriaLabel,
+                moreSignals: t.buildMode.moreSignals,
+              }}
               activeThought={activeThought}
               setActiveThought={setActiveThought}
               reduceMotion={reduceMotion}
@@ -424,32 +413,32 @@ export function BuildMode({
               aria-labelledby="personal-universe-title"
             >
               <div className="build-section-heading">
-                <p>Behind the work / personal universe</p>
-                <h3 id="personal-universe-title">Signals beneath the surface.</h3>
-                <span>
-                  The bubbles above are the primary experience. This fallback keeps the same thoughts readable on touch screens and slower browsing moments.
-                </span>
+                <p>{t.buildMode.sectionKicker}</p>
+                <h3 id="personal-universe-title">{t.buildMode.sectionTitle}</h3>
+                <span>{t.buildMode.sectionSubtitle}</span>
               </div>
 
               <MobileThoughtList
+                thoughtBubbles={thoughtBubbles}
                 activeThought={activeThought}
                 setActiveThought={setActiveThought}
               />
             </section>
 
-            <SkillsMarquee reduceMotion={reduceMotion} />
+            <SkillsMarquee
+              signals={t.buildMode.signals}
+              ariaLabel={`${t.buildMode.signalsAriaPrefix}: ${t.buildMode.signals.join(", ")}`}
+              reduceMotion={reduceMotion}
+            />
 
-            <section className="personal-layer-close" aria-label="Personal layer closing actions">
-              <p>
-                This layer is personal, but it points back to the same professional promise:
-                useful systems, fast learning and clear interfaces.
-              </p>
+            <section className="personal-layer-close" aria-label={t.buildMode.closingAriaLabel}>
+              <p>{t.buildMode.closingText}</p>
               <div>
                 <button type="button" onClick={onClose}>
-                  Back to professional work
+                  {t.buildMode.backToWork}
                 </button>
                 <a href="#contact" onClick={onClose}>
-                  Contact
+                  {t.nav.contact}
                 </a>
                 <a href="https://github.com/AxelCorral" target="_blank" rel="noreferrer">
                   GitHub

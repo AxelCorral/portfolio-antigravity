@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import type { Slide } from "@/data/projects/football-pipeline";
+import { useLanguage } from "@/i18n/language";
 import { CoverSlide, StepSlide } from "./CarouselSlides";
 
 function CloseIcon() {
@@ -31,6 +32,7 @@ export function CarouselModal({
   onClose,
   onCurrentChange,
 }: CarouselModalProps) {
+  const { t } = useLanguage();
   const [current, setCurrent] = useState(initialCurrent);
   const frameRef = useRef<HTMLDivElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
@@ -191,7 +193,7 @@ export function CarouselModal({
           ref={closeBtnRef}
           type="button"
           className="pc-expand"
-          aria-label="Close expanded view"
+          aria-label={t.carousel.closeExpandedView}
           onClick={onClose}
         >
           <CloseIcon />
@@ -216,7 +218,7 @@ export function CarouselModal({
               className="pc-slide"
               role="group"
               aria-roledescription="slide"
-              aria-label={`${i + 1} of ${total}${slide.label ? `: ${slide.label}` : ""}`}
+              aria-label={`${i + 1} ${t.carousel.ofWord} ${total}${slide.label ? `: ${slide.label}` : ""}`}
               aria-hidden={i !== current}
             >
               {slide.kind === "cover" ? (
@@ -228,14 +230,14 @@ export function CarouselModal({
           ))}
         </div>
 
-        <nav className="pc-nav" aria-label="Slide navigation">
+        <nav className="pc-nav" aria-label={t.carousel.slideNavigation}>
           <span className="pc-counter" aria-live="polite" aria-atomic="true">
             {counter}
           </span>
           <div
             className="pc-dots"
             role="tablist"
-            aria-label="Go to slide"
+            aria-label={t.carousel.goToSlide}
             onKeyDown={(e) => {
               if (e.key === "ArrowRight") { e.preventDefault(); next(); }
               if (e.key === "ArrowLeft") { e.preventDefault(); prev(); }
@@ -247,7 +249,7 @@ export function CarouselModal({
                 type="button"
                 role="tab"
                 aria-selected={i === current}
-                aria-label={slide.label ?? `Slide ${i + 1}`}
+                aria-label={slide.label ?? `${t.carousel.slideWord} ${i + 1}`}
                 className="pc-dot"
                 tabIndex={i === current ? 0 : -1}
                 onClick={() => goTo(i)}
@@ -255,10 +257,10 @@ export function CarouselModal({
             ))}
           </div>
           <div className="pc-arrows">
-            <button type="button" className="pc-arrow" onClick={prev} aria-label="Previous slide">
+            <button type="button" className="pc-arrow" onClick={prev} aria-label={t.carousel.previousSlide}>
               ‹
             </button>
-            <button type="button" className="pc-arrow" onClick={next} aria-label="Next slide">
+            <button type="button" className="pc-arrow" onClick={next} aria-label={t.carousel.nextSlide}>
               ›
             </button>
           </div>

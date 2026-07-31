@@ -97,8 +97,26 @@ export function ProjectDetailModal({
 
   useEffect(() => {
     if (!project) return;
+    const mainEl = document.getElementById("main");
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    mainEl?.setAttribute("inert", "");
     closeRef.current?.focus();
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      mainEl?.removeAttribute("inert");
+    };
   }, [project]);
+
+  useEffect(() => {
+    if (!project) return;
+    function handleKeyDown(event: globalThis.KeyboardEvent) {
+      if (event.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [project, onClose]);
 
   function handleBackdropClick(event: MouseEvent<HTMLDivElement>) {
     if (event.target === event.currentTarget) onClose();
@@ -164,7 +182,7 @@ export function ProjectDetailModal({
             <header className="project-detail-header">
               <div>
                 <p>
-                  Project {project.id} · {project.category}
+                  {t.projects.project} {project.id} · {project.category}
                 </p>
                 <h3 id="project-detail-title">{project.title}</h3>
                 <span>{project.description}</span>

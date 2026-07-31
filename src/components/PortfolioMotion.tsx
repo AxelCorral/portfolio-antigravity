@@ -158,9 +158,5 @@ export function AnimatedLetter({
     [0.2, 1],
   );
 
-  return (
-    <motion.span style={{ opacity }}>
-      {character === " " ? "\u00A0" : character}
-    </motion.span>
-  );
+  return <motion.span style={{ opacity }}>{character}</motion.span>;
 }

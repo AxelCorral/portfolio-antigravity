@@ -1,6 +1,6 @@
 import type { Slide } from "./football-pipeline";
 
-const GITHUB_URL = "https://github.com/AxelCorral/jobtrackr";
+const DEMO_URL = "https://jobtrackr-lake.vercel.app/";
 
 export const jobtrackrSlidesEn: readonly Slide[] = [
   {
@@ -69,9 +69,9 @@ export const jobtrackrSlidesEn: readonly Slide[] = [
     body: "Live on Vercel + Neon, feeding my job search daily. Still missing: rate limiting, pipeline tests — the next iteration.",
     links: [
       {
-        label: "View repository",
-        sub: "github.com/AxelCorral/jobtrackr",
-        url: GITHUB_URL,
+        label: "View live demo",
+        sub: "jobtrackr-lake.vercel.app",
+        url: DEMO_URL,
       },
     ],
   },
@@ -144,9 +144,9 @@ export const jobtrackrSlidesFr: readonly Slide[] = [
     body: "En ligne sur Vercel + Neon, au service de ma recherche au quotidien. Ce qui manque : rate limiting, tests du pipeline — la prochaine itération.",
     links: [
       {
-        label: "Voir le repository",
-        sub: "github.com/AxelCorral/jobtrackr",
-        url: GITHUB_URL,
+        label: "Voir la démo en ligne",
+        sub: "jobtrackr-lake.vercel.app",
+        url: DEMO_URL,
       },
     ],
   },

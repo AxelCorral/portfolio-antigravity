@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import type { Slide } from "@/data/projects/football-pipeline";
+import { useLanguage } from "@/i18n/language";
 import { CoverSlide, StepSlide } from "./CarouselSlides";
 import { CarouselModal } from "./CarouselModal";
 
@@ -25,6 +26,7 @@ export function ProjectCarousel({
   slides: readonly Slide[];
   label?: string;
 }) {
+  const { t } = useLanguage();
   const [current, setCurrent] = useState(0);
   const [expanded, setExpanded] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -187,7 +189,7 @@ export function ProjectCarousel({
           ref={expandBtnRef}
           type="button"
           className="pc-expand"
-          aria-label="Expand to full screen"
+          aria-label={t.carousel.expandFullScreen}
           aria-haspopup="dialog"
           onClick={openModal}
         >
@@ -213,7 +215,7 @@ export function ProjectCarousel({
               className="pc-slide"
               role="group"
               aria-roledescription="slide"
-              aria-label={`${i + 1} of ${total}${slide.label ? `: ${slide.label}` : ""}`}
+              aria-label={`${i + 1} ${t.carousel.ofWord} ${total}${slide.label ? `: ${slide.label}` : ""}`}
               aria-hidden={i !== current}
             >
               {slide.kind === "cover" ? (
@@ -226,7 +228,7 @@ export function ProjectCarousel({
         </div>
 
         {/* Navigation */}
-        <nav className="pc-nav" aria-label="Slide navigation">
+        <nav className="pc-nav" aria-label={t.carousel.slideNavigation}>
           <span className="pc-counter" aria-live="polite" aria-atomic="true">
             {counter}
           </span>
@@ -234,7 +236,7 @@ export function ProjectCarousel({
           <div
             className="pc-dots"
             role="tablist"
-            aria-label="Go to slide"
+            aria-label={t.carousel.goToSlide}
             onKeyDown={(e) => {
               if (e.key === "ArrowRight") { e.preventDefault(); next(); }
               if (e.key === "ArrowLeft") { e.preventDefault(); prev(); }
@@ -246,7 +248,7 @@ export function ProjectCarousel({
                 type="button"
                 role="tab"
                 aria-selected={i === current}
-                aria-label={slide.label ?? `Slide ${i + 1}`}
+                aria-label={slide.label ?? `${t.carousel.slideWord} ${i + 1}`}
                 className="pc-dot"
                 tabIndex={i === current ? 0 : -1}
                 onClick={() => goTo(i)}
@@ -259,7 +261,7 @@ export function ProjectCarousel({
               type="button"
               className="pc-arrow"
               onClick={prev}
-              aria-label="Previous slide"
+              aria-label={t.carousel.previousSlide}
             >
               ‹
             </button>
@@ -267,7 +269,7 @@ export function ProjectCarousel({
               type="button"
               className="pc-arrow"
               onClick={next}
-              aria-label="Next slide"
+              aria-label={t.carousel.nextSlide}
             >
               ›
             </button>
