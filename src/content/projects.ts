@@ -77,7 +77,7 @@ export const credibilite: CredibiliteItem[] = [
   {
     title: "Energy EDA",
     description:
-      "Pipeline EDA sur 14 M lignes de consommation énergétique, enrichi via API Open-Meteo (DJU Toulouse-Blagnac).",
+      "Pipeline EDA sur 14 M lignes de consommation énergétique, enrichi via API Open-Meteo (données DJU d'une station météo locale).",
     chiffre: "14 M",
     chiffreLabel: "Volume réel",
   },

@@ -26,15 +26,15 @@ export const translations = {
       contact: "Contact",
     },
     hero: {
-      introLabel: "Axel Corral · Toulouse / France",
+      introLabel: "Axel Corral · France & international mobility",
       cityAria: "Shaping data with clarity and action.",
       cityLines: ["Data systems", "built for clarity."],
       cityText:
-        "Data Analyst / Junior Data Engineer working with Power BI, SQL, Python, dashboards, pipelines and reproducible analysis.",
+        "Analytics Engineer / Junior Data Engineer working with Power BI, SQL, Python, dashboards, pipelines and reproducible analysis.",
       viewProjects: "View projects",
       viewSelectedWork: "View selected work",
       tag: "Business Intelligence. Data Engineering. Analysis.",
-      role: "Data Analyst · Data Engineer Junior · Toulouse / France",
+      role: "Analytics Engineer · Junior Data Engineer · France & abroad",
       profileText:
         "I build analytical systems, dashboards and data workflows that turn complex information into clear decisions: Power BI, SQL, Python, reporting automation and open-data analysis.",
       proof: ["Power BI dashboards", "SQL + Python", "Data pipelines"],
@@ -78,7 +78,7 @@ export const translations = {
       kicker: "Contact / next step",
       title: "Let us talk about dashboards, pipelines and analytical systems.",
       body:
-        "Available for data analyst and junior data engineering opportunities, portfolio reviews and practical analytics projects.",
+        "Available for Analytics Engineer and Junior Data Engineer opportunities anywhere in France and abroad.",
     },
     modal: {
       overview: "Overview",
@@ -128,7 +128,7 @@ export const translations = {
         "3D avatar",
         "interface design",
         "open learning",
-        "Toulouse",
+        "international mobility",
         "systems thinking",
         "portfolio craft",
         "personal projects",
@@ -205,7 +205,7 @@ export const translations = {
       hook: "I started in BI and analytics — dashboards, DAX, KPIs. Then I kept pulling the thread: automating data flows, building ingestion pipelines, modeling data properly. Now I build the layer between raw data and decisions.",
       identity: {
         title: "Analytics Engineer / Junior Data Engineer",
-        location: "South-West France · open to full-remote & Luxembourg",
+        location: "Available anywhere in France and abroad",
         availability: "Available from September 2026 (apprenticeship ends August 28, 2026)",
         email: "Axel.Corral.Pro@gmail.com",
         github: "github.com/AxelCorral",
@@ -223,7 +223,7 @@ export const translations = {
       experience: [
         {
           org: "DRT (DSM-Firmenich group)",
-          role: "Data Analyst Apprenticeship — Data Management Ingredient (DMI)",
+          role: "Data Analytics Apprenticeship — Data Management Ingredient (DMI)",
           dates: "Sept. 2024 – Aug. 2026",
           roleNote: "Role evolved from BI toward data-flow automation and data-product delivery for business teams.",
           bullets: [
@@ -236,7 +236,7 @@ export const translations = {
         },
         {
           org: "UPPA — Management Control department",
-          role: "Data Analyst Internship",
+          role: "Data Analytics Internship",
           dates: "Apr. 2024 – Aug. 2024",
           bullets: [
             "Produced the university's carbon footprint assessments across the institution and its laboratories: multi-source data extraction, cleaning and transformation.",
@@ -255,7 +255,7 @@ export const translations = {
         },
         {
           org: "NA PALI (Boardriders)",
-          role: "Data Analyst Internship",
+          role: "Data Analytics Internship",
           dates: "Apr. 2022 – Jun. 2022",
           bullets: [
             "Real-time decision-support dashboards (Google Data Studio) for e-commerce order and returns tracking.",
@@ -267,7 +267,7 @@ export const translations = {
         {
           degree: "Master MIASHS — ISMAG track",
           detail: "Business-oriented data science & engineering",
-          institution: "Université Toulouse Jean Jaurès",
+          institution: "Université Jean Jaurès",
           dates: "2024–2026",
         },
         {
@@ -348,15 +348,15 @@ export const translations = {
       contact: "Contact",
     },
     hero: {
-      introLabel: "Axel Corral · Toulouse / France",
+      introLabel: "Axel Corral · Mobilité France & international",
       cityAria: "Structurer la donnée avec clarté et impact.",
       cityLines: ["Systèmes data", "pensés pour clarifier."],
       cityText:
-        "Data Analyst / Junior Data Engineer travaillant avec Power BI, SQL, Python, des dashboards, des pipelines et des analyses reproductibles.",
+        "Analytics Engineer / Data Engineer junior travaillant avec Power BI, SQL, Python, des dashboards, des pipelines et des analyses reproductibles.",
       viewProjects: "Voir les projets",
       viewSelectedWork: "Voir les projets sélectionnés",
       tag: "Business Intelligence. Ingénierie des données. Analyse.",
-      role: "Data Analyst · Data Engineer Junior · Toulouse / France",
+      role: "Analytics Engineer · Data Engineer junior · France & étranger",
       profileText:
         "Je construis des systèmes analytiques, des dashboards et des workflows data qui transforment des informations complexes en décisions claires : Power BI, SQL, Python, automatisation du reporting et analyse open data.",
       proof: ["Dashboards Power BI", "SQL + Python", "Pipelines data"],
@@ -400,7 +400,7 @@ export const translations = {
       kicker: "Contact / prochaine étape",
       title: "Parlons dashboards, pipelines et systèmes analytiques.",
       body:
-        "Disponible pour des opportunités de Data Analyst et Junior Data Engineer, des revues de portfolio et des projets analytiques concrets.",
+        "Disponible pour des opportunités d'Analytics Engineer et de Data Engineer junior partout en France et à l'étranger.",
     },
     modal: {
       overview: "Vue d’ensemble",
@@ -450,7 +450,7 @@ export const translations = {
         "avatar 3D",
         "design d'interface",
         "apprentissage ouvert",
-        "Toulouse",
+        "mobilité internationale",
         "pensée systémique",
         "soin du portfolio",
         "projets personnels",
@@ -527,7 +527,7 @@ export const translations = {
       hook: "J'ai commencé par la BI et l'analyse — dashboards, DAX, KPIs. Puis j'ai tiré le fil : automatisation de flux de données, pipelines d'ingestion, modélisation. Aujourd'hui je construis la couche entre la donnée brute et la décision.",
       identity: {
         title: "Analytics Engineer / Data Engineer Junior",
-        location: "Sud-Ouest France · ouvert au full-remote et au Luxembourg",
+        location: "Disponible partout en France et à l'étranger",
         availability: "Disponible à partir de septembre 2026 (fin d'alternance le 28 août 2026)",
         email: "Axel.Corral.Pro@gmail.com",
         github: "github.com/AxelCorral",
@@ -545,7 +545,7 @@ export const translations = {
       experience: [
         {
           org: "DRT (groupe DSM-Firmenich)",
-          role: "Alternance Data Analyst — Data Management Ingredient (DMI)",
+          role: "Alternance en Data Analytics — Data Management Ingredient (DMI)",
           dates: "Sept. 2024 – Août 2026",
           roleNote: "Rôle ayant évolué de la BI vers l'automatisation de flux de données et la livraison de produits data pour les métiers.",
           bullets: [
@@ -558,7 +558,7 @@ export const translations = {
         },
         {
           org: "UPPA — Service contrôle de gestion",
-          role: "Stage Data Analyst",
+          role: "Stage en analyse de données",
           dates: "Avr. 2024 – Août 2024",
           bullets: [
             "Réalisation des bilans carbone de l'université et de ses laboratoires : extraction, nettoyage et transformation de données multi-sources.",
@@ -577,7 +577,7 @@ export const translations = {
         },
         {
           org: "NA PALI (Boardriders)",
-          role: "Stage Data Analyst",
+          role: "Stage en analyse de données",
           dates: "Avr. 2022 – Juin 2022",
           bullets: [
             "Tableaux de bord décisionnels temps réel (Google Data Studio) pour le suivi des commandes et retours e-commerce.",
@@ -589,7 +589,7 @@ export const translations = {
         {
           degree: "Master MIASHS — parcours ISMAG",
           detail: "Ingénierie et science des données orientées métiers",
-          institution: "Université Toulouse Jean Jaurès",
+          institution: "Université Jean Jaurès",
           dates: "2024–2026",
         },
         {

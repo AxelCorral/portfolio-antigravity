@@ -28,3 +28,5 @@ dist-ssr
 /*.png
 /*.pdf
 /cv-axel-corral.html
+.vercel
+.env*
