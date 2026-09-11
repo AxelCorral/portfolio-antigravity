@@ -1,0 +1,413 @@
+#!/usr/bin/env node
+/**
+ * Générateur de la galerie AVANT/APRÈS de la boucle UI (voir MISSION-UI.md §7bis).
+ *
+ * Pour chaque chantier livré, capture la même section à deux révisions git et aux
+ * viewports 390 et 1440, compresse en .webp, puis réécrit docs/ui-loop/GALERIE.md
+ * en ordre antéchronologique.
+ *
+ * L'état AVANT est capturé sur un worktree git détaché à la révision antérieure :
+ * c'est la seule façon d'obtenir une comparaison honnête. On ne touche jamais à
+ * l'arbre de travail courant.
+ *
+ * Usage :
+ *   node scripts/ui-gallery.mjs --cycle=015 --before=1ef0c01 \
+ *     --sections=about --label="Identité visuelle du bloc Analytical profile" \
+ *     --why="Le bloc n'avait aucune hiérarchie propre et se confondait avec la section suivante."
+ *
+ * Options :
+ *   --cycle=NNN        numéro du cycle (obligatoire)
+ *   --before=<ref>     révision git de l'état AVANT (obligatoire)
+ *   --after=<ref>      révision de l'état APRÈS (défaut : l'arbre de travail courant)
+ *   --sections=a,b     ids des sections à capturer (défaut : about)
+ *   --label="..."      intitulé du chantier (défaut : dérivé du sujet du dernier commit)
+ *   --why="..."        légende d'une ligne (obligatoire)
+ *   --slug=...         nom de fichier (défaut : dérivé du label)
+ *   --lang=fr|en       langue des captures (défaut : en)
+ *   --commits=a,b      hashes courts affichés sous le bloc (défaut : before..after)
+ */
+import { chromium } from "playwright";
+import sharp from "sharp";
+import { spawn, execSync } from "node:child_process";
+import { mkdir, writeFile, readFile, rm, readdir, stat } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import path from "node:path";
+import os from "node:os";
+import { fileURLToPath } from "node:url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = path.resolve(__dirname, "..");
+
+const args = Object.fromEntries(
+  process.argv.slice(2).map((arg) => {
+    const idx = arg.indexOf("=");
+    if (idx === -1) return [arg.replace(/^--/, ""), true];
+    return [arg.slice(2, idx), arg.slice(idx + 1)];
+  }),
+);
+
+const CYCLE = String(args.cycle ?? "").padStart(3, "0");
+const BEFORE_REF = args.before;
+const AFTER_REF = args.after ?? null; // null = arbre de travail courant
+const SECTIONS = String(args.sections ?? "about").split(",").map((s) => s.trim()).filter(Boolean);
+const LANG = args.lang ?? "en";
+const WHY = args.why ?? "";
+
+const VIEWPORTS = [
+  { name: "390", width: 390, height: 844 },
+  { name: "1440", width: 1440, height: 900 },
+];
+
+const WEBP_QUALITY = 80;
+const WEBP_MAX_WIDTH = 1200;
+const SHOTS_ROOT = path.join(ROOT, "docs/ui-loop/shots");
+const GALLERY_PATH = path.join(ROOT, "docs/ui-loop/GALERIE.md");
+const BUDGET_BYTES = 40 * 1024 * 1024;
+
+const PORT_AFTER = 5191;
+const PORT_BEFORE = 5192;
+
+function fail(msg) {
+  console.error(`\n[ui-gallery] ${msg}\n`);
+  process.exit(1);
+}
+
+if (!args.cycle) fail("--cycle=NNN est obligatoire.");
+if (!BEFORE_REF) fail("--before=<ref-git> est obligatoire : sans état antérieur, la galerie ment.");
+if (!WHY) fail('--why="..." est obligatoire : une capture sans légende n\'explique rien.');
+
+function git(cmd, cwd = ROOT) {
+  return execSync(`git ${cmd}`, { cwd, encoding: "utf8" }).trim();
+}
+
+function slugify(s) {
+  return String(s)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60);
+}
+
+async function waitForServer(url, timeoutMs = 60000) {
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    try {
+      const res = await fetch(url);
+      if (res.ok || res.status === 304) return true;
+    } catch {
+      /* pas encore prêt */
+    }
+    await new Promise((r) => setTimeout(r, 300));
+  }
+  throw new Error(`Le serveur Vite n'a pas répondu sur ${url} en ${timeoutMs} ms`);
+}
+
+function startDevServer(cwd, port) {
+  const server = spawn("npx", ["vite", "--port", String(port), "--strictPort"], {
+    cwd,
+    shell: true,
+    stdio: "pipe",
+  });
+  server.stdout.on("data", () => {});
+  server.stderr.on("data", (d) => process.stderr.write(d));
+  return server;
+}
+
+/**
+ * Capture chaque section demandée aux deux viewports, en PNG brut (converti ensuite).
+ * Retourne une map { "<sectionId>-<viewport>": <buffer png> }.
+ * Une section absente à cette révision est signalée par la valeur null : c'est le cas
+ * légitime d'une section créée de zéro, que la galerie doit afficher honnêtement.
+ */
+async function captureState(baseUrl) {
+  const browser = await chromium.launch();
+  const out = {};
+  try {
+    for (const viewport of VIEWPORTS) {
+      const context = await browser.newContext({
+        viewport: { width: viewport.width, height: viewport.height },
+        deviceScaleFactor: 2,
+      });
+      const page = await context.newPage();
+      await page.addInitScript(
+        ([key, value]) => window.localStorage.setItem(key, value),
+        ["portfolio-language", LANG],
+      );
+      await page.goto(baseUrl, { waitUntil: "networkidle" });
+      await page.waitForTimeout(600);
+
+      // Un passage de scroll complet déclenche les reveals GSAP/ScrollTrigger, sinon
+      // les sections basses sont capturées à l'état initial (opacité 0) et la
+      // comparaison devient absurde.
+      const height = await page.evaluate(() => document.body.scrollHeight);
+      for (let y = 0; y < height; y += 600) {
+        await page.evaluate((yy) => window.scrollTo(0, yy), y);
+        await page.waitForTimeout(120);
+      }
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await page.waitForTimeout(400);
+
+      for (const id of SECTIONS) {
+        const key = `${id}-${viewport.name}`;
+        const locator = page.locator(`#${id}`).first();
+        if ((await locator.count()) === 0) {
+          out[key] = null;
+          continue;
+        }
+        await locator.scrollIntoViewIfNeeded();
+        await page.waitForTimeout(500);
+        try {
+          out[key] = await locator.screenshot();
+        } catch {
+          out[key] = null;
+        }
+      }
+      await context.close();
+    }
+  } finally {
+    await browser.close();
+  }
+  return out;
+}
+
+async function withServer(cwd, port, fn) {
+  const server = startDevServer(cwd, port);
+  try {
+    await waitForServer(`http://localhost:${port}`);
+    return await fn(`http://localhost:${port}`);
+  } finally {
+    // Sur Windows, server.kill() ne tue que le shell npx : l'enfant node survit et
+    // garde le port, ce qui fait échouer le serveur suivant (--strictPort).
+    // taskkill /T descend dans l'arbre de processus.
+    if (process.platform === "win32" && server.pid) {
+      try {
+        execSync(`taskkill /PID ${server.pid} /T /F`, { stdio: "ignore" });
+      } catch {
+        /* déjà mort */
+      }
+    } else {
+      server.kill();
+    }
+    await new Promise((r) => setTimeout(r, 800));
+  }
+}
+
+async function toWebp(buffer, destPath) {
+  const image = sharp(buffer);
+  const meta = await image.metadata();
+  const pipeline = meta.width && meta.width > WEBP_MAX_WIDTH
+    ? image.resize({ width: WEBP_MAX_WIDTH })
+    : image;
+  await pipeline.webp({ quality: WEBP_QUALITY }).toFile(destPath);
+  const { size } = await stat(destPath);
+  return size;
+}
+
+async function dirSize(dir) {
+  if (!existsSync(dir)) return 0;
+  let total = 0;
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const p = path.join(dir, entry.name);
+    total += entry.isDirectory() ? await dirSize(p) : (await stat(p)).size;
+  }
+  return total;
+}
+
+async function main() {
+  const label = args.label ?? git(`log -1 --format=%s`);
+  const slug = args.slug ?? slugify(label);
+  const cycleDir = path.join(SHOTS_ROOT, `cycle-${CYCLE}`);
+  await mkdir(cycleDir, { recursive: true });
+
+  const afterLabel = AFTER_REF ?? "arbre de travail courant";
+  console.log(`[ui-gallery] cycle ${CYCLE} · ${label}`);
+  console.log(`[ui-gallery] AVANT = ${BEFORE_REF}   APRÈS = ${afterLabel}`);
+  console.log(`[ui-gallery] sections = ${SECTIONS.join(", ")}   lang = ${LANG}`);
+
+  // ---- APRÈS : arbre courant, ou worktree si une révision explicite est demandée ----
+  let afterShots;
+  let afterWorktree = null;
+  if (AFTER_REF) {
+    afterWorktree = await makeWorktree(AFTER_REF, "after");
+    afterShots = await withServer(afterWorktree, PORT_AFTER, captureState);
+  } else {
+    afterShots = await withServer(ROOT, PORT_AFTER, captureState);
+  }
+
+  // ---- AVANT : worktree détaché sur la révision antérieure ----
+  const beforeWorktree = await makeWorktree(BEFORE_REF, "before");
+  let beforeShots;
+  try {
+    beforeShots = await withServer(beforeWorktree, PORT_BEFORE, captureState);
+  } finally {
+    await dropWorktree(beforeWorktree);
+    if (afterWorktree) await dropWorktree(afterWorktree);
+  }
+
+  // ---- Conversion .webp, groupée par section ----
+  // Une section = un chantier = un bloc (MISSION-UI.md §7bis). Regrouper plusieurs
+  // sections dans un seul tableau ferait disparaître toutes les paires sauf la
+  // dernière : le tableau n'a qu'une cellule AVANT et une cellule APRÈS par ligne.
+  const perSection = [];
+  for (const id of SECTIONS) {
+    const base = SECTIONS.length > 1 ? `${slug}-${id}` : slug;
+    const rows = [];
+
+    for (const viewport of VIEWPORTS) {
+      const key = `${id}-${viewport.name}`;
+      const row = { viewport: viewport.name, avant: null, apres: null };
+
+      if (beforeShots[key]) {
+        const rel = `shots/cycle-${CYCLE}/${base}-${viewport.name}-avant.webp`;
+        const size = await toWebp(beforeShots[key], path.join(ROOT, "docs/ui-loop", rel));
+        row.avant = rel;
+        console.log(`  ✓ ${rel} (${Math.round(size / 1024)} Ko)`);
+      }
+      if (afterShots[key]) {
+        const rel = `shots/cycle-${CYCLE}/${base}-${viewport.name}-apres.webp`;
+        const size = await toWebp(afterShots[key], path.join(ROOT, "docs/ui-loop", rel));
+        row.apres = rel;
+        console.log(`  ✓ ${rel} (${Math.round(size / 1024)} Ko)`);
+      }
+      rows.push(row);
+    }
+    perSection.push({ id, rows });
+  }
+
+  if (!perSection.some((s) => s.rows.some((r) => r.apres))) {
+    fail(`Aucune capture APRÈS produite. Les sections ${SECTIONS.join(", ")} existent-elles (#id) ?`);
+  }
+
+  // ---- Bloc markdown ----
+  const commits = args.commits
+    ? String(args.commits).split(",").map((c) => c.trim())
+    : git(`log --format=%h ${BEFORE_REF}..${AFTER_REF ?? "HEAD"}`).split("\n").filter(Boolean);
+
+  const date = new Date().toISOString().slice(0, 10);
+  const cell = (rel, alt) =>
+    rel ? `![${alt}](${rel})` : "— (section nouvelle, pas d'état antérieur)";
+
+  const commitLine = commits.length
+    ? commits.map((c) => `\`${c}\``).join(" · ")
+    : "_(aucun commit)_";
+
+  const block = perSection
+    .map(({ id, rows }) =>
+      [
+        `## Cycle ${CYCLE} — ${date} · ${label}${perSection.length > 1 ? ` — section \`#${id}\`` : ""}`,
+        ``,
+        `> ${WHY}`,
+        ``,
+        `|          | AVANT | APRÈS |`,
+        `| -------- | ----- | ----- |`,
+        ...rows.map(
+          (r) =>
+            `| **${r.viewport}** | ${cell(r.avant, `avant ${r.viewport}`)} | ${cell(r.apres, `après ${r.viewport}`)} |`,
+        ),
+        ``,
+        commitLine,
+        ``,
+      ].join("\n"),
+    )
+    .join("\n");
+
+  // ---- Écriture antéchronologique ----
+  const header = [
+    `# Galerie AVANT / APRÈS — boucle UI`,
+    ``,
+    `> Ordre antéchronologique : le chantier le plus récent est en haut.`,
+    `> Chaque paire est capturée sur les révisions git réelles (voir MISSION-UI.md §7bis).`,
+    `> Captures : viewports 390 et 1440, \`.webp\` qualité ${WEBP_QUALITY}, largeur max ${WEBP_MAX_WIDTH} px.`,
+    ``,
+    `---`,
+    ``,
+  ].join("\n");
+
+  let previous = [];
+  if (existsSync(GALLERY_PATH)) {
+    const raw = await readFile(GALLERY_PATH, "utf8");
+    // On repère le premier bloc de cycle plutôt qu'un séparateur d'en-tête : toute
+    // dérive de format de l'en-tête effacerait sinon silencieusement l'historique.
+    const idx = raw.search(/^## Cycle /m);
+    const body = idx === -1 ? "" : raw.slice(idx);
+    previous = body
+      .split(/(?=^## Cycle )/m)
+      .map((b) => b.trim())
+      .filter(Boolean)
+      // Un même cycle régénéré remplace ses blocs au lieu de les dupliquer.
+      .filter((b) => !b.startsWith(`## Cycle ${CYCLE} `));
+  }
+
+  // Tri antéchronologique par numéro de cycle : la galerie reste correcte même si
+  // les cycles sont générés dans le désordre (rattrapage d'un cycle ancien).
+  const cycleOf = (b) => {
+    const m = b.match(/^## Cycle (\d+)/);
+    return m ? Number(m[1]) : -1;
+  };
+  const all = [...block.split(/(?=^## Cycle )/m).map((b) => b.trim()).filter(Boolean), ...previous]
+    .sort((a, b) => cycleOf(b) - cycleOf(a));
+
+  await writeFile(GALLERY_PATH, `${header}${all.join("\n\n")}`.trimEnd() + "\n", "utf8");
+  console.log(`\n[ui-gallery] docs/ui-loop/GALERIE.md mis à jour.`);
+
+  const total = await dirSize(SHOTS_ROOT);
+  const mb = (total / 1024 / 1024).toFixed(1);
+  console.log(`[ui-gallery] poids de docs/ui-loop/shots/ : ${mb} Mo`);
+  if (total > BUDGET_BYTES) {
+    console.warn(
+      `[ui-gallery] ⚠ budget de 40 Mo dépassé — élague les cycles les plus anciens (MISSION-UI.md §7bis).`,
+    );
+  }
+}
+
+async function makeWorktree(ref, tag) {
+  const dir = path.join(os.tmpdir(), `ui-gallery-${tag}-${Date.now()}`);
+  console.log(`[ui-gallery] worktree ${tag} (${ref}) → ${dir}`);
+  git(`worktree add --detach "${dir}" ${ref}`);
+
+  // Vite a besoin des dépendances ; on réutilise celles du repo plutôt que de
+  // réinstaller (jonction sous Windows, lien symbolique ailleurs).
+  const link = path.join(dir, "node_modules");
+  const target = path.join(ROOT, "node_modules");
+  try {
+    if (process.platform === "win32") {
+      execSync(`cmd /c mklink /J "${link}" "${target}"`, { stdio: "ignore" });
+    } else {
+      execSync(`ln -s "${target}" "${link}"`, { stdio: "ignore" });
+    }
+  } catch (err) {
+    fail(`Impossible de lier node_modules dans le worktree : ${err.message}`);
+  }
+  return dir;
+}
+
+async function dropWorktree(dir) {
+  try {
+    // La jonction doit partir en premier, sinon git supprimerait node_modules du repo.
+    const link = path.join(dir, "node_modules");
+    if (existsSync(link)) {
+      if (process.platform === "win32") execSync(`cmd /c rmdir "${link}"`, { stdio: "ignore" });
+      else execSync(`rm "${link}"`, { stdio: "ignore" });
+    }
+    git(`worktree remove --force "${dir}"`);
+  } catch {
+    await rm(dir, { recursive: true, force: true }).catch(() => {});
+    try {
+      git("worktree prune");
+    } catch {
+      /* best effort */
+    }
+  }
+}
+
+main().catch((err) => {
+  console.error(err);
+  try {
+    git("worktree prune");
+  } catch {
+    /* best effort */
+  }
+  process.exitCode = 1;
+});

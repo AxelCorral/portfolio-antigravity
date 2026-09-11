@@ -179,6 +179,25 @@ cycle suivant — potentiellement dans une session neuve, après un reset de cr�
 de reprendre exactement là où tu t'es arrêté. Un cycle non journalisé est un cycle
 perdu.
 
+Puis tu régénères **`docs/ui-loop/GALERIE.md`** (format en §7bis). Le journal dit ce
+que tu as fait ; la galerie le **montre**. Un chantier livré sans sa paire AVANT/APRÈS
+est un chantier invérifiable : c'est le seul endroit où un humain peut constater en
+trois secondes que le cycle a amélioré quelque chose plutôt que de te croire sur parole.
+
+```bash
+node scripts/ui-gallery.mjs \
+  --cycle=NNN \
+  --before=<ref-git-juste-avant-le-cycle> \
+  --sections=<ids-de-sections-touchées> \
+  --label="<intitulé du chantier>" \
+  --why="<ce qui a changé et pourquoi, une ligne>"
+```
+
+Le script fait tout : il monte un worktree git sur la révision AVANT, capture les
+deux états aux viewports **390** et **1440**, compresse en `.webp` et réécrit la
+galerie. Tu ne fabriques jamais ces images à la main, et tu ne réutilises jamais une
+capture d'un autre cycle en la faisant passer pour l'état AVANT.
+
 ---
 
 ## 3. ZONE PRIORITAIRE ABSOLUE
@@ -384,6 +403,49 @@ antéchronologique). Tu ne réécris pas les entrées passées.
 ### Questions bloquantes ouvertes
 - <renvoi vers QUESTIONS.md ou "aucune">
 ```
+
+---
+
+## 7bis. FORMAT DE LA GALERIE (`docs/ui-loop/GALERIE.md`)
+
+Fichier **régénéré** à chaque fin de cycle, en ordre antéchronologique (cycle le plus
+récent en haut). Un bloc par chantier livré — pas un bloc par cycle : si un cycle
+livre trois chantiers, il produit trois blocs.
+
+```markdown
+## Cycle NNN — AAAA-MM-JJ · <intitulé du chantier>
+
+> <une seule ligne : ce qui a changé, et pourquoi ça valait le coup>
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390**  | ![avant 390](shots/cycle-NNN/<slug>-390-avant.webp)   | ![après 390](shots/cycle-NNN/<slug>-390-apres.webp)   |
+| **1440** | ![avant 1440](shots/cycle-NNN/<slug>-1440-avant.webp) | ![après 1440](shots/cycle-NNN/<slug>-1440-apres.webp) |
+
+`<hash court>` · `<hash court>`
+```
+
+### Règles non négociables
+
+- **Emplacement** : `docs/ui-loop/shots/cycle-NNN/`, jamais ailleurs. Ce dossier est
+  **suivi par git** — contrairement à `docs/ui-loop/screenshots/`, qui est ignoré et
+  ne sert qu'aux audits jetables. Ne confonds jamais les deux.
+- **Format** : `.webp`, qualité **80**, largeur maximale **1200 px**. Une capture qui
+  dépasse **200 Ko** est à recadrer sur la section concernée plutôt qu'à prendre en
+  pleine page — on montre le chantier, pas tout le site.
+- **Nommage** : `<slug-du-chantier>-<390|1440>-<avant|apres>.webp`. Le slug est en
+  kebab-case et reste identique entre AVANT et APRÈS.
+- **Chemins relatifs** uniquement (`shots/...`), pour que la page reste lisible sur
+  GitHub comme en local.
+- **Honnêteté** : l'image AVANT est capturée sur la révision git réellement antérieure
+  au chantier. Jamais une capture recyclée d'un autre cycle, jamais une capture
+  reconstituée à la main. Si tu ne peux pas produire un AVANT authentique (section
+  créée de zéro), tu écris `— (section nouvelle, pas d'état antérieur)` dans la
+  cellule AVANT au lieu d'inventer une image.
+- **Budget** : si `docs/ui-loop/shots/` dépasse **40 Mo**, tu supprimes les images des
+  cycles les plus anciens et tu remplaces leurs blocs par une ligne
+  `_(captures élaguées — voir PROGRESS.md cycle NNN)_`. La galerie est une vitrine
+  récente, pas une archive exhaustive.
 
 ---
 

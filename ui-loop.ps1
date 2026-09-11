@@ -34,7 +34,7 @@ param(
     # utilisée seulement si le message de Claude ne donne pas d'heure de reset.
     [int]    $LimitWaitMinutes = 20,
 
-    [string] $Model           = 'sonnet',
+    [string] $Model           = 'opus',
 
     # 0 = pas de plafond de tours par cycle.
     [int]    $MaxTurns        = 0,
@@ -66,6 +66,7 @@ $StopFile   = Join-Path $RepoPath 'STOP'
 $PauseFile  = Join-Path $RepoPath 'PAUSE'
 $StateFile  = Join-Path $LogDir  'cycle-count.txt'
 $RunLog     = Join-Path $LogDir  ('supervisor-{0:yyyyMMdd}.log' -f (Get-Date))
+$LockFile   = Join-Path $LogDir  'supervisor.pid'
 
 New-Item -ItemType Directory -Force -Path $LogDir | Out-Null
 
@@ -142,11 +143,16 @@ function Start-CountdownSleep {
 
 $script:LimitPatterns = @(
     'usage limit',
+    'session limit',
+    'weekly limit',
+    'monthly limit',
     'rate limit',
     'rate_limit',
     'limit reached',
     'limit will reset',
-    'you have (?:hit|reached)',
+    # Formulation reelle de Claude Code : "You've hit your session limit - resets 5pm"
+    'hit your .{0,40}limit',
+    "you(?:'ve| have|'re| are)\s+(?:hit|reached|out of)",
     'out of (?:credits|tokens)',
     'insufficient (?:credits|quota|balance)',
     'quota exceeded',
@@ -273,6 +279,38 @@ function Test-ClaudeAvailable {
 }
 
 # ---------------------------------------------------------------------------
+# Instance unique
+# ---------------------------------------------------------------------------
+# La tâche planifiée et un lancement manuel peuvent viser ce script en même
+# temps. Deux superviseurs sur le même repo se marcheraient dessus (git, build,
+# PROGRESS.md). La seconde instance doit donc se retirer immédiatement.
+
+function Get-LockOwnerPid {
+    if (-not (Test-Path $LockFile)) { return 0 }
+    $n = 0
+    $raw = Get-Content $LockFile -Raw -ErrorAction SilentlyContinue
+    if ([int]::TryParse("$raw".Trim(), [ref]$n)) { return $n }
+    return 0
+}
+
+function Test-SupervisorAlreadyRunning {
+    $other = Get-LockOwnerPid
+    if ($other -le 0 -or $other -eq $PID) { return $false }
+
+    $proc = Get-Process -Id $other -ErrorAction SilentlyContinue
+    if (-not $proc) { return $false }          # verrou périmé : le process est mort
+
+    # Un PID recyclé par un programme quelconque ne doit pas nous bloquer.
+    return ($proc.ProcessName -in @('powershell', 'pwsh'))
+}
+
+function Remove-Lock {
+    if ((Get-LockOwnerPid) -eq $PID) {
+        Remove-Item $LockFile -Force -ErrorAction SilentlyContinue
+    }
+}
+
+# ---------------------------------------------------------------------------
 # Prompt de cycle
 # ---------------------------------------------------------------------------
 
@@ -304,6 +342,12 @@ Contraintes de ce run :
 # Boucle principale
 # ---------------------------------------------------------------------------
 
+if (Test-SupervisorAlreadyRunning) {
+    Write-Log "Un superviseur tourne déjà (PID $(Get-LockOwnerPid)). Cette instance s'arrête." 'WARN'
+    exit 0
+}
+Set-Content -Path $LockFile -Value $PID -Encoding ASCII
+
 Write-Host ''
 Write-Host '  ╔══════════════════════════════════════════════════════════╗' -ForegroundColor DarkCyan
 Write-Host '  ║   BOUCLE UI — PORTFOLIO · superviseur Claude Code        ║' -ForegroundColor DarkCyan
@@ -324,6 +368,8 @@ if (Test-Path $StopFile) {
 
 $cycle             = Get-CycleNumber
 $consecutiveErrors = 0
+
+try {
 
 while ($true) {
 
@@ -401,6 +447,11 @@ while ($true) {
     Write-Log ("Uptime superviseur : {0:dd\j\ hh\h\ mm\m}" -f $uptime)
 
     if (-not (Start-CountdownSleep -Minutes $IntervalMinutes -Reason 'Pause inter-cycles')) { break }
+}
+
+}
+finally {
+    Remove-Lock
 }
 
 Write-Host ''
