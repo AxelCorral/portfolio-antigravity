@@ -637,7 +637,13 @@ a {
 .home-section-heading p,
 .contact-kicker {
   margin: 0 0 1rem;
-  color: rgba(225, 224, 204, 0.52);
+  /* 0.58, pas 0.52. A 11px le seuil applicable est 4.5:1 et 0.52 mesurait
+     4.49:1 dans la page (4.53:1 en calcul analytique sur #101010) : la
+     conformite tenait a la troisieme decimale, sur un fond qui n'est meme pas
+     uni (`bg-noise` sur #capabilities, fond local entre #020202 et #111).
+     0.58 donne 5.35:1 — c'est la valeur deja retenue au cycle 002 pour
+     `.language-toggle-btn`, pour exactement cette raison. */
+  color: rgba(225, 224, 204, 0.58);
   font-size: 0.6875rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
