@@ -70,7 +70,7 @@ export function WordsPullUp({
   showAsterisk?: boolean;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true });
+  const inView = useInView(ref, { once: true, margin: "0px 0px 240px 0px" });
   const reduceMotion = useReducedMotion();
   const words = text.split(" ");
 
@@ -82,7 +82,7 @@ export function WordsPullUp({
             className="relative inline-block"
             initial={reduceMotion ? false : { opacity: 0, y: 20 }}
             animate={inView ? { opacity: 1, y: 0 } : undefined}
-            transition={{ duration: 0.7, delay: index * 0.08, ease: pullEase }}
+            transition={{ duration: 0.55, delay: index * 0.045, ease: pullEase }}
           >
             {word}
             {showAsterisk && index === words.length - 1 ? (
@@ -113,7 +113,7 @@ export function WordsPullUpMultiStyle({
   align?: "left" | "center";
 }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true });
+  const inView = useInView(ref, { once: true, margin: "0px 0px 240px 0px" });
   const reduceMotion = useReducedMotion();
   const words = segments.flatMap((segment) =>
     segment.text.split(" ").map((word) => ({ word, className: segment.className })),
@@ -130,7 +130,7 @@ export function WordsPullUpMultiStyle({
             className="inline-block"
             initial={reduceMotion ? false : { opacity: 0, y: 20 }}
             animate={inView ? { opacity: 1, y: 0 } : undefined}
-            transition={{ duration: 0.7, delay: index * 0.08, ease: pullEase }}
+            transition={{ duration: 0.55, delay: index * 0.045, ease: pullEase }}
           >
             {word}
           </motion.span>
@@ -151,12 +151,17 @@ export function AnimatedLetter({
   total: number;
   scrollYProgress: MotionValue<number>;
 }) {
+  const reduceMotion = useReducedMotion();
   const progress = index / total;
   const opacity = useTransform(
     scrollYProgress,
     [Math.max(0, progress - 0.1), Math.min(1, progress + 0.05)],
     [0.2, 1],
   );
+
+  if (reduceMotion) {
+    return <span>{character}</span>;
+  }
 
   return <motion.span style={{ opacity }}>{character}</motion.span>;
 }
