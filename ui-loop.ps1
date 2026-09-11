@@ -43,6 +43,13 @@ param(
 )
 
 $ErrorActionPreference = 'Continue'
+
+# Console en UTF-8 : sans cela PowerShell 5.1 rend les accents, les encadrés et
+# l'emoji du compte à rebours avec la codepage OEM (850/437) et tout est illisible.
+try {
+    [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding $false
+    $OutputEncoding           = New-Object System.Text.UTF8Encoding $false
+} catch { }
 $script:StartedAt = Get-Date
 
 # ---------------------------------------------------------------------------
