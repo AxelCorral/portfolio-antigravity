@@ -653,8 +653,14 @@ a {
   line-height: 0.92;
 }
 
+/* This is the section *subtitle* rule. `.contact-kicker` is also a <p> inside
+   `.contact-panel`, so the bare `.contact-panel p` used to out-specify
+   (0-1-1 vs 0-1-0) the eyebrow rule above and repaint the contact kicker at
+   16px / #9ca3af / margin-top 20px, while the two eyebrows above it stayed at
+   11px / ivory-52% / margin-top 0. The last section of the page announced
+   itself in a style used nowhere else — cycle 018 audit D3-b. */
 .home-section-heading > span,
-.contact-panel p {
+.contact-panel p:not(.contact-kicker) {
   display: block;
   max-width: 42rem;
   margin-top: 1.25rem;
