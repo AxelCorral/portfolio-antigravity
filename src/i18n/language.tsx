@@ -79,6 +79,13 @@ export const translations = {
       title: "Let us talk about dashboards, pipelines and analytical systems.",
       body:
         "Available for Analytics Engineer and Junior Data Engineer opportunities anywhere in France and abroad.",
+      cvLabel: "CV",
+      cvCaption: "View online resume",
+    },
+    footer: {
+      backToTop: "Back to top",
+      backToTopAria: "Back to top of page",
+      rights: "All rights reserved.",
     },
     modal: {
       overview: "Overview",
@@ -401,6 +408,13 @@ export const translations = {
       title: "Parlons dashboards, pipelines et systèmes analytiques.",
       body:
         "Disponible pour des opportunités d'Analytics Engineer et de Data Engineer junior partout en France et à l'étranger.",
+      cvLabel: "CV",
+      cvCaption: "Voir le CV en ligne",
+    },
+    footer: {
+      backToTop: "Retour en haut",
+      backToTopAria: "Retour en haut de page",
+      rights: "Tous droits réservés.",
     },
     modal: {
       overview: "Vue d’ensemble",

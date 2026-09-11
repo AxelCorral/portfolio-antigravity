@@ -2736,11 +2736,117 @@ a {
 
   .contact-panel {
     grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
-    align-items: end;
+    align-items: center;
+  }
+}
+
+/* ============================================================
+   Site footer — page closure below the contact panel
+   ============================================================ */
+
+.site-footer {
+  border-top: 1px solid rgba(225, 224, 204, 0.12);
+  background: #000;
+  padding: 2rem 1rem 2.5rem;
+}
+
+.site-footer-inner {
+  display: flex;
+  max-width: 92rem;
+  margin: 0 auto;
+  flex-direction: column;
+  gap: 1.5rem;
+  text-align: center;
+}
+
+.site-footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.site-footer-mark {
+  color: #e1e0cc;
+  font-size: 0.9375rem;
+  letter-spacing: -0.01em;
+}
+
+.site-footer-rights {
+  margin: 0;
+  color: var(--color-ink-muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+}
+
+.site-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem 1.25rem;
+}
+
+.site-footer-links a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  color: rgba(225, 224, 204, 0.7);
+  font-size: 0.8125rem;
+  text-decoration: none;
+  transition: color 180ms ease;
+}
+
+.site-footer-links a:hover,
+.site-footer-links a:focus-visible {
+  color: #e1e0cc;
+}
+
+.site-footer-top {
+  display: inline-flex;
+  align-self: center;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid rgba(225, 224, 204, 0.18);
+  border-radius: 999px;
+  background: rgba(225, 224, 204, 0.06);
+  padding: 0.6rem 1.1rem;
+  color: #f1efdf;
+  font-size: 0.75rem;
+  text-decoration: none;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.site-footer-top:hover,
+.site-footer-top:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(225, 224, 204, 0.42);
+  background: rgba(225, 224, 204, 0.13);
+}
+
+@media (min-width: 768px) {
+  .site-footer {
+    padding-inline: 1.5rem;
+  }
+
+  .site-footer-inner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+  }
+
+  .site-footer-links {
+    justify-content: flex-start;
   }
 }
 
 @media (min-width: 1024px) {
+  .site-footer {
+    padding-inline: 4rem;
+  }
+
   .city-header {
     padding-inline: 4rem;
   }

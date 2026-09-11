@@ -1,5 +1,6 @@
 import {
   ArrowRight,
+  ArrowUp,
   BarChart3,
   BookOpen,
   Boxes,
@@ -12,6 +13,7 @@ import {
   Mail,
   type LucideIcon,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { ProjectCarousel } from "@/components/carousel/ProjectCarousel";
 import {
   footballPipelineSlidesEn,
@@ -143,14 +145,29 @@ const contactLinks = [
     value: "axel.corral.pro@gmail.com",
     href: "mailto:axel.corral.pro@gmail.com",
     icon: Mail,
+    internal: false,
   },
   {
     label: "GitHub",
     value: "github.com/AxelCorral",
     href: "https://github.com/AxelCorral",
     icon: GitBranch,
+    internal: false,
   },
 ];
+
+function getContactLinks(contactLabels: ReturnType<typeof useLanguage>["t"]["contact"]) {
+  return [
+    ...contactLinks,
+    {
+      label: contactLabels.cvLabel,
+      value: contactLabels.cvCaption,
+      href: "/cv",
+      icon: FileText,
+      internal: true,
+    },
+  ];
+}
 
 function ProjectShowcaseCard({
   project,
@@ -384,6 +401,8 @@ function CapabilityCard({
 }
 
 function ContactSection({ labels }: { labels: ReturnType<typeof useLanguage>["t"]["contact"] }) {
+  const links = getContactLinks(labels);
+
   return (
     <section className="contact-section" id="contact" aria-labelledby="contact-title">
       <div className="contact-panel">
@@ -394,22 +413,78 @@ function ContactSection({ labels }: { labels: ReturnType<typeof useLanguage>["t"
         </div>
 
         <div className="contact-links">
-          {contactLinks.map((link) => {
+          {links.map((link) => {
             const Icon = link.icon;
-            return (
-              <a href={link.href} key={link.href} target={link.href.startsWith("http") ? "_blank" : undefined} rel={link.href.startsWith("http") ? "noreferrer" : undefined}>
+            const content = (
+              <>
                 <Icon size={18} aria-hidden="true" />
                 <span>
                   <strong>{link.label}</strong>
                   {link.value}
                 </span>
-                <ExternalLink size={15} aria-hidden="true" />
+                {link.internal ? (
+                  <ArrowRight size={15} aria-hidden="true" />
+                ) : (
+                  <ExternalLink size={15} aria-hidden="true" />
+                )}
+              </>
+            );
+            return link.internal ? (
+              <Link to={link.href} key={link.href}>
+                {content}
+              </Link>
+            ) : (
+              <a href={link.href} key={link.href} target="_blank" rel="noreferrer">
+                {content}
               </a>
             );
           })}
         </div>
       </div>
     </section>
+  );
+}
+
+function SiteFooter({
+  labels,
+  contactLabels,
+}: {
+  labels: ReturnType<typeof useLanguage>["t"]["footer"];
+  contactLabels: ReturnType<typeof useLanguage>["t"]["contact"];
+}) {
+  const year = new Date().getFullYear();
+  const links = getContactLinks(contactLabels);
+
+  return (
+    <footer className="site-footer">
+      <div className="site-footer-inner">
+        <div className="site-footer-brand">
+          <span className="site-footer-mark">Axel Corral</span>
+          <p className="site-footer-rights">
+            © {year} Axel Corral. {labels.rights}
+          </p>
+        </div>
+
+        <nav className="site-footer-links" aria-label={contactLabels.kicker}>
+          {links.map((link) =>
+            link.internal ? (
+              <Link to={link.href} key={link.href}>
+                {link.label}
+              </Link>
+            ) : (
+              <a href={link.href} key={link.href} target="_blank" rel="noreferrer">
+                {link.label}
+              </a>
+            ),
+          )}
+        </nav>
+
+        <a className="site-footer-top" href="#main" aria-label={labels.backToTopAria}>
+          {labels.backToTop}
+          <ArrowUp size={15} aria-hidden="true" />
+        </a>
+      </div>
+    </footer>
   );
 }
 
@@ -536,6 +611,7 @@ function OnePage() {
 
         <ContactSection labels={t.contact} />
       </main>
+      <SiteFooter labels={t.footer} contactLabels={t.contact} />
       <BuildMode open={buildModeOpen} onClose={closeBuildMode} />
       <ProjectDetailModal
         project={selectedProject}
