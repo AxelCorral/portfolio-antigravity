@@ -2819,13 +2819,26 @@ a {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.5rem 1.25rem;
+  /* column-gap 0 : l'ecart entre les liens est desormais porte par leur
+     propre padding-inline (voir ci-dessous), pas par la grille. Additionner
+     les deux elargirait l'espacement percu de 20px a 40px. */
+  gap: 0.5rem 0;
 }
 
 .site-footer-links a {
   display: inline-flex;
   min-height: 44px;
+  /* La hauteur avait ete portee a 44px au cycle 016, la largeur ne l'avait
+     jamais ete : `CV` mesurait 17.7px de large, sous le plancher de 24px de
+     WCAG 2.5.8 et tres loin du 44px que le reste de la zone s'impose
+     (`.site-footer-top` 117x44, `.contact-links a` 497x70, `.card-link`
+     136-211x44). padding-inline 10px + min-width 44px amenent les trois
+     boites a 44px minimum ; combines au column-gap 0 ci-dessus, l'ecart
+     percu entre les libelles reste de 20 a 23px, soit celui d'avant. */
+  min-width: 44px;
+  padding-inline: 0.625rem;
   align-items: center;
+  justify-content: center;
   color: rgba(225, 224, 204, 0.7);
   font-size: 0.8125rem;
   text-decoration: none;
