@@ -544,9 +544,14 @@ function OnePage() {
   const closeProject = useCallback(() => setSelectedProjectId(null), []);
   const aboutText = t.about.body;
   const paragraphRef = useRef<HTMLParagraphElement>(null);
+  // The reveal has to *finish* while the paragraph is still at a comfortable
+  // reading height, not as it leaves the screen. With "end 0.2" the last
+  // characters only lit up once rect.top was between 1px and 57px (measured at
+  // 390/1440/1920, cycle 017) — the text was never fully legible in place.
+  // Ending at 0.6 lands completion with the paragraph around mid-viewport.
   const { scrollYProgress } = useScroll({
     target: paragraphRef,
-    offset: ["start 0.8", "end 0.2"],
+    offset: ["start 0.85", "end 0.6"],
   });
 
   // Cross-route deep links (e.g. from /cv) land with a URL hash before this

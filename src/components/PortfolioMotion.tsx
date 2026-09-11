@@ -9,6 +9,18 @@ import { useRef } from "react";
 
 const pullEase = [0.16, 1, 0.3, 1] as const;
 
+/**
+ * Opacity floor for scroll-revealed body copy.
+ *
+ * A reveal may dim text, never hide it: the not-yet-revealed state is what the
+ * reader actually stares at while the paragraph sits mid-screen, so it has to
+ * clear WCAG AA on its own. Measured on `.about-card` (text rgb(222,219,200)
+ * over #101010, 16px body): 0.2 = 1.64:1, 0.5 = 4.16:1, 0.55 = 4.78:1,
+ * 0.58 = 5.2:1. 0.58 is the value already used for `.language-toggle-btn`
+ * (cycle 002) for the same reason — keep the two in step.
+ */
+export const REVEAL_FLOOR_OPACITY = 0.58;
+
 export function CharacterLines({ lines }: { lines: string[] }) {
   const reduceMotion = useReducedMotion();
   let characterIndex = 0;
@@ -156,7 +168,7 @@ export function AnimatedLetter({
   const opacity = useTransform(
     scrollYProgress,
     [Math.max(0, progress - 0.1), Math.min(1, progress + 0.05)],
-    [0.2, 1],
+    [REVEAL_FLOOR_OPACITY, 1],
   );
 
   if (reduceMotion) {
