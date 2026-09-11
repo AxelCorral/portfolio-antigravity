@@ -30,3 +30,8 @@ dist-ssr
 /cv-axel-corral.html
 .vercel
 .env*
+
+# Boucle UI (superviseur)
+/STOP
+/PAUSE
+logs/
