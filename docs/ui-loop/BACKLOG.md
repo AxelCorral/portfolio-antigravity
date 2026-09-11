@@ -28,6 +28,14 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   (commit `00691e7`) : opacité 0.45→0.58 (repos), 0.75→0.82 (hover),
   contraste calculé ≥ 5.4:1 sur fond noir. À reconfirmer par axe-core au
   prochain run complet (violation attendue résolue).
+- [x] **Bloc "Analytical profile" visuellement plat, sans identité propre**
+  (`.about-card`, fond uni `#101010` sans aucune texture, contrairement au
+  `.contact-panel` voisin qui a déjà un radial-gradient). Réponse directe à
+  la question MISSION-UI.md §3 "le bloc a-t-il une raison d'exister
+  visuellement, ou est-ce un paragraphe posé ?" — c'était un paragraphe posé.
+  Corrigé cycle 015 (commit `4d289d4`) : halo radial discret au token
+  `--pc-amber-dim` déjà utilisé ailleurs, en haut à gauche de la carte, sans
+  toucher au texte ni au contraste.
 
 ## P1 — Intégration des nouveaux projets (MISSION-UI.md §4)
 
@@ -96,11 +104,15 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
 
 ## P2 — Reste du site
 
-- [ ] Fichiers `src/sections/About.tsx`, `Contact.tsx`, `Stack.tsx`,
-  `Manifeste.tsx`, `FlowProjets.tsx` : non importés par `App.tsx`/`OnePage.tsx`,
-  semblent être un premier jet abandonné. À confirmer sur 2 cycles (pas de
-  suppression hâtive — garde-fou "jamais de suppression hors périmètre") puis
-  supprimer si confirmé mort, pour ne pas polluer les futurs audits/greps.
+- [x] Fichiers `src/sections/About.tsx`, `Contact.tsx`, `Stack.tsx`,
+  `Manifeste.tsx`, `FlowProjets.tsx` : premier jet abandonné, non importé
+  depuis l'audit d'amorçage (cycle 001). Supprimé cycle 015 (commit `b1c77a5`)
+  après confirmation grep exhaustive — largement au-delà des "2 cycles" de
+  garde-fou. `Hero.tsx` et `Nav.tsx` du même dossier se sont avérés tout
+  aussi morts (non repérés par l'audit initial) et ont été supprimés en même
+  temps. Seul `DeepDive.tsx` du dossier `sections/` reste utilisé
+  (`App.tsx`, `pages/DeepDivePage.tsx`). Effet mesurable : CSS de prod
+  106.68 kB → 94.04 kB.
 - [ ] `aria-prohibited-attr` sur `.city-heading` (hero) — attribut ARIA non
   permis, à corriger.
 - [ ] `landmark-unique` — `.pc-nav` du carrousel projet 01 dupliqué sans nom
@@ -111,6 +123,17 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   Pas urgent (pas de garde-fou performance chiffré dans la mission), mais à
   garder à l'œil si de nouvelles démos iframe/vidéo alourdissent encore le
   bundle initial.
+- [ ] **`scripts/ui-audit.mjs` semble se bloquer sur un run complet** :
+  observé cycle 015, le run s'est arrêté sans erreur ni progression pendant
+  14+ minutes au milieu du scroll progressif du viewport `desktop-1920_en`
+  (dernier fichier écrit : `scroll-01-y400.png`), alors qu'un script minimal
+  équivalent (1440 + 390, FR/EN, scroll + captures ciblées) s'exécute en
+  moins de 2 minutes sans problème. Cause non identifiée (candidats :
+  `page.screenshot({fullPage:true})` qui attend un événement réseau/police
+  qui ne se résout jamais sur ce viewport précis, ou le scan axe-core qui
+  bloque). À investiguer avant de compter dessus pour un audit complet —
+  ajouter un timeout explicite par étape pour fail-fast plutôt qu'un blocage
+  silencieux.
 
 ## Terminé
 

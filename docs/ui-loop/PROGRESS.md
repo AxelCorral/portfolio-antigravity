@@ -6,6 +6,107 @@
 
 ---
 
+## Cycle 015 — 2026-09-11 17:40
+
+**Zone travaillée** : zone prioritaire (§3) — identité visuelle du bloc
+"Analytical profile". Chantier annexe : nettoyage de code mort dans
+`src/sections/`.
+**Rotation de questions** : A (Hiérarchie), avec la question nommée
+explicitement par MISSION-UI.md §3 ("le bloc a-t-il une raison d'exister
+visuellement, ou est-ce un paragraphe posé ?") comme fil conducteur, en
+poursuite directe du point de reprise de cycle 003 (audit frais de la zone
+prioritaire avant de passer aux nouveaux projets).
+
+### Constats d'audit
+- Build initial ✅. Le script `scripts/ui-audit.mjs` s'est bloqué sans
+  erreur pendant 14+ minutes au milieu du scroll progressif du viewport
+  `desktop-1920_en` (dernier fichier écrit : `scroll-01-y400.png`) — tâche
+  arrêtée, remplacée par un script d'audit ciblé ad hoc (1440/390, FR/EN,
+  captures de section) qui s'exécute en < 2 min sans problème. Cause du
+  blocage non identifiée, consignée en P2 dans `BACKLOG.md` pour
+  investigation future — ne pas relancer un run complet sans surveillance.
+- Comparaison visuelle top-de-page / zone prioritaire (Rotation A) : le hero
+  (photo, nav semi-transparente, tags) et les slides projets (visuels de
+  graphiques, cartes à deux panneaux) ont une richesse texturale que la
+  zone prioritaire n'avait pas entièrement rattrapée. `.contact-panel` avait
+  déjà un radial-gradient (ajouté cycle 002) et `.work-section` a un
+  `bg-noise`, mais `.about-card` ("Analytical profile") restait un fond
+  plat `#101010` sans aucune texture — **P1**, réponse directe à la
+  question nommée par la mission pour cette section précise.
+- Les cartes "Capabilities", le panneau de contact et le footer, revérifiés
+  visuellement (1440/390, FR/EN) : aucune régression, liens différenciés
+  toujours en place (cycle 003), contraste toggle de langue toujours bon,
+  footer toujours un point de clôture net — rien de nouveau à corriger
+  dans ces trois blocs ce cycle-ci.
+- En grepant l'usage réel de `src/sections/*.tsx` pour comprendre la
+  richesse relative des blocs, confirmation que `About.tsx`, `Contact.tsx`,
+  `Stack.tsx`, `Manifeste.tsx`, `FlowProjets.tsx` restent non importés
+  (comme noté au cycle 001) et découverte que `Hero.tsx` et `Nav.tsx` du
+  même dossier sont **également** morts (non repérés par l'audit initial) —
+  **P2**, largement au-delà du seuil "2 cycles" de confirmation du
+  garde-fou anti-suppression hâtive.
+
+### Changements livrés
+- `4d289d4` — ui(about): donner une identité visuelle propre au bloc
+  Analytical profile (radial-gradient discret au token `--pc-amber-dim`,
+  cohérent avec le traitement déjà appliqué à `.contact-panel`).
+- `b1c77a5` — chore(sections): supprimer le premier jet abandonné non
+  importé (`About`, `Contact`, `Stack`, `Manifeste`, `FlowProjets`, `Hero`,
+  `Nav` dans `src/sections/`). Effet mesurable : CSS de prod
+  106.68 kB → 94.04 kB (classes Tailwind scannées dans ces fichiers morts
+  purgées). `DeepDive.tsx` (seul fichier encore utilisé du dossier) conservé.
+
+### Vérification
+- Build : ✅ (`npm run build` vert avant et après chaque commit ; `tsc -b`
+  inclus dans le script `build`)
+- Viewports vérifiés : 390 / 1440 (audit ciblé ad hoc ; 768/1920 non
+  revérifiés ce cycle faute d'un run complet fiable de `ui-audit.mjs`, voir
+  constat P2 ci-dessus — à refaire dès que le script est stabilisé)
+- Langues : FR ✅ EN ✅
+- reduced-motion : ✅ (aucune animation ajoutée, changement CSS statique
+  uniquement ; suppression de fichiers non importés donc sans effet runtime)
+- Régression détectée : non — capture avant/après du bloc "Analytical
+  profile" comparée côte à côte, `console errors: []` après le nettoyage de
+  `src/sections/`, capture full-page post-nettoyage inspectée visuellement
+  (hero, slides, zone prioritaire tous intacts)
+
+### Reverté
+- Aucun
+
+### État des chantiers structurels
+- Vers l'Élysée : non commencé (vérification technique iframe faite cycle
+  003 : `political-destiny.vercel.app` sans en-tête bloquant)
+- Ombrair : non commencé (vérification technique iframe faite cycle 003 :
+  `ombrair.vercel.app` sans en-tête bloquant)
+- Analyse vidéo football : non commencé
+- Démos projets existants : 3/3 conformes (inchangé depuis cycle 003)
+
+### Prochain cycle — point de reprise exact
+- La zone prioritaire (§3) est maintenant jugée au niveau du haut de page
+  sur les critères audités à ce jour (identité visuelle, contraste,
+  reduced-motion, clôture de page, liens différenciés). Passer au chantier
+  P1 suivant dans l'ordre de priorité imposé (§2 Phase 4) : intégration de
+  "Vers l'Élysée" (carte projet + page détail + section démo iframe vers
+  `political-destiny.vercel.app`, ton neutre imposé par le sujet politique,
+  angle "démarche de modélisation" pas "jeu"). Avant de coder l'iframe,
+  vérifier les conventions existantes du composant carte/carrousel projet
+  dans `OnePage.tsx`/`ProjectShowcaseCard` pour s'y intégrer sans créer de
+  pattern parallèle. Traiter ensuite Ombrair dans la foulée si le contexte
+  le permet (même mécanique d'iframe, même niveau de vérification
+  technique déjà fait cycle 003). Continuer de consacrer au moins un
+  chantier par cycle à la zone prioritaire pendant ce travail, même mineur
+  (ex. le point P2 "vide en bas des cartes Capabilities", ou rejouer un
+  audit Rotation B/C sur mobile une fois `ui-audit.mjs` stabilisé ou son
+  successeur ad hoc formalisé).
+
+### Questions bloquantes ouvertes
+- Q1, Q2, Q3, Q4 — voir `docs/ui-loop/QUESTIONS.md` (inchangées depuis
+  cycle 001). Q2 et Q3 (repo GitHub public pour Vers l'Élysée / Ombrair)
+  redeviennent pertinentes dès le prochain cycle puisque leur chantier
+  commence.
+
+---
+
 ## Cycle 003 — 2026-09-11 (reconstitué a posteriori)
 
 > Note de journalisation : cette entrée est écrite au cycle 004, après coup.
