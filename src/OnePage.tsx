@@ -393,7 +393,7 @@ function CapabilityCard({
       </div>
 
       <div>
-        <h3 className="mb-7 text-2xl font-normal leading-none text-primary">
+        <h3 className="mb-6 text-2xl font-normal leading-none text-primary">
           {capability.title}
         </h3>
         <ul className="space-y-4">
@@ -622,20 +622,19 @@ function OnePage() {
           aria-labelledby="work-title"
         >
           <div className="relative z-10 mx-auto max-w-[1600px]">
-            <h2 id="work-title" className="work-heading">
-              <span className="block text-primary">
+            {/* Same heading pattern as the project-slides section above
+                (kicker / h2 / intro) so the two sections announce themselves
+                at the same typographic level — cycle 016 audit P1. */}
+            <div className="home-section-heading">
+              <p>{t.capabilities.kicker}</p>
+              <h2 id="work-title">
                 <WordsPullUpMultiStyle
                   align="left"
                   segments={[{ text: t.capabilities.title }]}
                 />
-              </span>
-              <span className="block text-gray-500">
-                <WordsPullUpMultiStyle
-                  align="left"
-                  segments={[{ text: t.capabilities.subtitle }]}
-                />
-              </span>
-            </h2>
+              </h2>
+              <span>{t.capabilities.subtitle}</span>
+            </div>
 
             <div className="work-grid">
               {capabilities.map((capability, index) => (

@@ -979,34 +979,31 @@ a {
   background: #000;
 }
 
-.work-heading {
-  max-width: 55rem;
-  margin: 0 0 3rem;
-  font-size: clamp(1.25rem, 3vw, 2.5rem);
-  font-weight: 400;
-  line-height: 1.15;
-}
-
 .work-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
+/* Rhythm is explicit (32 / 24 / 16px), not a by-product of a fixed height:
+   `justify-content: space-between` on a 420/480px box used to push the title
+   down by a variable amount, so the four card titles never shared a baseline
+   (y = 436/436/445/445 at 1440 — cycle 016 audit P1). Cards now size to their
+   content and the grid row equalises them; the link is pinned by margin-top. */
 .capability-card {
   position: relative;
-  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
   overflow: hidden;
   border: 1px solid rgba(225, 224, 204, 0.08);
   border-radius: 1.5rem;
+  background: #212121;
   padding: 1.5rem;
 }
 
-.capability-card {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  background: #212121;
+.capability-card .card-link {
+  margin-top: auto;
 }
 
 .icon-frame {
@@ -2744,7 +2741,6 @@ a {
 
   .work-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.5rem;
   }
 
   .creator-hotspot {
@@ -2950,14 +2946,14 @@ a {
     min-height: 100%;
   }
 
+  /* The gap used to shrink as the viewport grew (12 -> 8 -> 4px), which read as
+     one striped slab rather than four objects. Single value on the 8px scale,
+     matching .home-project-list above. */
   .work-grid {
-    height: 480px;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 0.25rem;
   }
 
   .capability-card {
-    min-height: 0;
     border-radius: 1rem;
   }
 

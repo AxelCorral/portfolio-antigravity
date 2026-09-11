@@ -60,6 +60,7 @@ export const translations = {
       contactAxel: "Contact Axel",
     },
     capabilities: {
+      kicker: "Capabilities / evidence",
       title: "Capabilities connected to real projects.",
       subtitle: "Dashboards, pipelines, models and analytical storytelling.",
     },
@@ -388,6 +389,7 @@ export const translations = {
       contactAxel: "Contacter Axel",
     },
     capabilities: {
+      kicker: "Compétences / preuves",
       title: "Des compétences reliées à des projets réels.",
       subtitle: "Dashboards, pipelines, modèles et storytelling analytique.",
     },
