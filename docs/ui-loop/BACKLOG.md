@@ -137,21 +137,48 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   échantillonnées**, plus seulement au repos. Leçon d'outillage : une mesure
   de géométrie prise pendant un `transform` ne mesure pas le CSS.
 
-- [ ] **`.site-footer-links a` : 44px de haut mais 17.7 à 40px de large**
+- [x] **`.site-footer-links a` : 44px de haut mais 17.7 à 40px de large**
   (mesuré cycle 017 : `CV` 17.7x44, `Email` 31.9x44, `GitHub` 40x44 — identique
   à 390 et 1440, EN et FR). Le cycle 016 a vérifié la **hauteur** de ces liens
   et les a déclarés conformes ; leur largeur n'avait jamais été mesurée. `CV`
-  passe même sous le plancher de 24px de WCAG 2.5.8. Piste : `padding-inline`
-  sur `.site-footer-links a` pour amener la boîte cliquable à 44px de large
-  sans changer la typographie ni l'espacement perçu entre les liens.
-- [ ] **Kicker de section à 4.52:1** (`.home-section-heading p` /
-  `.contact-kicker`, `rgba(225, 224, 204, 0.52)`) : conforme, mais sans
-  marge, et ces kickers sont posés sur un fond texturé (`bg-noise`, fond
-  local mesuré entre #020202 et #111 sur `#capabilities` à 1440). Aucune
-  violation axe `color-contrast` sur les 10 runs du cycle 016, donc pas un
-  P0 ; mais la moindre dérive de texture ou de palette le fait passer sous le
-  seuil. Piste : aligner sur `0.58` (5.35:1), la valeur déjà retenue au cycle
-  002 pour `.language-toggle-btn` exactement pour cette raison.
+  passe même sous le plancher de 24px de WCAG 2.5.8. Corrigé cycle 018 (commit
+  `6416659`) : `padding-inline: 0.625rem` + `min-width: 44px` + centrage, et le
+  column-gap de la grille ramené à 0 pour ne pas additionner les deux
+  espacements. Après (4 viewports x 2 langues, identique partout) : Email
+  51.9x44, GitHub 60x44, CV 44x44 ; écart perçu entre les libellés 20 et
+  23.1px contre 20 et 20px avant. Typographie inchangée.
+- [x] **Kicker de section à 4.52:1** (`.home-section-heading p` /
+  `.contact-kicker`, `rgba(225, 224, 204, 0.52)`). Re-mesuré cycle 018 dans la
+  page (contraste composité, alpha aplati sur le fond opaque réellement
+  hérité) : **4.49:1**, donc **sous** le seuil de 4.5:1 applicable à 11px, et
+  pas au-dessus comme le cycle 016 l'avait estimé. Requalifié **P0** à ce
+  titre. axe-core ne l'a jamais signalé — 4.49 contre 4.5 tombe dans sa
+  tolérance d'arrondi ; c'est exactement pourquoi §6 exige une mesure.
+  Corrigé cycle 018 (commit `1cb67ee`) : `0.58` → **5.37 à 5.41:1** mesurés
+  sur les trois kickers, la valeur déjà tranchée au cycle 002 pour
+  `.language-toggle-btn` dans le même cas de figure.
+- [x] **`.contact-kicker` repeint par `.contact-panel p`** (collision de
+  spécificité, `index.css:638` vs `index.css:656`). Le kicker de la dernière
+  section de la page était rendu en 16px / `rgb(156,163,175)` / `margin-top:
+  20px` là où les deux kickers au-dessus sont en 11px /
+  `rgba(225,224,204,.52)` / `margin-top: 0` — le `letter-spacing: 0.16em`
+  survivait, d'où 2.56px de tracking au lieu de 1.76px. Mesuré cycle 018 aux
+  4 viewports dans les 2 langues. Corrigé cycle 018 (commit `b95e3ef`) :
+  `.contact-panel p:not(.contact-kicker)`. `#contact` perd 29 à 30px de
+  hauteur sur les 10 combinaisons du run d'audit — la marge fantôme plus
+  l'écart de corps.
+
+- [ ] **`#about` est le seul bloc de la zone sans aucune ancre de preuve**
+  (rotation D, cycle 018). Le bloc « Analytical profile » est 100 % assertif :
+  phrase-titre + paragraphe énumérant « business intelligence, Power BI, SQL,
+  Python, reporting automation and open data projects », sans un lien, un
+  chiffre vérifiable ou un renvoi. Ce n'est pas une faute en soi — un bloc de
+  positionnement a le droit d'être déclaratif, et `#capabilities` prouve juste
+  après (4 cartes, 4 liens de preuve différenciés). Mais c'est le dernier
+  endroit de la zone où un tech lead lit une affirmation sans pouvoir la
+  vérifier. Arbitrage éditorial, pas un défaut mesuré : à traiter quand un
+  cycle n'a pas d'écart chiffré plus urgent dans la zone.
+
 - [ ] **Le voile du sélecteur de langue masque un mot de carte sur 390px** à
   certaines positions de scroll (visible dans la paire APRÈS de la galerie
   cycle 016 : "…and reporting [EN] models"). C'est un progrès net sur la
@@ -182,6 +209,15 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   silencieux.
 
 ## Terminé
+
+- [x] Cycle 018 — Zone prioritaire, rotation D (crédibilité), 3 chantiers, tous
+  issus de mesures et non d'impressions : kicker de contact rendu à
+  l'eyebrow du reste de la page (`b95e3ef`), contraste des trois kickers porté
+  de 4.49:1 à ~5.4:1 (`1cb67ee`, P0 §6), cibles tactiles des trois liens du
+  footer portées à 44px de large (`6416659`). Leçon d'outillage symétrique de
+  celle du cycle 017 : une capture d'élément prise **avant** un reveal ne
+  mesure pas le rendu — les `.capability-card` apparaissaient vides dans
+  `capabilities.png` alors qu'elles sont intactes après un scroll complet.
 
 - [x] Cycle 017 — Zone prioritaire, rotation C (mouvement), 3 chantiers :
   lisibilité du paragraphe "Analytical profile" pendant sa révélation

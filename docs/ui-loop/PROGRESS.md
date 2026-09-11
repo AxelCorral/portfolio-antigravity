@@ -6,6 +6,182 @@
 
 ---
 
+## Cycle 018 — 2026-09-11 23:59
+
+**Zone travaillée** : zone prioritaire (§3) uniquement — `#contact` (kicker de
+section), `.site-footer` (cibles tactiles), plus la règle de kicker partagée
+`.home-section-heading p` qui remonte aussi à `#projects`. Conformément à la
+consigne de run, les trois chantiers sont dans la zone ; aucun chantier §4/§5
+n'a été ouvert.
+**Rotation de questions** : **D — Crédibilité**. Les cinq rotations ayant toutes
+été passées au cycle 017, la rotation reprend au début. D avait déjà servi aux
+cycles 012 et 014, mais jamais *après* la remise à niveau typographique et
+rythmique de la zone (cycles 015-017) — ce qui a fait apparaître un écart que
+les passages précédents ne pouvaient pas voir.
+
+### Constats d'audit
+
+Audit complet dans `docs/ui-loop/AUDIT-2026-09-11-cycle-018.md`. Résumé :
+
+- **D1 — un tech lead comprend-il ?** Oui, dans la zone. `#capabilities` nomme
+  les outils (Power BI, SharePoint, Power Query, Python, SQL, ETL, AWS,
+  versioning) et les 4 cartes portent 4 liens de preuve différenciés. Aucun ne
+  renvoie vers `#contact` : le défaut du cycle 001 est réglé et le reste.
+- **D2 — affirmations étayées ?** 4/4 dans `#capabilities`, **0 dans `#about`**.
+  Le bloc « Analytical profile » est le seul de la zone sans aucune ancre de
+  preuve. Non traité (plafond de 3 chantiers, et c'est un arbitrage éditorial
+  face à trois écarts chiffrés) — **consigné au backlog**.
+- **D3-a / P0** — Les trois kickers de section (`.home-section-heading p`,
+  `.contact-kicker`) en `rgba(225,224,204,0.52)` à **11px** mesuraient
+  **4.49:1** dans la page (contraste composité, alpha aplati sur le fond opaque
+  réellement hérité) et 4.53:1 en calcul analytique sur `#101010`. Le seuil
+  applicable à 11px est 4.5:1 : **la conformité tenait à la troisième
+  décimale**, sur un fond qui n'est même pas uni (`bg-noise` sur
+  `#capabilities`, fond local relevé entre `#020202` et `#111` au cycle 016).
+  Le cycle 016 avait estimé 4.52:1 et classé « conforme, sans marge » ; la
+  mesure dit l'inverse. **axe-core ne l'a jamais signalé** — 4.49 contre 4.5
+  tombe dans sa tolérance d'arrondi, ce qui est exactement la raison pour
+  laquelle §6 exige un contraste mesuré et pas estimé — tous viewports, EN et
+  FR — **P0**.
+- **D3-b / P1** — `.contact-kicker` (`index.css:638`, spécificité 0-1-0) est un
+  `<p>` **dans** `.contact-panel` : la règle de sous-titre `.contact-panel p`
+  (`index.css:656`, 0-1-1, et postérieure) l'emportait sur `color`, `font-size`
+  et `margin-top`. Relevé aux 4 viewports dans les 2 langues :
+
+  | eyebrow | font-size | color | margin-top | hauteur |
+  | --- | --- | --- | --- | --- |
+  | `Selected projects / proof first` | 11px | `rgba(225,224,204,.52)` | 0 | 16.5 |
+  | `Capabilities / evidence` | 11px | `rgba(225,224,204,.52)` | 0 | 16.5 |
+  | **`Contact / next step`** | **16px** | **`rgb(156,163,175)`** | **20px** | **26.4** |
+
+  Le `letter-spacing: 0.16em` de `.contact-kicker` survivait, lui : 2.56px de
+  tracking au lieu de 1.76px. La section de conversion — la dernière chose que
+  lit un recruteur — s'annonçait donc dans une typographie que la page
+  n'utilise nulle part ailleurs, avec 20px de marge fantôme. C'est
+  littéralement la « rupture de qualité entre le haut et le bas » que §3
+  demande de chercher, sauf qu'elle venait d'une collision de sélecteurs —
+  tous viewports, EN et FR — **P1**.
+- **D3-c / P1** — `.site-footer-links a` : `Email` **31.9 × 44**, `GitHub`
+  **40 × 44**, `CV` **17.7 × 44**, `padding` calculé `0px`, identique aux
+  4 viewports dans les 2 langues. Le cycle 016 avait vérifié la **hauteur** et
+  déclaré ces liens conformes ; la largeur ne l'avait jamais été. `CV` passait
+  sous le plancher de **24px** de WCAG 2.5.8, et les trois sous le 44px que le
+  reste de la zone s'impose (`.site-footer-top` 117.6×44, `.contact-links a`
+  497×69.9, `.card-link` 136–211×44) — **P1**.
+
+### Changements livrés
+
+Ordre de commit : D3-b avant D3-a, bien que D3-a soit le P0. C'est délibéré —
+tant que `.contact-panel p` repeignait le kicker de contact, un changement
+d'opacité sur la règle d'eyebrow n'aurait atteint que deux kickers sur trois.
+La priorité de §2 gouverne le **choix** des chantiers, pas l'ordre des commits.
+
+- `b95e3ef` — ui(contact): rendre au kicker de contact l'eyebrow du reste de la
+  page. `.contact-panel p:not(.contact-kicker)` ; aucun autre `.contact-panel p`
+  n'existe dans la feuille.
+- `1cb67ee` — ui(sections): porter les trois kickers de section au-dessus du
+  seuil de contraste. `0.52` → `0.58`, la valeur déjà tranchée au cycle 002
+  pour `.language-toggle-btn` dans le même cas de figure : les kickers
+  rejoignent une décision existante au lieu d'en introduire une nouvelle.
+- `6416659` — ui(footer): donner aux trois liens du footer une cible tactile de
+  44px de large. `padding-inline: 0.625rem` + `min-width: 44px` + centrage, et
+  le column-gap de `.site-footer-links` ramené à 0 pour ne pas additionner les
+  deux espacements.
+
+### Vérification
+
+- Build : ✅ (`npm run build` vert avant chaque commit ; CSS 94.04 → **94.12 kB**,
+  JS 644.53 kB inchangé). `tsc --noEmit` : ✅ sans sortie.
+- Viewports vérifiés : 390 / 768 / 1440 / 1920 (runs `zone-c018-before` et
+  `zone-c018-after`, 10 combinaisons viewport × langue × motion chacun,
+  **0 erreur console**, **0 overflow horizontal** sur les 20).
+- Langues : FR ✅ EN ✅ (aucun texte ajouté ; les trois kickers et les trois
+  liens de footer mesurés séparément dans les deux langues).
+- reduced-motion : ✅ (1440 FR et EN, captures `contact.png` et `footer.png`
+  inspectées ; le kicker FR « CONTACT / PROCHAINE ÉTAPE » est bien au nouveau
+  corps).
+- Nav clavier : ✅ — les quatre cibles du bloc de clôture reçoivent
+  `:focus-visible` en `solid 2px rgb(222,219,200)` avec 4px d'offset, à 1440 EN
+  et 390 FR. Effet de bord favorable du D3-c : l'anneau de focus de `CV`
+  entourait une boîte de 17.7px, il entoure maintenant les 44px réels.
+- **Mesures avant/après** :
+
+  | | AVANT | APRÈS |
+  | --- | --- | --- |
+  | contraste des 3 kickers | 4.49:1 | **5.37 à 5.41:1** |
+  | corps du kicker `#contact` | 16px | **11px** |
+  | marge fantôme au-dessus | 20px | **0** |
+  | `Email` / `GitHub` / `CV` | 31.9 / 40 / **17.7** × 44 | **51.9 / 60 / 44** × 44 |
+  | écart perçu entre libellés de footer | 20 / 20 px | **20 / 23.1 px** |
+  | hauteur de `#contact` (10 combinaisons) | — | **−29 à −30 px** |
+
+  Les −29/−30px de `#contact` sont exactement la marge fantôme (20px) plus
+  l'écart de corps du kicker (26.4 → 16.5) : le chantier D3-b ne fait pas que
+  corriger un style, il rend 30px de hauteur à la dernière section.
+- Sous-titres de section revérifiés après le `:not()` : 16px, 7.49 à 8.27:1,
+  inchangés — la règle de sous-titre n'a pas été cassée par l'exclusion.
+- Non-régression hors zone : `.home-section-heading p` sert aussi à
+  `#projects`. Capture du `.home-section-heading` de cette section inspectée
+  après coup — kicker, `h2` et sous-titre intacts, le contraste du kicker y
+  gagne aussi. Grep : aucune des quatre classes touchées n'est utilisée hors
+  de `OnePage.tsx` ; `/cv` n'en contient aucune (vérifié à l'exécution, 0
+  occurrence).
+- axe-core : **3 violations, strictement identiques à celles du cycle 001**
+  (`aria-prohibited-attr` sur `.city-heading`, `landmark-unique` sur `.pc-nav`,
+  `region` sur `.language-toggle`), toutes hors zone prioritaire. Aucune
+  violation `color-contrast` ni avant ni après — voir D3-a sur ce que ça vaut.
+- Régression détectée : non.
+
+### Reverté
+- Aucun.
+
+### Faux positif d'outillage identifié (à ne pas reproduire)
+- Dans `zone-c018-before/*/capabilities.png`, la section apparaît **vide** :
+  ni titre `.work-heading`, ni aucune des 4 cartes. Ce n'est pas un bug de
+  rendu. `ui-zone-audit.mjs` prend sa capture d'élément quand le **haut** de la
+  section entre dans le viewport ; les cartes, encore sous la ligne de
+  flottaison, n'ont pas déclenché leur `useInView`. Recapturé après un scroll
+  complet : titre, 4 cartes et 16 items intacts. C'est la leçon symétrique de
+  celle du cycle 017 (« une mesure prise pendant un transform ne mesure pas le
+  CSS ») : **une capture prise avant un reveal ne mesure pas le rendu**. Piste
+  d'outillage si ça gêne à nouveau : une option `--after-full-scroll` sur
+  `ui-zone-audit.mjs` pour capturer les sections au repos plutôt qu'à
+  l'approche.
+
+### État des chantiers structurels
+- Vers l'Élysée : non commencé (iframe vérifiée réalisable cycle 003)
+- Ombrair : non commencé (iframe vérifiée réalisable cycle 003)
+- Analyse vidéo football : non commencé
+- Démos projets existants : 3/3 conformes (inchangé depuis cycle 003)
+
+### Prochain cycle — point de reprise exact
+- La zone prioritaire n'a plus **aucun écart mesuré ouvert** : les quatre
+  candidats chiffrés du backlog (largeur des liens de footer, contraste des
+  kickers, spécificité du kicker de contact, cible tactile du bouton « retour
+  en haut ») sont tous livrés. Les deux items encore ouverts sur la zone sont
+  un arbitrage éditorial (`#about` sans ancre de preuve, rotation D ci-dessus)
+  et un défaut intermittent (le voile du sélecteur de langue masque un mot de
+  carte sur 390px à certaines positions de scroll).
+- **Ouvrir « Vers l'Élysée » (§4.1)** en chantier principal — premier P1 de
+  l'ordre imposé, reporté du cycle 017. Lire d'abord les conventions de carte
+  projet dans `OnePage.tsx` (liste `.home-project-*`, `ProjectShowcaseCard`,
+  `ProjectDetailModal`) pour s'y intégrer sans créer de pattern parallèle,
+  puis carte projet + vue détail + démo iframe vers
+  `political-destiny.vercel.app` (en-têtes vérifiés cycle 003 : `200 OK`,
+  aucun `X-Frame-Options` ni `frame-ancestors`). Ton neutre imposé, angle
+  « démarche de modélisation », titre affiché « Vers l'Élysée » (jamais
+  « political destiny »), pas de lien repo tant que Q2 n'est pas tranchée.
+- Chantier court à mener en ouverture si le temps le permet : traiter le voile
+  du sélecteur de langue sur 390px (gouttière droite réservée sur les cartes,
+  ou masquage du toggle au scroll descendant).
+
+### Questions bloquantes ouvertes
+- Q1, Q2, Q3, Q4 — voir `docs/ui-loop/QUESTIONS.md` (inchangées). Aucune
+  nouvelle question ce cycle : les trois chantiers étaient des corrections
+  appuyées sur des mesures, pas des arbitrages factuels.
+
+---
+
 ## Cycle 017 — 2026-09-11 23:55
 
 **Zone travaillée** : zone prioritaire (§3) uniquement — `#about` (révélation

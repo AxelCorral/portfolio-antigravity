@@ -5,6 +5,39 @@
 > Captures : viewports 390 et 1440, `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 018 — 2026-09-11 · Les trois liens du footer deviennent des cibles tactiles de 44px
+
+> Email 31.9, GitHub 40, CV 17.7 px de large : le dernier point de conversion de la page etait plus etroit que le plancher WCAG 2.5.8. Ils font desormais 44px minimum, a espacement percu constant.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-018/footer-cibles-tactiles-390-avant.webp) | ![après 390](shots/cycle-018/footer-cibles-tactiles-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-018/footer-cibles-tactiles-1440-avant.webp) | ![après 1440](shots/cycle-018/footer-cibles-tactiles-1440-apres.webp) |
+
+`1cb67ee` · `6416659`
+
+## Cycle 018 — 2026-09-11 · Les trois kickers de section passent au-dessus du seuil de contraste
+
+> 0.52 mesurait 4.49:1 a 11px : la conformite tenait a la troisieme decimale, sur un fond texture. 0.58 donne 5.35:1. Ecart mesure, faiblement photogenique : c'est l'eyebrow du haut qui change, de six centiemes d'opacite.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-018/kickers-contraste-390-avant.webp) | ![après 390](shots/cycle-018/kickers-contraste-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-018/kickers-contraste-1440-avant.webp) | ![après 1440](shots/cycle-018/kickers-contraste-1440-apres.webp) |
+
+`b95e3ef` · `1cb67ee`
+
+## Cycle 018 — 2026-09-11 · Le kicker de contact rejoint le systeme d'eyebrow de la page
+
+> La derniere section de la page s'annoncait en 16px gris froid la ou les deux sections au-dessus utilisent un eyebrow de 11px ivoire : une collision de selecteurs, pas un choix.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-018/kicker-contact-390-avant.webp) | ![après 390](shots/cycle-018/kicker-contact-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-018/kicker-contact-1440-avant.webp) | ![après 1440](shots/cycle-018/kicker-contact-1440-apres.webp) |
+
+`b103eb0` · `b95e3ef`
+
 ## Cycle 017 — 2026-09-11 · Entrée des cartes Capabilities par translation au lieu d'une mise à l'échelle
 
 > Capture figée 520 ms après l'entrée. L'écart se lit sur la position et la taille des cartes, pas sur leur luminosité : le scale co-animait avec l'opacité, il n'est donc pas photogénique — la preuve est mesurée (carte 375px au lieu de 394, liens 41.8px au lieu de 44, bordure 1px amincie à 0.95px pendant 650 ms ; 44.00px partout après).
