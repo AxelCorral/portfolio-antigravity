@@ -5,6 +5,39 @@
 > Captures : viewports 390 et 1440, `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 017 — 2026-09-11 · Entrée des cartes Capabilities par translation au lieu d'une mise à l'échelle
+
+> Capture figée 520 ms après l'entrée. L'écart se lit sur la position et la taille des cartes, pas sur leur luminosité : le scale co-animait avec l'opacité, il n'est donc pas photogénique — la preuve est mesurée (carte 375px au lieu de 394, liens 41.8px au lieu de 44, bordure 1px amincie à 0.95px pendant 650 ms ; 44.00px partout après).
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-017/capabilities-entree-translation-390-avant.webp) | ![après 390](shots/cycle-017/capabilities-entree-translation-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-017/capabilities-entree-translation-1440-avant.webp) | ![après 1440](shots/cycle-017/capabilities-entree-translation-1440-apres.webp) |
+
+`8a25b54` · `4c7aa53`
+
+## Cycle 017 — 2026-09-11 · Stagger des cartes Capabilities calé sur la colonne réelle
+
+> Capture figée 300 ms après l'entrée de la 4e carte : en une colonne elle attendait 450 ms d'un stagger d'index qui ne correspondait à aucune sœur entrant en même temps.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-017/capabilities-stagger-390-avant.webp) | ![après 390](shots/cycle-017/capabilities-stagger-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-017/capabilities-stagger-1440-avant.webp) | ![après 1440](shots/cycle-017/capabilities-stagger-1440-apres.webp) |
+
+`8a25b54` · `6d8b1ad`
+
+## Cycle 017 — 2026-09-11 · Lisibilité du paragraphe Analytical profile pendant sa révélation
+
+> Le paragraphe restait à 0.2 d'opacité (1.64:1 mesuré) alors qu'il occupait tout l'écran ; plancher porté à 0.58 (5.2:1) et fin de révélation ramenée au centre du viewport au lieu du bord haut.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-017/about-reveal-lisible-390-avant.webp) | ![après 390](shots/cycle-017/about-reveal-lisible-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-017/about-reveal-lisible-1440-avant.webp) | ![après 1440](shots/cycle-017/about-reveal-lisible-1440-apres.webp) |
+
+`8a25b54` · `d614ce8`
+
 ## Cycle 016 — 2026-09-11 · Lisibilité du sélecteur de langue flottant
 
 > Sur 390px le toggle fixe EN · FR s'imprimait directement sur le texte des cartes (deux textes clairs superposés, contraste non défini) : voile radial sans bord sous le contrôle, le parti typographie nue est conservé.

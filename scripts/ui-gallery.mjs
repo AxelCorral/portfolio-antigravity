@@ -29,6 +29,13 @@
  *   --slug=...         nom de fichier (défaut : dérivé du label)
  *   --lang=fr|en       langue des captures (défaut : en)
  *   --commits=a,b      hashes courts affichés sous le bloc (défaut : before..after)
+ *   --prescroll=no     n'effectue pas le passage de scroll de préchauffage. Ce
+ *                      passage déclenche les reveals `once: true` ; il est
+ *                      indispensable pour une capture au repos, et rédhibitoire
+ *                      pour un chantier dont la preuve EST l'animation en cours.
+ *   --settle=<ms>      délai avant la capture, une fois la cible calée
+ *                      (défaut 500). Avec --prescroll=no, c'est l'instant de
+ *                      l'entrée que l'on fige.
  */
 import { chromium } from "playwright";
 import sharp from "sharp";
@@ -56,6 +63,8 @@ const AFTER_REF = args.after ?? null; // null = arbre de travail courant
 const SECTIONS = String(args.sections ?? "about").split(",").map((s) => s.trim()).filter(Boolean);
 const LANG = args.lang ?? "en";
 const WHY = args.why ?? "";
+const PRESCROLL = args.prescroll !== "no";
+const SETTLE = Number(args.settle ?? 500);
 
 const VIEWPORTS = [
   { name: "390", width: 390, height: 844 },
@@ -144,14 +153,18 @@ async function captureState(baseUrl) {
 
       // Un passage de scroll complet déclenche les reveals GSAP/ScrollTrigger, sinon
       // les sections basses sont capturées à l'état initial (opacité 0) et la
-      // comparaison devient absurde.
-      const height = await page.evaluate(() => document.body.scrollHeight);
-      for (let y = 0; y < height; y += 600) {
-        await page.evaluate((yy) => window.scrollTo(0, yy), y);
-        await page.waitForTimeout(120);
+      // comparaison devient absurde. L'inverse est vrai pour un chantier dont la
+      // preuve est l'entrée elle-même : préchauffer consomme le `once: true` et
+      // il ne reste plus rien à comparer — d'où --prescroll=no.
+      if (PRESCROLL) {
+        const height = await page.evaluate(() => document.body.scrollHeight);
+        for (let y = 0; y < height; y += 600) {
+          await page.evaluate((yy) => window.scrollTo(0, yy), y);
+          await page.waitForTimeout(120);
+        }
+        await page.evaluate(() => window.scrollTo(0, 0));
+        await page.waitForTimeout(400);
       }
-      await page.evaluate(() => window.scrollTo(0, 0));
-      await page.waitForTimeout(400);
 
       for (const id of SECTIONS) {
         const key = `${id}-${viewport.name}`;
@@ -179,7 +192,7 @@ async function captureState(baseUrl) {
           continue;
         }
         await locator.scrollIntoViewIfNeeded();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(PRESCROLL ? 500 : 0);
         try {
           if (asViewport) {
             const box = await locator.boundingBox();
@@ -188,7 +201,7 @@ async function captureState(baseUrl) {
                 (y) => window.scrollTo(0, y),
                 (await page.evaluate(() => window.scrollY)) + box.y - anchorTop,
               );
-              await page.waitForTimeout(500);
+              await page.waitForTimeout(SETTLE);
             }
             out[key] = await page.screenshot();
           } else {

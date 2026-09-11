@@ -126,14 +126,24 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   temps. Seul `DeepDive.tsx` du dossier `sections/` reste utilisé
   (`App.tsx`, `pages/DeepDivePage.tsx`). Effet mesurable : CSS de prod
   106.68 kB → 94.04 kB.
-- [ ] **`.capability-card a` mesuré à 42px de haut** (`163x42`, `152x42`,
-  `201x42`, `130x42` à 390 comme à 1440, cycle 016) : 2px sous le seuil de
-  44px de la rotation E, alors que `.contact-links a` (70px),
-  `.site-footer-links a` (44px) et `.site-footer-top` (44px, cycle 016) sont
-  conformes. Le message du commit `d0548d3` annonçait le bouton "retour en
-  haut" comme la dernière cible sous le seuil de la zone prioritaire : c'est
-  inexact, ces quatre liens le sont aussi. Chantier d'un cycle suivant (le
-  plafond de 3 chantiers de la Phase 4 était atteint).
+- [x] **`.capability-card a` mesuré à 42px de haut** (cycle 016) —
+  **diagnostic erroné, corrigé cycle 017**. Ce n'était pas un défaut CSS :
+  `.card-link` porte `min-height: 44px` depuis le commit `dba2f53`, antérieur
+  à la boucle. Les 41.8px relevés valent exactement `44 x 0.95`, c'est-à-dire
+  la mesure prise **pendant** l'animation d'entrée `scale: 0.95` de la carte.
+  La cause réelle (le scale qui déforme tout le contenu de la carte) est
+  traitée cycle 017 (commit `4c7aa53`) ; les 16 liens (4 cartes x 4 viewports
+  x 2 langues) mesurent désormais 44.00px **à toutes les positions de scroll
+  échantillonnées**, plus seulement au repos. Leçon d'outillage : une mesure
+  de géométrie prise pendant un `transform` ne mesure pas le CSS.
+
+- [ ] **`.site-footer-links a` : 44px de haut mais 17.7 à 40px de large**
+  (mesuré cycle 017 : `CV` 17.7x44, `Email` 31.9x44, `GitHub` 40x44 — identique
+  à 390 et 1440, EN et FR). Le cycle 016 a vérifié la **hauteur** de ces liens
+  et les a déclarés conformes ; leur largeur n'avait jamais été mesurée. `CV`
+  passe même sous le plancher de 24px de WCAG 2.5.8. Piste : `padding-inline`
+  sur `.site-footer-links a` pour amener la boîte cliquable à 44px de large
+  sans changer la typographie ni l'espacement perçu entre les liens.
 - [ ] **Kicker de section à 4.52:1** (`.home-section-heading p` /
   `.contact-kicker`, `rgba(225, 224, 204, 0.52)`) : conforme, mais sans
   marge, et ces kickers sont posés sur un fond texturé (`bg-noise`, fond
@@ -173,6 +183,16 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
 
 ## Terminé
 
+- [x] Cycle 017 — Zone prioritaire, rotation C (mouvement), 3 chantiers :
+  lisibilité du paragraphe "Analytical profile" pendant sa révélation
+  (`d614ce8`, P0 contraste 1.64:1 → 5.2:1 + fenêtre de révélation recentrée),
+  stagger des cartes Capabilities calé sur le nombre de colonnes réel plutôt
+  que sur l'index de grille (`6d8b1ad`), entrée des cartes par translation au
+  lieu d'une mise à l'échelle (`4c7aa53`, qui résout au passage le faux
+  diagnostic "42px" du cycle 016). Outillage : `scripts/ui-gallery.mjs` gagne
+  `--prescroll=no` et `--settle=<ms>` — sans ça le passage de préchauffage
+  consomme les reveals `once: true` et un chantier d'animation ne peut pas
+  avoir de paire AVANT/APRÈS du tout.
 - [x] Cycle 016 — Zone prioritaire, rotation B (rythme & espace), 3 chantiers :
   lisibilité du sélecteur de langue flottant (`264d58e`), remise de la
   section Capabilities au niveau typographique et rythmique de ses voisines

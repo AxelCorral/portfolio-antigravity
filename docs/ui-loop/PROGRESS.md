@@ -6,6 +6,159 @@
 
 ---
 
+## Cycle 017 — 2026-09-11 23:55
+
+**Zone travaillée** : zone prioritaire (§3) uniquement — `#about` (révélation
+du paragraphe « Analytical profile ») et `#capabilities` (chorégraphie d'entrée
+des 4 cartes). Conformément à la consigne de run, les trois chantiers sont dans
+la zone ; aucun chantier §4/§5 n'a été ouvert ce cycle.
+**Rotation de questions** : **C — Mouvement**, la dernière des cinq encore
+inexploitée (cycles précédents : D, E, D, A, B).
+
+### Constats d'audit
+
+Audit complet dans `docs/ui-loop/AUDIT-2026-09-11-cycle-017.md`. Résumé :
+
+- **C1 — coût des animations** : `AnimatedLetter` instancie 376 `motion.span`
+  (EN) / 397 (FR), chacun avec son `useTransform` abonné au scroll. Mesuré :
+  **52 fps** sur un scroll continu programmé de 1,5 s à travers le paragraphe.
+  Le coût runtime ne condamne pas l'effet — c'est son **état de départ** qui
+  était le problème. L'effet est conservé tel quel.
+- **C3 / P0** — Le plancher d'opacité `0.2` de `AnimatedLetter` n'est pas une
+  valeur d'animation, c'est **l'état de repos** de tout caractère pas encore
+  atteint par le scroll. Contraste mesuré (couleurs résolues via canvas) :
+  texte `rgb(222,219,200)` sur `#101010` à 16px → **1.64:1**, soit 2,7x sous le
+  garde-fou §6. Et ce n'est pas un flash : à 1440 le paragraphe est **100 %
+  dans le viewport avec ses 376 caractères sous le seuil** (`y=4874`), et il
+  faut **700 px de scroll** pour le rendre lisible — tous viewports, EN et FR
+  — **P0**.
+- **C3 / P0 (même cause, second défaut)** — `offset: ["start 0.8", "end 0.2"]`
+  ne terminait la révélation que lorsque le bas du paragraphe atteignait 20 %
+  de la hauteur du viewport. Aux trois viewports mesurés, le texte n'était
+  intégralement lisible qu'avec `rect.top` entre **1 et 57 px** : au moment
+  précis où il sort de l'écran. **Le paragraphe n'était jamais lisible en
+  entier à une position de lecture confortable.**
+- **P1** — `delay: index * 0.15` sur `.capability-card` est un stagger d'index
+  de grille alors que `useInView` est **par carte**. Positions de scroll de
+  révélation relevées : 390 → 4 entrées séparées (`y = 7105 / 7505 / 7905 /
+  8305`), 768 → 2 entrées, 1440 et 1920 → 1 seule. Sur 390 la carte 4 arrive
+  seule et attend quand même 450 ms avant un fondu de 650 ms : **1,1 s** entre
+  « à l'écran » et « lisible », sans aucune sœur pour justifier le décalage —
+  390 et 768 — **P1**.
+- **P1** — `initial={{ scale: 0.95 }}` met à l'échelle **tout** le contenu de
+  la carte pendant 650 ms : texte ré-échantillonné, bordure 1px amincie à
+  0.95px, carte qui ment sur sa taille de 19 px (`h=356` au lieu de 375 à 390,
+  `h=375` au lieu de 394 à 1440). **Résout un faux diagnostic** : le
+  « `.capability-card a` mesuré à 42px » du cycle 016 n'était pas un défaut
+  CSS — `.card-link` porte `min-height: 44px` depuis `dba2f53`, antérieur à la
+  boucle, et 41.8 = 44 × 0.95. La mesure avait été prise pendant l'animation.
+- **C2 — reduced-motion** : revérifié, rien à corriger. `AnimatedLetter`
+  court-circuite `useTransform` (cycle 002), `WordsPullUp*` et `CapabilityCard`
+  passent `initial={false}`. Capture 1440 EN inspectée : paragraphe et titre en
+  opacité pleine, aucune animation résiduelle.
+- **Nouveau constat non traité (plafond de 3 chantiers atteint)** : les trois
+  `.site-footer-links a` font 44px de haut mais **17.7 à 40px de large**
+  (`CV` 17.7×44, `Email` 31.9×44, `GitHub` 40×44, identique à 390/1440 et
+  EN/FR). Le cycle 016 avait vérifié leur hauteur et les avait déclarés
+  conformes ; leur largeur n'avait jamais été mesurée, et `CV` passe sous le
+  plancher de 24px de WCAG 2.5.8. Consigné au backlog.
+
+### Changements livrés
+- `d614ce8` — ui(about): rendre le paragraphe Analytical profile lisible
+  pendant qu'on le lit. Plancher porté à **0.58 (5.2:1)**, extrait en constante
+  `REVEAL_FLOOR_OPACITY` documentée avec ses mesures et alignée sur la valeur
+  déjà retenue au cycle 002 pour `.language-toggle-btn`. Fenêtre de révélation
+  ramenée de `["start 0.8", "end 0.2"]` à `["start 0.85", "end 0.6"]`.
+- `6d8b1ad` — ui(capabilities): caler le stagger des cartes sur la colonne
+  réelle, pas sur l'index. Le nombre de colonnes est lu à l'exécution sur la
+  grille (`gridTemplateColumns` + `ResizeObserver`, hook `useGridColumns`)
+  plutôt que redupliqué en media query JS ; le pas devient `index % columns`,
+  donc 0 en une colonne.
+- `4c7aa53` — ui(capabilities): entrer les cartes par translation (`y: 16`) au
+  lieu d'une mise à l'échelle.
+
+### Vérification
+- Build : ✅ (`npm run build` = `tsc -b && vite build`, vert avant chaque
+  commit ; CSS 94.04 kB, JS 644.14 kB — aucune dérive depuis le cycle 015).
+  `tsc --noEmit` : ✅ sans sortie.
+- Viewports vérifiés : 390 / 768 / 1440 / 1920 (run `zone-c017-after`,
+  10 combinaisons viewport × langue × motion, **0 erreur console**,
+  **0 overflow horizontal** sur les 10).
+- Langues : FR ✅ EN ✅ (aucun texte ajouté ce cycle ; les deux paragraphes,
+  376 et 397 caractères, mesurés séparément).
+- reduced-motion : ✅ (1440 FR + EN, captures inspectées).
+- Nav clavier : ✅ — `.card-link`, `.site-footer-links a` et `.site-footer-top`
+  reçoivent `:focus-visible` en `solid 2px` avec 4px d'offset, hauteur 44px.
+- **Mesures avant/après du P0** (scroll à partir duquel le paragraphe est
+  intégralement lisible, exprimé par sa position à l'écran) :
+
+  | viewport | AVANT (`rect.top`) | APRÈS (`rect.top`) |
+  | --- | --- | --- |
+  | 390 | 1 px | **301 px** |
+  | 1440 | 57 px | **457 px** |
+  | 1920 | 36 px | **536 px** |
+
+  Le texte est désormais entièrement lisible ~400 à 500 px de scroll plus tôt,
+  à une position de lecture réelle, et son état atténué est à 5.2:1.
+- **Mesures après du P1 cartes** : les 16 liens mesurent `44.00px` **à toutes
+  les positions de scroll échantillonnées** (avant : 41.8px pendant l'entrée),
+  et les hauteurs de carte ne varient plus pendant l'animation (375/394/414
+  selon viewport et langue, identiques au repos). Le stagger 4 colonnes est
+  intact à 1440/1920 (`1.00 / 0.99 / 0.93 / 0.68`), nul à 390.
+- axe-core : **3 violations, strictement identiques à celles du cycle 001**
+  (`aria-prohibited-attr` sur `.city-heading`, `landmark-unique` sur `.pc-nav`,
+  `region` sur `.language-toggle`), toutes hors zone prioritaire. Aucune
+  violation `color-contrast`. Aucune nouvelle violation introduite.
+- Régression détectée : non.
+
+### Reverté
+- Aucun.
+
+### Outillage ajouté ce cycle
+- `scripts/ui-gallery.mjs` : options `--prescroll=no` et `--settle=<ms>`. Le
+  passage de scroll de préchauffage consomme les reveals `once: true` ; sans
+  ces options, **un chantier d'animation ne peut pas avoir de paire
+  AVANT/APRÈS du tout** — la capture arrive toujours après la fin de l'entrée.
+  Elles permettent de figer l'entrée à un instant choisi sur les deux
+  révisions.
+- Note d'honnêteté consignée dans la galerie : l'écart du chantier `scale` est
+  **mesuré, pas photogénique** (le scale co-animait avec l'opacité, si bien
+  qu'une capture isolant la taille sans isoler la luminosité n'existe pas). La
+  légende le dit explicitement plutôt que de laisser croire que la paire le
+  montre.
+
+### État des chantiers structurels
+- Vers l'Élysée : non commencé (iframe vérifiée réalisable cycle 003)
+- Ombrair : non commencé (iframe vérifiée réalisable cycle 003)
+- Analyse vidéo football : non commencé
+- Démos projets existants : 3/3 conformes (inchangé depuis cycle 003)
+
+### Prochain cycle — point de reprise exact
+- Les cinq rotations de questions ont maintenant toutes été exploitées au moins
+  une fois sur la zone prioritaire (D, E, D, A, B, C). Le dernier écart mesuré
+  qui reste ouvert dans la zone est la **largeur** des trois liens du footer
+  (`CV` 17.7×44, `Email` 31.9×44, `GitHub` 40×44) : ajouter un
+  `padding-inline` à `.site-footer-links a` pour porter la boîte cliquable à
+  44px de large sans toucher à la typographie ni à l'espacement perçu, puis
+  re-mesurer aux 4 viewports dans les 2 langues. C'est un chantier court —
+  le mener en ouverture de cycle.
+- Chantier principal du cycle suivant : ouvrir **« Vers l'Élysée »** (§4.1),
+  premier P1 de l'ordre imposé. Lire d'abord les conventions de carte projet
+  dans `OnePage.tsx` (liste `.home-project-*`, `ProjectShowcaseCard`,
+  `ProjectDetailModal`) pour s'y intégrer sans créer de pattern parallèle,
+  puis carte projet + vue détail + démo iframe vers
+  `political-destiny.vercel.app` (en-têtes vérifiés cycle 003). Ton neutre
+  imposé, angle « démarche de modélisation », titre affiché « Vers l'Élysée »
+  (jamais « political destiny »), pas de lien repo tant que Q2 n'est pas
+  tranchée.
+
+### Questions bloquantes ouvertes
+- Q1, Q2, Q3, Q4 — voir `docs/ui-loop/QUESTIONS.md` (inchangées). Aucune
+  nouvelle question ce cycle : les trois chantiers étaient des décisions
+  d'exécution appuyées sur des mesures, pas des arbitrages factuels.
+
+---
+
 ## Cycle 016 — 2026-09-11 22:30
 
 **Zone travaillée** : zone prioritaire (§3) — `#capabilities` (titre de section
