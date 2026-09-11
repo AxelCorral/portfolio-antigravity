@@ -5,6 +5,39 @@
 > Captures : viewports 390 et 1440, `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 016 — 2026-09-11 · Lisibilité du sélecteur de langue flottant
+
+> Sur 390px le toggle fixe EN · FR s'imprimait directement sur le texte des cartes (deux textes clairs superposés, contraste non défini) : voile radial sans bord sous le contrôle, le parti typographie nue est conservé.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-016/language-toggle-lisible-390-avant.webp) | ![après 390](shots/cycle-016/language-toggle-lisible-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-016/language-toggle-lisible-1440-avant.webp) | ![après 1440](shots/cycle-016/language-toggle-lisible-1440-apres.webp) |
+
+`264d58e`
+
+## Cycle 016 — 2026-09-11 · Cible tactile du bouton retour en haut
+
+> Dernière cible sous le seuil de la zone prioritaire (39px mesuré) alors que les liens voisins sont déjà à 44px : le bouton passe à 44px de hauteur tactile sans changer son dessin.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-016/footer-cible-tactile-390-avant.webp) | ![après 390](shots/cycle-016/footer-cible-tactile-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-016/footer-cible-tactile-1440-avant.webp) | ![après 1440](shots/cycle-016/footer-cible-tactile-1440-apres.webp) |
+
+`d0548d3`
+
+## Cycle 016 — 2026-09-11 · Rythme et hiérarchie de la section Capabilities
+
+> Titre de section à 20px sur mobile, vides subis d'une hauteur de carte fixe et gap qui rétrécissait quand le viewport grandissait : la section se lisait comme une dalle striée sans titre perçu.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-016/capabilities-rythme-390-avant.webp) | ![après 390](shots/cycle-016/capabilities-rythme-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-016/capabilities-rythme-1440-avant.webp) | ![après 1440](shots/cycle-016/capabilities-rythme-1440-apres.webp) |
+
+`8c77001`
+
 ## Cycle 015 — 2026-09-11 · Identite visuelle du bloc Analytical profile
 
 > Le bloc n'avait ni cadre ni rythme propre et se fondait dans la section suivante : ajout d'un radial-gradient ambre discret pour qu'il se lise comme une section a part entiere.

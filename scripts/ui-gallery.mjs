@@ -19,7 +19,11 @@
  *   --cycle=NNN        numéro du cycle (obligatoire)
  *   --before=<ref>     révision git de l'état AVANT (obligatoire)
  *   --after=<ref>      révision de l'état APRÈS (défaut : l'arbre de travail courant)
- *   --sections=a,b     ids des sections à capturer (défaut : about)
+ *   --sections=a,b     cibles à capturer (défaut : about). Une cible est un id
+ *                      (`about`), un sélecteur CSS (`.site-footer`), ou
+ *                      `viewport:<cible>[@<y>]` pour capturer le viewport entier
+ *                      avec la cible calée à <y> px du haut — seule façon de
+ *                      montrer un chantier portant sur un overlay `fixed`.
  *   --label="..."      intitulé du chantier (défaut : dérivé du sujet du dernier commit)
  *   --why="..."        légende d'une ligne (obligatoire)
  *   --slug=...         nom de fichier (défaut : dérivé du label)
@@ -151,7 +155,25 @@ async function captureState(baseUrl) {
 
       for (const id of SECTIONS) {
         const key = `${id}-${viewport.name}`;
-        const locator = page.locator(`#${id}`).first();
+        // "viewport:<id>" cadre le viewport calé sur le haut de la section, au
+        // lieu de l'élément seul : c'est le seul moyen de montrer un chantier qui
+        // porte sur un overlay `position: fixed` (le sélecteur de langue), qui par
+        // définition n'appartient à aucune section.
+        const asViewport = id.startsWith("viewport:");
+        // "viewport:<cible>@<y>" cale en plus la cible à <y> px du haut du
+        // viewport. Un simple offset de scroll ne suffit pas : entre deux
+        // révisions la mise en page bouge, et la même valeur de scroll ne
+        // montre plus le même contenu — la paire AVANT/APRÈS ne comparerait
+        // alors plus rien. On s'accroche donc à un élément, pas à un pixel.
+        const spec = asViewport ? id.slice("viewport:".length) : id;
+        const at = spec.lastIndexOf("@");
+        const targetId = at === -1 ? spec : spec.slice(0, at);
+        const anchorTop = at === -1 ? 0 : Number(spec.slice(at + 1));
+        // Un id par défaut, mais un sélecteur brut s'il commence par "." : le
+        // footer n'a pas d'id et reste un chantier à documenter comme un autre.
+        const locator = page
+          .locator(targetId.startsWith(".") ? targetId : `#${targetId}`)
+          .first();
         if ((await locator.count()) === 0) {
           out[key] = null;
           continue;
@@ -159,7 +181,19 @@ async function captureState(baseUrl) {
         await locator.scrollIntoViewIfNeeded();
         await page.waitForTimeout(500);
         try {
-          out[key] = await locator.screenshot();
+          if (asViewport) {
+            const box = await locator.boundingBox();
+            if (box) {
+              await page.evaluate(
+                (y) => window.scrollTo(0, y),
+                (await page.evaluate(() => window.scrollY)) + box.y - anchorTop,
+              );
+              await page.waitForTimeout(500);
+            }
+            out[key] = await page.screenshot();
+          } else {
+            out[key] = await locator.screenshot();
+          }
         } catch {
           out[key] = null;
         }
@@ -251,8 +285,10 @@ async function main() {
   // sections dans un seul tableau ferait disparaître toutes les paires sauf la
   // dernière : le tableau n'a qu'une cellule AVANT et une cellule APRÈS par ligne.
   const perSection = [];
+  const regeneratedBases = [];
   for (const id of SECTIONS) {
     const base = SECTIONS.length > 1 ? `${slug}-${id}` : slug;
+    regeneratedBases.push(base);
     const rows = [];
 
     for (const viewport of VIEWPORTS) {
@@ -336,8 +372,18 @@ async function main() {
       .split(/(?=^## Cycle )/m)
       .map((b) => b.trim())
       .filter(Boolean)
-      // Un même cycle régénéré remplace ses blocs au lieu de les dupliquer.
-      .filter((b) => !b.startsWith(`## Cycle ${CYCLE} `));
+      // Un cycle peut livrer jusqu'à 3 chantiers, donc porter 3 blocs
+      // (MISSION-UI.md §7bis : un bloc par chantier, pas par cycle). On ne
+      // remplace donc que les blocs du même cycle qui montrent **le même**
+      // chantier — repéré par le préfixe de fichier de ses captures — sinon
+      // chaque run effacerait les chantiers documentés par le précédent.
+      .filter(
+        (b) =>
+          !b.startsWith(`## Cycle ${CYCLE} `) ||
+          !regeneratedBases.some((base) =>
+            b.includes(`shots/cycle-${CYCLE}/${base}-`),
+          ),
+      );
   }
 
   // Tri antéchronologique par numéro de cycle : la galerie reste correcte même si
