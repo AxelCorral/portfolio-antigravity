@@ -41,6 +41,9 @@ function getCapabilities(language: Language): Array<{
   title: string;
   icon: LucideIcon;
   items: string[];
+  linkHref: string;
+  linkLabel: string;
+  linkExternal?: boolean;
 }> {
   if (language === "fr") {
     return [
@@ -54,6 +57,8 @@ function getCapabilities(language: Language): Array<{
           "Design de KPI, filtres et hiérarchie visuelle",
           "Analyses lisibles par les métiers",
         ],
+        linkHref: "/cv#experience",
+        linkLabel: "Voir l'expérience Power BI",
       },
       {
         number: "02",
@@ -65,6 +70,8 @@ function getCapabilities(language: Language): Array<{
           "Architecture pipeline orientée AWS",
           "Datasets versionnés et sorties reproductibles",
         ],
+        linkHref: "#project-01",
+        linkLabel: "Voir Football Data Pipeline",
       },
       {
         number: "03",
@@ -76,6 +83,8 @@ function getCapabilities(language: Language): Array<{
           "Storytelling data et rédaction technique",
           "Conclusions claires à partir de sujets complexes",
         ],
+        linkHref: "#project-03",
+        linkLabel: "Voir le Modèle de soutenabilité des retraites",
       },
       {
         number: "04",
@@ -87,6 +96,9 @@ function getCapabilities(language: Language): Array<{
           "Structures de projet inspectables",
           "Présentation orientée méthode et preuve",
         ],
+        linkHref: "https://github.com/AxelCorral",
+        linkLabel: "Voir le profil GitHub",
+        linkExternal: true,
       },
     ];
   }
@@ -102,6 +114,8 @@ function getCapabilities(language: Language): Array<{
         "KPI design, filters and visual hierarchy",
         "Business-readable analytics",
       ],
+      linkHref: "/cv#experience",
+      linkLabel: "See the Power BI experience",
     },
     {
       number: "02",
@@ -113,6 +127,8 @@ function getCapabilities(language: Language): Array<{
         "AWS-oriented pipeline architecture",
         "Versioned datasets and reproducible outputs",
       ],
+      linkHref: "#project-01",
+      linkLabel: "See Football Data Pipeline",
     },
     {
       number: "03",
@@ -124,6 +140,8 @@ function getCapabilities(language: Language): Array<{
         "Data storytelling and technical writing",
         "Clear conclusions from complex subjects",
       ],
+      linkHref: "#project-03",
+      linkLabel: "See Retirement Sustainability Model",
     },
     {
       number: "04",
@@ -135,6 +153,9 @@ function getCapabilities(language: Language): Array<{
         "Reviewable project structures",
         "Method-focused project storytelling",
       ],
+      linkHref: "https://github.com/AxelCorral",
+      linkLabel: "See the GitHub profile",
+      linkExternal: true,
     },
   ];
 }
@@ -347,11 +368,9 @@ function SelectedProjectsSection({
 function CapabilityCard({
   capability,
   index,
-  learnMore,
 }: {
   capability: ReturnType<typeof getCapabilities>[number];
   index: number;
-  learnMore: string;
 }) {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: "-100px" });
@@ -387,15 +406,37 @@ function CapabilityCard({
         </ul>
       </div>
 
-      <a className="card-link group" href="#contact">
-        {learnMore}
-        <ArrowRight
-          className="transition-transform duration-300 group-hover:translate-x-1"
-          size={16}
-          strokeWidth={1.7}
-          aria-hidden="true"
-        />
-      </a>
+      {capability.linkExternal ? (
+        <a className="card-link group" href={capability.linkHref} target="_blank" rel="noreferrer">
+          {capability.linkLabel}
+          <ArrowRight
+            className="transition-transform duration-300 group-hover:translate-x-1"
+            size={16}
+            strokeWidth={1.7}
+            aria-hidden="true"
+          />
+        </a>
+      ) : capability.linkHref.startsWith("/") ? (
+        <Link className="card-link group" to={capability.linkHref}>
+          {capability.linkLabel}
+          <ArrowRight
+            className="transition-transform duration-300 group-hover:translate-x-1"
+            size={16}
+            strokeWidth={1.7}
+            aria-hidden="true"
+          />
+        </Link>
+      ) : (
+        <a className="card-link group" href={capability.linkHref}>
+          {capability.linkLabel}
+          <ArrowRight
+            className="transition-transform duration-300 group-hover:translate-x-1"
+            size={16}
+            strokeWidth={1.7}
+            aria-hidden="true"
+          />
+        </a>
+      )}
     </motion.article>
   );
 }
@@ -602,7 +643,6 @@ function OnePage() {
                   capability={capability}
                   index={index}
                   key={capability.number}
-                  learnMore={t.capabilities.learnMore}
                 />
               ))}
             </div>

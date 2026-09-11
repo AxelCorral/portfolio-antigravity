@@ -62,7 +62,6 @@ export const translations = {
     capabilities: {
       title: "Capabilities connected to real projects.",
       subtitle: "Dashboards, pipelines, models and analytical storytelling.",
-      learnMore: "Learn more",
     },
     about: {
       kicker: "Analytical profile",
@@ -391,7 +390,6 @@ export const translations = {
     capabilities: {
       title: "Des compétences reliées à des projets réels.",
       subtitle: "Dashboards, pipelines, modèles et storytelling analytique.",
-      learnMore: "En savoir plus",
     },
     about: {
       kicker: "Profil analytique",
