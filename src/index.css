@@ -122,6 +122,17 @@ a {
      never overlap, at every breakpoint. */
   --lang-toggle-right: 1.5rem;
   --lang-toggle-width: 6.75rem;
+  /* Soft scrim painted under any fixed overlay control that floats above page
+     content (language switch today). Radial and borderless on purpose: it has
+     to guarantee legibility without introducing a pill or a glass edge. */
+  --overlay-scrim: radial-gradient(
+    ellipse closest-side at center,
+    rgba(6, 6, 6, 0.9) 0%,
+    rgba(6, 6, 6, 0.85) 34%,
+    rgba(6, 6, 6, 0.56) 62%,
+    rgba(6, 6, 6, 0.2) 82%,
+    rgba(6, 6, 6, 0) 100%
+  );
 }
 
 @media (min-width: 768px) {
@@ -149,6 +160,20 @@ a {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
+}
+
+/* On narrow viewports the cards below the project slides run edge to edge, so
+   this fixed control lands straight on their text: "EN · FR" was printing over
+   the capability card titles (audit cycle 016, P0). A radial scrim keeps the
+   "no pill" parti — it has no edge and no border, it just sinks the page a few
+   pixels behind the switch so both texts stay readable. */
+.language-toggle::before {
+  content: "";
+  position: absolute;
+  inset: -1rem -2.1rem;
+  z-index: -1;
+  background: var(--overlay-scrim);
+  pointer-events: none;
 }
 
 .language-toggle-sep {
