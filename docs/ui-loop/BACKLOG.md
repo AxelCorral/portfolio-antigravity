@@ -12,24 +12,22 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
 
 ## P0 — Zone prioritaire / contraste / régression
 
-- [ ] **AnimatedLetter sans variante reduced-motion** (`src/components/PortfolioMotion.tsx`).
-  Le corps de texte "Analytical profile" reste piloté uniquement par
-  `scrollYProgress`, aucun garde `useReducedMotion()`. Voir AUDIT-2026-09-11
-  P0-1. Fix : sous `prefers-reduced-motion`, rendre le texte à opacité 1
-  d'emblée (bypass du `useTransform`).
-- [ ] **Fenêtre d'animation du titre "Analytical profile" trop courte face à la
-  vitesse de scroll réelle** (`WordsPullUpMultiStyle` + `.about-card`). Voir
-  AUDIT-2026-09-11 P0-2. Piste : réduire le délai cumulatif par mot, agrandir
-  la marge de déclenchement (`useInView` margin), ou allonger la présence de
-  la carte dans le viewport (padding/min-height).
-- [ ] **Fin de page abrupte : aucun footer/point de clôture** après
-  `ContactSection`. Voir AUDIT-2026-09-11 P0-3. À concevoir avec sa propre
-  identité (pas une 5e carte identique) : mention légale minimale, retour en
-  haut, éventuellement rappel des liens de contact.
-- [ ] **Contraste insuffisant sur le bouton de langue inactif**
-  (`.language-toggle-btn`, `src/index.css:159-176`). Violation axe
-  `color-contrast` reproduite sur mobile-390 EN/FR. À revérifier sur desktop
-  avant de choisir la nouvelle valeur de couleur (mesurer, pas estimer).
+- [x] **AnimatedLetter sans variante reduced-motion** (`src/components/PortfolioMotion.tsx`).
+  Corrigé cycle 002 (commit `1a756ce`) : rendu en opacité 1 immédiate sous
+  `useReducedMotion()`, bypass du `useTransform`.
+- [x] **Fenêtre d'animation du titre "Analytical profile" trop courte face à la
+  vitesse de scroll réelle** (`WordsPullUpMultiStyle`). Corrigé cycle 002
+  (commit `1a756ce`) : marge `useInView` avancée à 240px, délai/durée par mot
+  réduits (0.08s→0.045s, 0.7s→0.55s).
+- [x] **Fin de page abrupte : aucun footer/point de clôture** après
+  `ContactSection`. Corrigé cycle 002 (commits `85140a2`, `10eacfb`) :
+  `<SiteFooter>` avec identité propre (mention, retour en haut, liens),
+  espace mort avant le footer resserré.
+- [x] **Contraste insuffisant sur le bouton de langue inactif**
+  (`.language-toggle-btn`, `src/index.css:159-176`). Corrigé cycle 002
+  (commit `00691e7`) : opacité 0.45→0.58 (repos), 0.75→0.82 (hover),
+  contraste calculé ≥ 5.4:1 sur fond noir. À reconfirmer par axe-core au
+  prochain run complet (violation attendue résolue).
 
 ## P1 — Intégration des nouveaux projets (MISSION-UI.md §4)
 
@@ -37,11 +35,16 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   live vers `political-destiny.vercel.app` en priorité, format §5.1). Angle :
   démarche de modélisation, ton neutre (sujet politique). Aucun repo GitHub
   mentionné dans MISSION-UI.md : à confirmer avant d'ajouter un lien "View
-  repository" (voir QUESTIONS.md).
+  repository" (voir QUESTIONS.md). Vérifié cycle 003 : `curl -I
+  https://political-destiny.vercel.app` → `200 OK`, aucun `X-Frame-Options`
+  ni `Content-Security-Policy: frame-ancestors` — iframe live confirmée
+  réalisable (format 1).
 - [ ] **Ombrair** — carte projet + page détail + section démo (iframe live vers
   `ombrair.vercel.app`, avec mise en avant de l'affichage 3D produit). Angle :
   vitesse d'exécution, pilotage agentique. Statut fictif de l'entreprise à
-  rendre explicite dans le texte.
+  rendre explicite dans le texte. Vérifié cycle 003 : `curl -I
+  https://ombrair.vercel.app` → `200 OK`, aucun en-tête bloquant — iframe
+  live confirmée réalisable (format 1).
 - [ ] **Analyse vidéo football (introduction)** — section d'introduction
   uniquement, sans lien code/démo live (projet non public). Démo en format 2
   (vidéo/capture animée) ou 3 (carrousel), à produire à partir de rendus du
@@ -54,33 +57,42 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
 - [x] Football Data Pipeline — carrousel de captures annotées (déjà conforme).
 - [x] Retirement Sustainability Model — carrousel + captures statiques + PDF
   (déjà conforme).
-- [ ] JobTrackr — a un lien "démo live" mais pas d'iframe embarquée alors que
-  le format 1 (interactif embarqué) est le plus haut format réalisable pour un
-  projet déployé sur Vercel. Vérifier d'abord les en-têtes
-  `X-Frame-Options`/CSP de `jobtrackr-lake.vercel.app` avant d'investir du
-  temps ; si bloqué, documenter pourquoi et rester au carrousel actuel.
+- [x] JobTrackr — vérifié cycle 003 : `curl -I
+  https://jobtrackr-lake.vercel.app` → `X-Frame-Options: DENY`. L'iframe est
+  bloquée par l'application elle-même (protection anti-clickjacking côté
+  JobTrackr, hors périmètre de ce repo) — conformément à la règle §5 ("si
+  l'iframe est bloquée, descends d'un niveau"), on reste au carrousel de
+  captures annotées déjà en place (format 3). Décision définitive, rien à
+  coder.
 
 ## P1 — Crédibilité de la zone "Capabilities"
 
-- [ ] Les 4 cartes "capabilities" sont visuellement identiques (mur de blocs,
-  AUDIT-2026-09-11 P1-1) et pointent toutes vers `#contact`. Étudier un lien
-  différencié par carte vers le projet qui illustre le mieux la compétence
-  (ex. Data Engineering → Football Data Pipeline), et résorber le vide visuel
-  en bas des cartes (`.capability-card` min-height 420px vs contenu réel).
+- [x] Les 4 cartes "capabilities" sont visuellement identiques (mur de blocs,
+  AUDIT-2026-09-11 P1-1) et pointaient toutes vers `#contact`. Corrigé cycle
+  003 (commit `06314b8`) : lien différencié par carte vers la preuve la plus
+  pertinente (BI → `/cv#experience`, Data Engineering → Football Data
+  Pipeline, Analytical Projects → Retirement Sustainability Model, Portfolio
+  Systems → profil GitHub).
+- [ ] Vide en bas des cartes (`.capability-card`, `justify-content:
+  space-between` sur hauteur de ligne de grille fixe 480px à partir de
+  1024px) : la variation de hauteur du vide entre cartes selon la longueur
+  du texte reste présente (ex. carte "Business Intelligence" avec un item
+  sur 2 lignes vs les 3 autres sur 1 ligne). Non traité cycle 003 — jugé
+  mineur une fois le lien différencié en place (le vide est cohérent avec
+  un design en grille à hauteur de ligne fixe, pas une régression visible en
+  soi), à revisiter seulement si un audit visuel futur le confirme gênant.
 
 ## P1 — Parcours de conversion
 
-- [ ] Ajouter CV et LinkedIn au bloc de contact (`contactLinks` dans
-  `OnePage.tsx`). LinkedIn bloqué en attente de l'URL réelle (voir
-  QUESTIONS.md). Le lien `/cv` peut être ajouté sans arbitrage (route déjà
-  existante, aucune donnée à inventer).
+- [x] Ajouter CV au bloc de contact et au footer (`getContactLinks` dans
+  `OnePage.tsx`). Corrigé cycle 002 (commit `85140a2`). LinkedIn toujours
+  bloqué en attente de l'URL réelle (voir QUESTIONS.md Q1) — case laissée
+  ouverte tant que Q1 n'est pas résolue.
 
 ## P1 — Whitespace du panneau de contact
 
-- [ ] `.contact-panel` (`src/index.css:2608-2740`) : `align-items: end` laisse
-  un grand vide non composé au-dessus des liens sur desktop/tablette
-  (AUDIT-2026-09-11 P1-3). Revoir l'alignement ou enrichir la colonne de
-  liens (ajout CV/LinkedIn ci-dessus réduira mécaniquement le déséquilibre).
+- [x] `.contact-panel` (`src/index.css`) : `align-items: end` → `center`.
+  Corrigé cycle 002 (commit `85140a2`).
 
 ## P2 — Reste du site
 
@@ -102,6 +114,11 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
 
 ## Terminé
 
+- [x] Cycle 002 — Tous les P0 de la zone prioritaire résolus : reduced-motion
+  `AnimatedLetter`, fenêtre de révélation du titre "Analytical profile",
+  footer de clôture (+ resserrage de l'espace mort), contraste du toggle de
+  langue. Plus 2 chantiers P1 : lien CV et rééquilibrage vertical du panneau
+  de contact. Commits `1a756ce`, `00691e7`, `85140a2`, `10eacfb`.
 - [x] Cycle 001 — Amorçage : `scripts/ui-audit.mjs`, branche `auto/ui-loop`,
   `docs/ui-loop/{BACKLOG,QUESTIONS}.md`, premier audit complet de la zone
   prioritaire, inventaire des 3 projets existants + 3 projets à intégrer.
