@@ -6,6 +6,134 @@
 
 ---
 
+## Cycle 016 — 2026-09-11 22:30
+
+**Zone travaillée** : zone prioritaire (§3) — `#capabilities` (titre de section
+et rythme interne des 4 cartes), `.language-toggle` là où il flotte au-dessus
+de cette zone, `.site-footer` (cible tactile du bouton « retour en haut »).
+**Rotation de questions** : **B — Rythme & espace**, première rotation B
+exploitée en profondeur (cycles précédents : D, E, D, A).
+
+> Note de journalisation : les phases 1 à 6 de ce cycle ont été exécutées dans
+> une session qui s'est arrêtée **pendant** la phase 7 — les trois commits
+> étaient sur la branche et l'audit écrit, mais la galerie n'avait qu'un bloc
+> sur trois et `PROGRESS.md` n'était pas à jour. Cette session a repris le
+> cycle à la phase 6 : re-vérification complète sur l'état actuel du code
+> (4 viewports × 2 langues × reduced-motion), puis phase 7 complète. Aucun
+> quatrième chantier n'a été ouvert : le plafond de la Phase 4 est de 3.
+
+### Constats d'audit
+
+Audit complet dans `docs/ui-loop/AUDIT-2026-09-11-cycle-016.md`. Résumé :
+
+- Le sélecteur de langue (`position: fixed`, fond entièrement transparent par
+  parti pris) s'imprimait **littéralement** sur le texte des `.capability-card`
+  sur 390px, où les cartes occupent toute la largeur : « Clear conclusions from
+  complex sub**[EN]**ects ». Deux textes clairs superposés — le contraste n'est
+  pas seulement < 4.5:1, il n'est pas défini — 390 — **P0**.
+- `.work-heading` était en `clamp(1.25rem, 3vw, 2.5rem)`, soit **20px sur 390 et
+  40px sur 1440**, entre un « Analytical profile » à 72px et un « Let us talk
+  about… » à 86px : la section `#capabilities` n'avait pas de titre perçu sur
+  mobile, elle commençait par un mur de cartes — 390 et 1440 — **P1**.
+- Vides subis dans `.capability-card` : `justify-content: space-between` sur une
+  hauteur de ligne fixe (420px/480px) répartissait le reliquat en deux poches
+  variables, si bien que **les quatre titres de carte ne partageaient aucune
+  ligne de base** (`y = 436/436/445/445` à 1440) — 1440 et 390 — **P1**.
+- `gap` de `.work-grid` **rétrécissant quand le viewport grandissait**
+  (12 → 8 → 4px) : à 1440 les quatre cartes se lisaient comme une dalle unique
+  striée de filets, et aucune des trois valeurs ne reprenait l'échelle du reste
+  de la page (`.home-project-list` : 1rem) — 1440 — **P1**.
+- Longueur de ligne (3e question de la rotation B) : conforme partout
+  (`.about-card p` en `max-w-3xl`, `.contact-panel p` en `max-w: 42rem`).
+- Acquis des cycles précédents revérifiés intacts : reduced-motion du bloc
+  Analytical profile (cycle 002), halo `--pc-amber-dim` (cycle 015), footer de
+  clôture, aucun contenu invisible au scroll réel, aucun overflow horizontal.
+
+### Changements livrés
+- `264d58e` — ui(language-toggle): rendre le sélecteur lisible quand il flotte
+  sur du contenu (voile radial `--overlay-scrim`, nouveau token, sans bord ni
+  arête pour préserver le parti « typographie nue »). Ajoute aussi
+  `scripts/ui-zone-audit.mjs` : audit ciblé de la zone prioritaire avec
+  **timeout explicite par étape**, écrit parce que `ui-audit.mjs` se bloque
+  silencieusement (backlog P2). Run complet en < 3 min.
+- `8c77001` — ui(capabilities): remettre la section au niveau typographique et
+  rythmique de ses voisines (reprise du pattern `.home-section-heading`
+  kicker/h2/intro déjà utilisé par la section des slides projets, nouveau
+  kicker FR+EN ; rythme interne de carte explicite 32/24/16px, carte
+  dimensionnée par son contenu, lien épinglé en bas ; `gap` de `.work-grid`
+  unifié à 1rem).
+- `d0548d3` — ui(footer): porter le bouton « retour en haut » à 44px de hauteur
+  tactile (39px mesuré auparavant).
+
+### Vérification
+- Build : ✅ (`npm run build` = `tsc -b && vite build`, vert ; CSS 94.04 kB,
+  JS 644.14 kB — pas de dérive par rapport au cycle 015)
+- Viewports vérifiés : 390 / 768 / 1440 / 1920 (run `zone-c016-after`,
+  10 combinaisons viewport × langue × motion, 0 erreur console, 0 overflow
+  horizontal sur les 10)
+- Langues : FR ✅ EN ✅ (kicker « COMPÉTENCES / PREUVES », titre, sous-titre et
+  les 4 cartes traduits, aucun texte orphelin)
+- reduced-motion : ✅ (1440 FR + EN : titre, sous-titre et les 4 cartes en
+  opacité pleine, aucune animation résiduelle)
+- Nav clavier : ✅ — les 4 familles de cibles de la zone (`.capability-card a`,
+  `.contact-links a`, `.site-footer-links a`, `.site-footer-top`) reçoivent
+  bien `:focus-visible` avec un contour `solid 2px` et 4px d'offset.
+- Rythme mesuré après coup : titres de carte à **101px** du haut de carte et
+  liens à **25px** du bas, sur les 4 cartes, en 390/768/1440 et dans les 2
+  langues. Les hauteurs de carte sont désormais égales par rangée
+  (1440 : 394px × 4 en EN, 414px × 4 en FR).
+- Contraste mesuré (couleurs résolues via canvas — un parsing manuel lit faux
+  les couleurs `oklch()`) : kicker 4.52:1, titre h2 14.26:1, sous-titre 8.27:1,
+  titre de carte 11.56:1, item de carte 6.19:1, lien de carte 11.56:1, toggle
+  inactif 5.42:1. Aucune violation axe `color-contrast` sur les 10 runs.
+- axe-core : 3 violations, **identiques à celles du cycle 001**, toutes hors
+  zone prioritaire ou cosmétiques (`aria-prohibited-attr` sur `.city-heading`,
+  `landmark-unique` sur `.pc-nav`, `region` sur `.language-toggle`). Aucune
+  nouvelle violation introduite.
+- Régression détectée : non.
+
+### Reverté
+- Aucun.
+
+### Outillage ajouté ce cycle
+- `scripts/ui-zone-audit.mjs` (commit `264d58e`) — audit ciblé de la zone
+  prioritaire, timeout par étape, contournement du blocage de `ui-audit.mjs`.
+- `scripts/ui-gallery.mjs` étendu pour que la galerie respecte « **un bloc par
+  chantier**, pas par cycle » (§7bis) : le filtre de régénération ne remplaçait
+  que par numéro de cycle, donc le 2e chantier d'un cycle effaçait le bloc du
+  1er. Il compare maintenant le préfixe de fichier des captures. Ajout aussi
+  d'un sélecteur CSS brut (`.site-footer` n'a pas d'id) et du cadrage
+  `viewport:<cible>@<y>` — sans ancrage sur un élément, la paire AVANT/APRÈS du
+  sélecteur de langue tombait sur une zone vide et ne montrait rien, d'où sa
+  régénération.
+
+### État des chantiers structurels
+- Vers l'Élysée : non commencé (iframe vérifiée réalisable cycle 003)
+- Ombrair : non commencé (iframe vérifiée réalisable cycle 003)
+- Analyse vidéo football : non commencé
+- Démos projets existants : 3/3 conformes (inchangé depuis cycle 003)
+
+### Prochain cycle — point de reprise exact
+- Ouvrir le chantier « Vers l'Élysée » (§4.1), premier P1 de l'ordre imposé
+  maintenant que la zone prioritaire n'a plus de P0/P1 ouvert : lire d'abord
+  les conventions de carte projet dans `OnePage.tsx` (liste `.home-project-*`
+  et `ProjectDetailModal`) pour s'y intégrer sans créer de pattern parallèle,
+  puis carte projet + vue détail + démo iframe vers
+  `political-destiny.vercel.app` (en-têtes déjà vérifiés cycle 003). Ton neutre
+  imposé, angle « démarche de modélisation », titre affiché « Vers l'Élysée »
+  (jamais « political destiny »), pas de lien repo tant que Q2 n'est pas
+  tranchée.
+- Chantier de zone prioritaire à mener en parallèle (§3 impose au moins un par
+  cycle) : porter `.capability-card a` de 42px à 44px de hauteur tactile —
+  dernier écart mesuré de la zone, nouvellement consigné au backlog P2.
+
+### Questions bloquantes ouvertes
+- Q1, Q2, Q3, Q4 — voir `docs/ui-loop/QUESTIONS.md` (inchangées). Aucune
+  nouvelle question ce cycle : les trois chantiers étaient des décisions
+  d'exécution, pas des arbitrages factuels.
+
+---
+
 ## Cycle 015 — 2026-09-11 17:40
 
 **Zone travaillée** : zone prioritaire (§3) — identité visuelle du bloc

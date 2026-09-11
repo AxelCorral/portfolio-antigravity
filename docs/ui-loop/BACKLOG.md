@@ -37,6 +37,15 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   `--pc-amber-dim` déjà utilisé ailleurs, en haut à gauche de la carte, sans
   toucher au texte ni au contraste.
 
+- [x] **Sélecteur de langue flottant imprimé sur le texte des cartes**
+  (`.language-toggle`, `position: fixed` sans aucun fond). Sur 390px les
+  `.capability-card` occupent toute la largeur : "EN · FR" se superposait
+  littéralement aux items de carte — deux textes clairs l'un sur l'autre, le
+  rapport de contraste n'était pas seulement < 4.5:1, il n'était pas défini
+  (garde-fou §6 enfreint). Corrigé cycle 016 (commit `264d58e`) : voile
+  radial `--overlay-scrim` (nouveau token) sous le contrôle, sans bord ni
+  arête, le parti "typographie nue" documenté dans `index.css` est conservé.
+
 ## P1 — Intégration des nouveaux projets (MISSION-UI.md §4)
 
 - [ ] **Vers l'Élysée** — carte projet + page détail + section démo (iframe
@@ -81,14 +90,18 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   pertinente (BI → `/cv#experience`, Data Engineering → Football Data
   Pipeline, Analytical Projects → Retirement Sustainability Model, Portfolio
   Systems → profil GitHub).
-- [ ] Vide en bas des cartes (`.capability-card`, `justify-content:
+- [x] Vide en bas des cartes (`.capability-card`, `justify-content:
   space-between` sur hauteur de ligne de grille fixe 480px à partir de
   1024px) : la variation de hauteur du vide entre cartes selon la longueur
   du texte reste présente (ex. carte "Business Intelligence" avec un item
   sur 2 lignes vs les 3 autres sur 1 ligne). Non traité cycle 003 — jugé
-  mineur une fois le lien différencié en place (le vide est cohérent avec
-  un design en grille à hauteur de ligne fixe, pas une régression visible en
-  soi), à revisiter seulement si un audit visuel futur le confirme gênant.
+  mineur une fois le lien différencié en place. L'audit cycle 016 (rotation
+  B) a confirmé que c'était gênant et **mesurable** : les quatre titres de
+  carte ne partageaient aucune ligne de base (`y = 436/436/445/445` à 1440).
+  Corrigé cycle 016 (commit `8c77001`) : rythme interne explicite
+  (32/24/16px), carte dimensionnée par son contenu, lien épinglé en bas —
+  titres à 101px du haut de carte et liens à 25px du bas sur les quatre
+  cartes, aux 4 viewports et dans les 2 langues (mesuré cycle 016).
 
 ## P1 — Parcours de conversion
 
@@ -113,6 +126,29 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   temps. Seul `DeepDive.tsx` du dossier `sections/` reste utilisé
   (`App.tsx`, `pages/DeepDivePage.tsx`). Effet mesurable : CSS de prod
   106.68 kB → 94.04 kB.
+- [ ] **`.capability-card a` mesuré à 42px de haut** (`163x42`, `152x42`,
+  `201x42`, `130x42` à 390 comme à 1440, cycle 016) : 2px sous le seuil de
+  44px de la rotation E, alors que `.contact-links a` (70px),
+  `.site-footer-links a` (44px) et `.site-footer-top` (44px, cycle 016) sont
+  conformes. Le message du commit `d0548d3` annonçait le bouton "retour en
+  haut" comme la dernière cible sous le seuil de la zone prioritaire : c'est
+  inexact, ces quatre liens le sont aussi. Chantier d'un cycle suivant (le
+  plafond de 3 chantiers de la Phase 4 était atteint).
+- [ ] **Kicker de section à 4.52:1** (`.home-section-heading p` /
+  `.contact-kicker`, `rgba(225, 224, 204, 0.52)`) : conforme, mais sans
+  marge, et ces kickers sont posés sur un fond texturé (`bg-noise`, fond
+  local mesuré entre #020202 et #111 sur `#capabilities` à 1440). Aucune
+  violation axe `color-contrast` sur les 10 runs du cycle 016, donc pas un
+  P0 ; mais la moindre dérive de texture ou de palette le fait passer sous le
+  seuil. Piste : aligner sur `0.58` (5.35:1), la valeur déjà retenue au cycle
+  002 pour `.language-toggle-btn` exactement pour cette raison.
+- [ ] **Le voile du sélecteur de langue masque un mot de carte sur 390px** à
+  certaines positions de scroll (visible dans la paire APRÈS de la galerie
+  cycle 016 : "…and reporting [EN] models"). C'est un progrès net sur la
+  superposition illisible d'avant, et le mot réapparaît dès qu'on scrolle de
+  quelques pixels, mais ce n'est pas un état final. Pistes : gouttière droite
+  réservée sur les cartes en mobile, ou masquage du toggle au scroll
+  descendant.
 - [ ] `aria-prohibited-attr` sur `.city-heading` (hero) — attribut ARIA non
   permis, à corriger.
 - [ ] `landmark-unique` — `.pc-nav` du carrousel projet 01 dupliqué sans nom
@@ -137,6 +173,13 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
 
 ## Terminé
 
+- [x] Cycle 016 — Zone prioritaire, rotation B (rythme & espace), 3 chantiers :
+  lisibilité du sélecteur de langue flottant (`264d58e`), remise de la
+  section Capabilities au niveau typographique et rythmique de ses voisines
+  (`8c77001`), cible tactile du bouton "retour en haut" (`d0548d3`). Outillage :
+  `scripts/ui-zone-audit.mjs` (audit ciblé avec timeout par étape) et
+  `scripts/ui-gallery.mjs` étendu (un bloc de galerie par chantier, sélecteur
+  brut, cadrage `viewport:<cible>@<y>`).
 - [x] Cycle 002 — Tous les P0 de la zone prioritaire résolus : reduced-motion
   `AnimatedLetter`, fenêtre de révélation du titre "Analytical profile",
   footer de clôture (+ resserrage de l'espace mort), contraste du toggle de
