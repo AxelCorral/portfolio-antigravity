@@ -165,7 +165,7 @@ a {
   justify-content: center;
   border: 0;
   background: transparent;
-  color: rgba(225, 224, 204, 0.45);
+  color: rgba(225, 224, 204, 0.58);
   cursor: pointer;
   font-family: inherit;
   font-size: 0.6875rem;
@@ -176,7 +176,7 @@ a {
 }
 
 .language-toggle-btn:hover {
-  color: rgba(225, 224, 204, 0.75);
+  color: rgba(225, 224, 204, 0.82);
 }
 
 .language-toggle-btn[aria-current="true"] {
