@@ -409,8 +409,14 @@ function CapabilityCard({
     <motion.article
       ref={ref}
       className="capability-card"
-      initial={reduceMotion ? false : { opacity: 0, scale: 0.95 }}
-      animate={inView ? { opacity: 1, scale: 1 } : undefined}
+      // A translation, not a scale. `scale: 0.95` resampled the card's own text
+      // for 650ms, thinned its 1px border to 0.95px, and made the card lie about
+      // its size by 19px — including its 44px links, which measured 41.8px mid
+      // animation (that measurement, not the CSS, was the "42px tap target" the
+      // cycle 016 backlog recorded). Translating moves the card without
+      // deforming anything it contains.
+      initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+      animate={inView ? { opacity: 1, y: 0 } : undefined}
       transition={{ duration: 0.65, delay: staggerStep * 0.15, ease: [0.22, 1, 0.36, 1] }}
     >
       <div className="flex items-start justify-between">
