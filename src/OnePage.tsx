@@ -28,7 +28,7 @@ import {
   retirementAnalysisSlidesFr,
 } from "@/data/projects/retirement-analysis";
 import { motion, useInView, useReducedMotion, useScroll } from "framer-motion";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 import { BuildMode } from "@/components/BuildMode";
 import { ProjectDetailModal } from "@/components/build-mode/ProjectDetailModal";
 import { CinematicOpening } from "@/components/CinematicOpening";
@@ -365,12 +365,40 @@ function SelectedProjectsSection({
   );
 }
 
+/**
+ * `.work-grid` is 1 / 2 / 4 columns depending on the breakpoint, and each card
+ * reveals on its own `useInView`. A stagger keyed on the absolute index is
+ * therefore latency, not rhythm: at 390 the four cards cross the threshold at
+ * four different scroll positions, yet card 4 still waited 3 x 0.15s before
+ * starting its 0.65s fade — 1.1s from "on screen" to "readable" (cycle 017).
+ * Reading the live column count keeps the stagger tied to what actually enters
+ * together, and collapses it to zero in a single-column layout.
+ */
+function useGridColumns(ref: RefObject<HTMLDivElement | null>) {
+  const [columns, setColumns] = useState(1);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () =>
+      setColumns(
+        Math.max(1, getComputedStyle(el).gridTemplateColumns.split(" ").filter(Boolean).length),
+      );
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [ref]);
+
+  return columns;
+}
+
 function CapabilityCard({
   capability,
-  index,
+  staggerStep,
 }: {
   capability: ReturnType<typeof getCapabilities>[number];
-  index: number;
+  staggerStep: number;
 }) {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: "-100px" });
@@ -383,7 +411,7 @@ function CapabilityCard({
       className="capability-card"
       initial={reduceMotion ? false : { opacity: 0, scale: 0.95 }}
       animate={inView ? { opacity: 1, scale: 1 } : undefined}
-      transition={{ duration: 0.65, delay: index * 0.15, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.65, delay: staggerStep * 0.15, ease: [0.22, 1, 0.36, 1] }}
     >
       <div className="flex items-start justify-between">
         <span className="icon-frame" aria-hidden="true">
@@ -438,6 +466,27 @@ function CapabilityCard({
         </a>
       )}
     </motion.article>
+  );
+}
+
+function CapabilityGrid({
+  capabilities,
+}: {
+  capabilities: ReturnType<typeof getCapabilities>;
+}) {
+  const gridRef = useRef<HTMLDivElement>(null);
+  const columns = useGridColumns(gridRef);
+
+  return (
+    <div className="work-grid" ref={gridRef}>
+      {capabilities.map((capability, index) => (
+        <CapabilityCard
+          capability={capability}
+          key={capability.number}
+          staggerStep={index % columns}
+        />
+      ))}
+    </div>
   );
 }
 
@@ -641,15 +690,7 @@ function OnePage() {
               <span>{t.capabilities.subtitle}</span>
             </div>
 
-            <div className="work-grid">
-              {capabilities.map((capability, index) => (
-                <CapabilityCard
-                  capability={capability}
-                  index={index}
-                  key={capability.number}
-                />
-              ))}
-            </div>
+            <CapabilityGrid capabilities={capabilities} />
           </div>
         </section>
 
