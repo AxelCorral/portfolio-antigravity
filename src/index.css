@@ -130,6 +130,16 @@ a {
      leaves headroom under the ceiling (70 characters at worst) while composing
      six lines in EN *and* FR with no orphan word left alone on the last line. */
   --measure-lede: 58ch;
+  /* Closing beats of the priority zone (MISSION-UI.md §3). `#about` opens at
+     5rem and steps to 7rem from 768px; `#capabilities` answers at 5rem then
+     6rem. `#contact` and the footer were frozen at 3rem and 2rem at every
+     width: at 1440 the page descended 112 / 96 / 48 / 32 and closed on 29% of
+     the breath it opened with, and the contact->footer gap measured 89px at 390
+     *and* at 1920 while every gap above it scaled with the viewport (cycle 020
+     audit B-3). Both sections now step with the ones above them. Each keeps its
+     bottom half a step deeper than its top, as it already did. */
+  --zone-pad-contact: 3.5rem;
+  --zone-pad-footer: 2.5rem;
   /* Soft scrim painted under any fixed overlay control that floats above page
      content (language switch today). Radial and borderless on purpose: it has
      to guarantee legibility without introducing a pill or a glass edge. */
@@ -146,6 +156,10 @@ a {
 @media (min-width: 768px) {
   :root {
     --lang-toggle-right: 3rem;
+    /* 768 is where `#about` steps 5 -> 7rem and `#capabilities` 5 -> 6rem; the
+       two closing sections step on the same breakpoint rather than on none. */
+    --zone-pad-contact: 5rem;
+    --zone-pad-footer: 3rem;
   }
 }
 
@@ -1057,9 +1071,15 @@ a {
   font-family: "Instrument Serif", serif;
 }
 
+/* No `min-height: 100vh` any more. It dated from when this section was a
+   full-bleed screen sized on the window; since cycle 016 the cards size to
+   their content and the grid equalises the row, so the declaration only turned
+   the visitor's window height into white below the grid. Measured tail white at
+   1920 (declared padding-bottom: 96px): 306px in EN, 198px in FR — 3.2x what
+   the CSS announced, and a 108px swing between two languages of the same
+   screen, decided by nobody (cycle 020 audit B-2). */
 .work-section {
   position: relative;
-  min-height: 100vh;
   padding: 5rem 1rem;
   background: #000;
 }
@@ -2726,7 +2746,7 @@ a {
 }
 
 .contact-section {
-  padding: 3rem 1rem 3.5rem;
+  padding: var(--zone-pad-contact) 1rem calc(var(--zone-pad-contact) + 0.5rem);
   background: #000;
 }
 
@@ -2871,7 +2891,7 @@ a {
 .site-footer {
   border-top: 1px solid rgba(225, 224, 204, 0.12);
   background: #000;
-  padding: 2rem 1rem 2.5rem;
+  padding: var(--zone-pad-footer) 1rem calc(var(--zone-pad-footer) + 0.5rem);
 }
 
 .site-footer-inner {
