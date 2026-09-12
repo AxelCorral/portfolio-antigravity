@@ -46,6 +46,12 @@ const SECTIONS = [
   { id: "capabilities", sel: "#capabilities" },
   { id: "contact", sel: "#contact" },
   { id: "footer", sel: ".site-footer" },
+  // reste du site (hors zone prioritaire, cycle 030 rotation A) : hero + nav +
+  // un slide projet representatif (les 6 partagent le meme gabarit .home-project-card)
+  { id: "city-nav", sel: ".city-nav" },
+  { id: "city-content", sel: ".city-content" },
+  { id: "profile", sel: "#profile" },
+  { id: "project-card-01", sel: "#project-01 .home-project-card" },
 ];
 
 async function measure(page, viewportHeight) {
