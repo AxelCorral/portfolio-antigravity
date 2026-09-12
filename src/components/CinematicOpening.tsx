@@ -155,7 +155,8 @@ export function CinematicOpening({ onOpenBuildMode }: { onOpenBuildMode: () => v
             <p className="mb-5 text-xs uppercase tracking-[0.18em] text-primary/75">
               {t.hero.introLabel}
             </p>
-            <p className="city-heading" aria-label={t.hero.cityAria}>
+            <p className="city-heading">
+              <span className="sr-only">{t.hero.cityAria}</span>
               <CharacterLines lines={[...t.hero.cityLines]} />
             </p>
             <p className="mb-5 max-w-2xl text-base leading-relaxed text-gray-300 md:text-lg">
