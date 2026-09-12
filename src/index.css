@@ -426,8 +426,7 @@ a {
   text-shadow: 0 2px 28px rgba(0, 0, 0, 0.55);
 }
 
-.opening-primary,
-.opening-secondary {
+.opening-primary {
   display: inline-flex;
   min-height: 48px;
   align-items: center;
@@ -436,20 +435,8 @@ a {
   border-radius: 999px;
   padding: 0.7rem 1.1rem;
   font-size: 0.875rem;
-}
-
-.opening-primary {
   background: #e1e0cc;
   color: #080808;
-}
-
-.opening-secondary {
-  color: #e1e0cc;
-}
-
-.opening-secondary > * {
-  position: relative;
-  z-index: 1;
 }
 
 .city-tag {

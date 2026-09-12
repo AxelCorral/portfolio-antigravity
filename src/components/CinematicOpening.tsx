@@ -169,12 +169,6 @@ export function CinematicOpening({ onOpenBuildMode }: { onOpenBuildMode: () => v
                   <ArrowRight size={16} aria-hidden="true" />
                 </a>
               </Magnet>
-              <Magnet>
-                <a className="liquid-glass opening-secondary" href="#selected-work">
-                  {t.hero.viewSelectedWork}
-                  <ArrowRight size={16} aria-hidden="true" />
-                </a>
-              </Magnet>
             </div>
           </div>
 
