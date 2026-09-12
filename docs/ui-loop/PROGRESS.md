@@ -6,6 +6,157 @@
 
 ---
 
+## Cycle 026 — 2026-09-12 19:05
+
+**Zone travaillée** : §4 — intégration d'**Analyse vidéo football** (carte,
+page, démo). Troisième et dernier des trois chantiers §4, dans l'ordre
+imposé. Aucun chantier de la zone prioritaire (§3, P2) n'a été ouvert,
+conformément à la consigne de run reçue pour cette exécution.
+**Rotation de questions** : non applicable — la rotation A-E porte sur la
+zone prioritaire (§3) ; ce cycle est un chantier §4.
+
+### Constats de vérification (tenant lieu d'audit pour ce chantier)
+
+- **Projet non public, contrairement à Vers l'Élysée et Ombrair** : Q4
+  (`QUESTIONS.md`, résolue 2026-09-12) exclut tout lien repo et toute démo
+  live pour ce projet. Il n'y a donc aucun site déployé à aller inspecter
+  (contrairement à Ombrair au cycle 025) — le contenu éditorial s'en tient
+  strictement aux faits déjà couchés dans `MISSION-UI.md` §4.3, sans rien
+  ajouter au-delà.
+- **Mécanisme de démo identifié avant d'écrire une ligne de contenu** : les
+  projets 01 (Football Data Pipeline), 02 (JobTrackr) et 03 (Retirement
+  Sustainability Model) utilisent déjà un carousel de slides dédié
+  (`ProjectCarousel` + `VisualKind`/`VISUALS` dans
+  `src/components/carousel/CarouselSlides.tsx`), où chaque `VisualKind` est
+  un composant React/CSS bespoke, pas une image — exactement le mécanisme
+  qu'il fallait pour produire des « schémas abstraits reconstruits » (Q4)
+  sans fabriquer ni capturer aucune image. Confirmé par lecture de
+  `IngestVisual.tsx` (contenu JobTrackr en dur) que ces composants sont
+  bien spécifiques à chaque projet malgré leur nom générique — donc trois
+  nouveaux composants dédiés, pas une réutilisation détournée d'un visuel
+  existant.
+- **Emplacement réservé pour les futurs exports réels (exigence
+  structurelle de Q4), implémenté comme un commentaire documenté en tête de
+  `src/data/projects/video-analysis.ts`**, plutôt que comme un nouveau champ
+  de données ou un branchement dans `ProjectDetailModal`/`CarouselSlides.tsx`
+  (composants partagés par tous les projets, donc à ne pas complexifier pour
+  un besoin propre à un seul projet) : `StepSlide` accepte déjà `chartImage`
+  *et* `visual` (voir `retirement-analysis.ts`, qui n'utilise que
+  `chartImage`) — remplacer `visual: "<kind>"` par `chartImage: { src, alt }`
+  sur le slide concerné suffira, sans toucher au carousel ni à la mise en
+  page.
+- **Modale vérifiée sans tab `Links` ni `Outputs`** : `ProjectDetailModal`
+  ne construit ces tabs que si `project.links?.length` /
+  `project.screenshots?.length` (voir `ProjectDetailModal.tsx` L90-95) ;
+  l'entrée `id: "06"` ne fournit ni l'un ni l'autre, donc aucun code
+  supplémentaire n'était nécessaire pour respecter « aucun lien code, aucun
+  lien démo live » — vérifié par capture (tabs affichés : Overview, Results,
+  Tech uniquement).
+
+### Changements livrés
+
+- `7119fcf` — ui(projects): intégrer Analyse vidéo football — carte, page et
+  démo.
+  - **Carte** : entrée `id: "06"` dans `src/data/projects.ts` (EN+FR
+    complet), rendue par le même `ProjectShowcaseCard` que les cinq projets
+    existants. Statut affiché « Research in progress » / « Recherche en
+    cours » — angle éditorial imposé (§4.3) : positionner comme un travail de
+    recherche en cours, contrainte CPU-only assumée frontalement dans le
+    hook, le `whyItMatters` et le `keyTakeaway`.
+  - **Page** : case study 4 sections (contexte, pipeline, preuve, ce que ça
+    démontre) exploitée par `ProjectDetailModal` sans aucune modification de
+    sa structure.
+  - **Démo** : nouveau carousel dédié (`src/data/projects/video-analysis.ts`,
+    7 slides EN+FR — 1 cover + 6 steps), branché dans `OnePage.tsx` via un
+    nouveau cas `project.id === "06"`, au même niveau que 01/02/03. Trois
+    nouveaux composants visuels abstraits
+    (`src/components/carousel/visuals/`) : `TrackingFlowVisual` (flux
+    broadcast → YOLOv8 → ByteTrack → clustering/phases), `PitchSchemaVisual`
+    (SVG, terrain stylisé + rayons pointillés représentant la calibration par
+    homographie), `ReidVisual` (représentation conceptuelle de la piste de
+    recherche en cours : ré-identification par maillot + position + rôle,
+    formulée comme une question — « same id? » — pas comme un résultat
+    acquis). Aucune capture de diffusion, aucun logo de club ou de
+    compétition ; les trois composants portent un commentaire rappelant
+    explicitement qu'ils ne sont pas un export réel du pipeline.
+  - Extension de `VisualKind` (`football-pipeline.ts`, type partagé par tous
+    les carousels projet) avec 3 nouvelles valeurs, et enregistrement dans le
+    registre `VISUALS` de `CarouselSlides.tsx` — aucune valeur existante
+    modifiée.
+
+### Vérification
+
+- Build : ✅ (`npm run build` vert — `tsc -b && vite build`). CSS
+  **96,75 kB** inchangé ; JS **670,61 → 693,79 kB**. `tsc --noEmit` : ✅ sans
+  sortie.
+- axe-core sur `#project-06` (carte, iframe absente puisqu'il n'y a pas de
+  démo live) et sur la modale de case study (tabs Overview/Results/Tech) :
+  **0 violation** dans les deux cas. axe-core pleine page après scroll
+  complet : **3 violations, strictement identiques aux cycles 001-025**
+  (`aria-prohibited-attr`, `landmark-unique`, `region`), aucune nouvelle.
+- Viewports vérifiés : **390 / 1440**, EN et FR, carte + 7 slides du carousel
+  capturés un par un (les trois visuels abstraits vérifiés visuellement,
+  pas seulement par lecture du DOM) + les deux tabs peuplés de la modale.
+  **0 overflow horizontal** à 390 px (`document.body.scrollWidth -
+  window.innerWidth === 0`), y compris après un scroll complet de la page.
+- Langues : FR ✅ EN ✅ — carte, 7 slides du carousel, case study (3 tabs) et
+  libellés capturés et lus dans les deux langues ; les labels techniques
+  internes aux visuels (YOLOv8, ByteTrack) restent non traduits, cohérent
+  avec les visuels existants du projet 01/02 (ex. `IngestVisual` conserve
+  « France Travail »/« Adzuna » en FR).
+- reduced-motion : ✅ — navigation carousel sous `reduce`, 0 erreur console/
+  page.
+- Nav clavier : ✅ — le carousel reçoit le focus (`Tab`), les flèches
+  `ArrowRight`/`ArrowLeft` changent de slide au clavier (vérifié : compteur
+  passe de 01/07 à 02/07), le bouton « Open case study » est atteignable et
+  ouvre la modale.
+- Régression détectée : non — les 6 projets (01-06) vérifiés présents avec
+  le bon titre après un scroll complet de la page ; aucune modification des
+  fichiers partagés (`CarouselSlides.tsx`, `football-pipeline.ts`) ne
+  change le rendu des `VisualKind` existants (ajouts en fin d'union/de
+  registre uniquement).
+
+### Reverté
+
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025.
+- **Analyse vidéo football : terminé** (carte ✅ page ✅ démo ✅) —
+  troisième et dernier des trois chantiers §4, livré ce cycle. **Le §4 de
+  `MISSION-UI.md` est désormais intégralement traité.**
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 025.
+
+### Prochain cycle — point de reprise exact
+- **Relire `MISSION-UI.md` en entier avant tout** : les trois chantiers §4
+  sont terminés, donc la priorité qui a gouverné les cycles 023-026 n'existe
+  plus telle quelle. Il faudra déterminer la nouvelle priorité en relisant
+  §2-§6 de la mission (la zone basse §3 reste P2 sauf régression/bug
+  bloquant/violation d'accessibilité mesurée — ne pas y ouvrir de chantier
+  de sa propre initiative sans un fait nouveau, voir le plafond de retouche
+  §6).
+- Candidats probables pour le prochain cycle, par ordre de priorité de la
+  mission (§4 phase 5 rappel) : (1) tout **P0 réel** détecté en phase 1/2 du
+  prochain cycle (build cassé, régression, contraste non conforme) ; (2)
+  un audit général de la zone prioritaire (§3) et du reste du site (hero,
+  slides projets, nav, footer) puisque aucun audit rotation A-E n'a été fait
+  depuis le cycle 023 — trois cycles se sont enchaînés sans rotation ; (3) si
+  l'audit ne remonte rien de nouveau sous le plafond de retouche, le
+  candidat déjà chiffré au backlog est l'arbitrage de plancher d'opacité des
+  cartes Capabilities (posé au cycle 022, jamais tranché).
+- Note d'outillage pour un futur chantier lié à ce cycle : si Axel fournit
+  de vrais exports du pipeline vidéo football, l'emplacement de
+  substitution est documenté en tête de
+  `src/data/projects/video-analysis.ts` (commentaire « RESERVED SLOT ») —
+  remplacer `visual: "<kind>"` par `chartImage: { src, alt }` sur le slide
+  concerné, aucun autre changement requis.
+
+### Questions bloquantes ouvertes
+- Aucune (Q1-Q4 résolues le 2026-09-12, voir `QUESTIONS.md`).
+
+---
+
 ## Cycle 025 — 2026-09-12 18:38
 
 **Zone travaillée** : §4 — intégration d'**Ombrair** (carte, page, démo).
