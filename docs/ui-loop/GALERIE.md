@@ -5,6 +5,28 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 028 — 2026-09-12 · Reperes d'accessibilite : landmarks uniques et role du switch de langue — section `#viewport:.language-toggle@40`
+
+> Trois violations axe-core persistantes depuis 27 cycles (aria-prohibited-attr, landmark-unique, region) corrigees ; aucun changement visuel attendu, confirme par ces captures.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-028/reperes-d-accessibilite-landmarks-uniques-et-role-du-switch--viewport-language-toggle-40-390-avant.webp) | ![après 390](shots/cycle-028/reperes-d-accessibilite-landmarks-uniques-et-role-du-switch--viewport-language-toggle-40-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-028/reperes-d-accessibilite-landmarks-uniques-et-role-du-switch--viewport-language-toggle-40-1440-avant.webp) | ![après 1440](shots/cycle-028/reperes-d-accessibilite-landmarks-uniques-et-role-du-switch--viewport-language-toggle-40-1440-apres.webp) |
+
+`77904d9` · `64dde59` · `db4cc52`
+
+## Cycle 028 — 2026-09-12 · Reperes d'accessibilite : landmarks uniques et role du switch de langue — section `#.pc-nav`
+
+> Trois violations axe-core persistantes depuis 27 cycles (aria-prohibited-attr, landmark-unique, region) corrigees ; aucun changement visuel attendu, confirme par ces captures.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-028/reperes-d-accessibilite-landmarks-uniques-et-role-du-switch--pc-nav-390-avant.webp) | ![après 390](shots/cycle-028/reperes-d-accessibilite-landmarks-uniques-et-role-du-switch--pc-nav-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-028/reperes-d-accessibilite-landmarks-uniques-et-role-du-switch--pc-nav-1440-avant.webp) | ![après 1440](shots/cycle-028/reperes-d-accessibilite-landmarks-uniques-et-role-du-switch--pc-nav-1440-apres.webp) |
+
+`77904d9` · `64dde59` · `db4cc52`
+
 ## Cycle 027 — 2026-09-12 · Fleches Previous/Next des carousels projet portees a 44px
 
 > Seul controle bouton pour naviguer un carousel sans le clavier, .pc-arrow mesurait 30x30px sur les 6 carousels projet (01 a 06).
