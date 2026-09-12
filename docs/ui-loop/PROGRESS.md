@@ -6,6 +6,113 @@
 
 ---
 
+## Cycle 031 — 2026-09-13 00:20
+
+**Zone travaillée** : hors zone prioritaire (§3, gelée sur toutes ses
+sous-sections) et hors §4 (reconfirmé intégralement traité) —
+`src/App.tsx` (table de routes) et suppression d'un cluster de code mort
+(`src/pages/DeepDivePage.tsx`, `src/sections/DeepDive.tsx`,
+`src/content/{projects,deepdives}.ts`, `content/{deepdives,projets}.md`,
+`src/components/{ProjectCard,FictifTag,LazyMediaSlot}.tsx`).
+**Rotation de questions** : née du point de reprise explicite du cycle 030
+(auditer `ProjectDetailModal`/`DeepDivePage`, jamais couverts par aucune
+rotation) plutôt que d'une rotation programmée ; recoupe a posteriori A et D
+(voir audit).
+
+### Note de continuité — §4 revérifié sur le code, pas sur le seul journal
+
+`grep 'id: "0[456]"' src/data/projects.ts` → les trois entrées existent ;
+`grep 'project.id ===' src/OnePage.tsx` → 01/02/03/06 ont leur carousel
+dédié, 04/05 tombent dans la branche générique `demoLink ? <LiveDemoEmbed>`
+(voulu, Q2/Q3 tranchées). `npm run build` vert avant tout changement. **Le
+§4 reste intégralement traité, reconfirmé pour la 6e fois consécutive
+(cycles 026-031).**
+
+### Constats d'audit
+
+Audit complet dans `docs/ui-loop/AUDIT-2026-09-13-cycle-031.md` (à purger
+après 24h). Résumé : en lisant `DeepDivePage.tsx` (signalé comme angle mort
+par le cycle 030), vérification de qui appelle réellement la route
+`/projet/:slug` — réponse : **personne**. Aucun lien, carte ou élément de
+nav de l'interface n'y mène ; seule `App.tsx` la déclare et la page se
+référence elle-même (« projet suivant »). C'est une page **fantôme** :
+inatteignable depuis le site, mais réellement servie (`200`) à qui devine ou
+reçoit l'URL. Une fois atteinte, elle affiche un texte **100 % français sans
+variante EN** malgré le sélecteur de langue global visible dessus (violation
+directe de MISSION-UI.md §1) et des chiffres JobTrackr divergents de la
+carte réelle (`src/data/projects.ts`) — elle vient d'un modèle de données
+concurrent (`src/content/projects.ts`) antérieur au système actuel
+(`data/projects.ts` + `ProjectDetailModal.tsx`), jamais retiré après la
+bascule. Même schéma que le cluster mort supprimé au cycle 015, resté
+invisible plus longtemps parce qu'il apparaissait « utilisé » dans la table
+de routes sans que personne ne vérifie qui clique le lien.
+
+### Changements livrés
+
+- `f0686d2` — chore(routing): suppression du cluster de code mort
+  `DeepDivePage`/`content/projects`/`ProjectCard`/`FictifTag`/`LazyMediaSlot`
+  (9 fichiers), retrait de la route `/projet/:slug` dans `App.tsx`. Vérifié
+  fichier par fichier par `grep -rln` exhaustif avant suppression : aucune
+  référence externe au cluster.
+- Audit + backlog de ce cycle consignés (fichier courant).
+
+### Vérification
+
+- Build : ✅ avant (JS 693,28 kB / CSS 96,77 kB) et après (JS **679,80 kB** /
+  CSS **87,19 kB**). `tsc -b` inclus dans `npm run build`, aucune erreur.
+  `npx eslint src/App.tsx` : ✅.
+- Viewports vérifiés : 1440 (page d'accueil, capture avant/après suppression
+  — rendu identique, aucun import partagé touché). Pas de run complet des 4
+  viewports × 2 langues : aucune section vivante de la page n'a changé, seul
+  du code mort a été retiré.
+- Langues : sans objet côté site réel (aucun texte modifié) ; côté page
+  supprimée, le défaut qu'elle portait (français sans variante EN) disparaît
+  avec elle.
+- reduced-motion : sans objet (aucune animation touchée).
+- Régression détectée : non. `/projet/jobtrackr` rend désormais un corps de
+  page vide (hors sélecteur de langue global), identique au traitement déjà
+  existant de toute URL inconnue de ce SPA (aucune route `*` définie, avant
+  comme après ce chantier).
+
+### Reverté
+
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024, reconfirmé
+  pour la 6e fois consécutive.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025, reconfirmé de même.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026,
+  reconfirmé de même.
+- **Le §4 de MISSION-UI.md reste intégralement traité, revérifié sur le code
+  réel pour la 6e fois consécutive (cycles 026-031).**
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Prochain cycle — point de reprise exact
+- Relire MISSION-UI.md en entier (§0) puis reprendre l'ordre de priorité §2
+  phase 4 normal : (1) tout P0 réel détecté en phase 1 ; (2) §3 reste P2
+  gelée sauf régression/bug bloquant/violation d'accessibilité
+  mesurée/raccord imposé ; (3) « reste du site ». `ProjectDetailModal.tsx`
+  (le vrai composant utilisé, contrairement à `DeepDivePage.tsx` supprimé ce
+  cycle) reste lui à auditer sous une rotation — jamais fait jusqu'ici.
+  Rotations B (rythme & espace) et C (mouvement) restent les deux seules
+  jamais posées par écrit hors zone prioritaire ; un futur cycle peut les
+  appliquer à `ProjectDetailModal.tsx` (les 5 onglets, la grille de résultats,
+  la grille de captures) ou au footer.
+- Candidats P2 déjà chiffrés au backlog, non traités ce cycle : bundle JS
+  679,80 kB (226 kB gzip, warning Vite « chunk > 500kB ») ; couverture du
+  probe de contraste maison limitée à la zone prioritaire
+  (`scripts/lib/probe-color.js`) ; mode `--freeze-at=<ms>` pour
+  `ui-gallery.mjs` ; mode dédié `ui-gallery.mjs` qui verrouille `scrollY`
+  avant de positionner une cible `viewport:` ; tokens CSS orphelins
+  `--fictif-ink`/`--fictif-border` (`tokens.css`, `index.css`), sans coût ni
+  risque, laissés en place ce cycle.
+
+### Questions bloquantes ouvertes
+- Aucune (Q1-Q4 résolues le 2026-09-12, voir `QUESTIONS.md`).
+
+---
+
 ## Cycle 030 — 2026-09-12 22:55
 
 **Zone travaillée** : hors zone prioritaire (§3, gelée) et hors §4 (reconfirmé
