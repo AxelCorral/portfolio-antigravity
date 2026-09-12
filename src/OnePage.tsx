@@ -640,9 +640,7 @@ function OnePage() {
 
         <section className="about-section" id="about" aria-labelledby="about-title">
           <div className="about-card">
-            <p className="mb-9 text-[10px] uppercase tracking-[0.2em] text-primary sm:text-xs">
-              {t.about.kicker}
-            </p>
+            <p className="about-kicker">{t.about.kicker}</p>
             <h2 id="about-title" className="about-title">
               <WordsPullUpMultiStyle
                 segments={[
