@@ -661,7 +661,7 @@ function OnePage() {
 
             <p
               ref={paragraphRef}
-              className="mx-auto mt-14 max-w-3xl text-sm leading-relaxed text-primary sm:text-base"
+              className="about-lede mt-14 text-sm leading-relaxed text-primary sm:text-base"
             >
               {Array.from(aboutText).map((character, index) => (
                 <AnimatedLetter

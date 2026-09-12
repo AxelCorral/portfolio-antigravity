@@ -122,6 +122,14 @@ a {
      never overlap, at every breakpoint. */
   --lang-toggle-right: 1.5rem;
   --lang-toggle-width: 6.75rem;
+  /* Reading measure for supporting body copy. Expressed in `ch` so it tracks the
+     font rather than a pixel guess. Calibrated on the zone's lede, which was
+     composing 108-110 characters per line at 1440/1920 (cycle 019 audit, E-B) —
+     45% over the 75-character ceiling MISSION-UI.md §2 rotation B sets. 58ch was
+     swept against 46-60ch in both languages: it is the widest value that still
+     leaves headroom under the ceiling (70 characters at worst) while composing
+     six lines in EN *and* FR with no orphan word left alone on the last line. */
+  --measure-lede: 58ch;
   /* Soft scrim painted under any fixed overlay control that floats above page
      content (language switch today). Radial and borderless on purpose: it has
      to guarantee legibility without introducing a pill or a glass edge. */
@@ -1010,6 +1018,21 @@ a {
     #101010;
   padding: 4rem 1.5rem;
   text-align: center;
+}
+
+/* Supporting paragraph of "Analytical profile". It used to inherit `text-align:
+   center` and a 48rem measure from `.about-card`, which produced two opposite
+   defects at the two ends of the viewport range (cycle 019 audit, E-B):
+   108-110 characters per line at 1440/1920, and nine centred lines with nine
+   different left edges at 390 — the eye has to hunt for the start of every line.
+   Centring is a poster figure: it holds for two or three lines, not nine. The
+   display headline above stays centred; this block is set flush-left inside a
+   box that stays centred in the card, so the composition of the block is
+   unchanged and only its reading is fixed. */
+.about-lede {
+  max-width: var(--measure-lede);
+  margin-inline: auto;
+  text-align: left;
 }
 
 .about-title {
