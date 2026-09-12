@@ -5,6 +5,17 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 029 — 2026-09-12 · Hero : CTA duplique supprime
+
+> Les deux boutons de l'etat d'ouverture du hero menaient au meme endroit (#selected-work) ; un seul suffit, l'autre etait du bruit pur.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-029/hero-cta-duplique-supprime-390-avant.webp) | ![après 390](shots/cycle-029/hero-cta-duplique-supprime-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-029/hero-cta-duplique-supprime-1440-avant.webp) | ![après 1440](shots/cycle-029/hero-cta-duplique-supprime-1440-apres.webp) |
+
+`ce479ca` · `a4684a4`
+
 ## Cycle 028 — 2026-09-12 · Reperes d'accessibilite : landmarks uniques et role du switch de langue — section `#viewport:.language-toggle@40`
 
 > Trois violations axe-core persistantes depuis 27 cycles (aria-prohibited-attr, landmark-unique, region) corrigees ; aucun changement visuel attendu, confirme par ces captures.
