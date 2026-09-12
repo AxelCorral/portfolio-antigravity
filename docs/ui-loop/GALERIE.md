@@ -5,6 +5,17 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 033 — 2026-09-12 · Contraste des eyebrows du case-study projet (ProjectDetailModal)
+
+> Deux libelles partages par les 6 modales projet mesuraient 4.28:1 et 4.02:1, sous le plancher de 4.5:1 (§6) ; portes a 5.46:1 (alpha 0.58).
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-033/contraste-des-eyebrows-du-case-study-projet-projectdetailmod-390-avant.webp) | ![après 390](shots/cycle-033/contraste-des-eyebrows-du-case-study-projet-projectdetailmod-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-033/contraste-des-eyebrows-du-case-study-projet-projectdetailmod-1440-avant.webp) | ![après 1440](shots/cycle-033/contraste-des-eyebrows-du-case-study-projet-projectdetailmod-1440-apres.webp) |
+
+`fc41f49`
+
 ## Cycle 032 — 2026-09-12 · Modale de détail projet — cible tactile des onglets, mesure de lecture, scroll clavier
 
 > Onglets sous 44px, paragraphe à 81 caract/ligne et zone scrollable non focusable au clavier, mesures jamais faites sur ce composant.

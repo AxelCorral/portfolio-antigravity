@@ -6,6 +6,135 @@
 
 ---
 
+## Cycle 033 — 2026-09-13 02:05
+
+**Zone travaillée** : hors zone prioritaire (§3, gelée sur toutes ses
+sous-sections) et hors §4 (reconfirmé intégralement traité) —
+`ProjectDetailModal.tsx`/`src/index.css` (2e passe de retouche, compteur
+§6 désormais 2/3), avec un détour d'audit sur `ProjectCarousel.tsx`/
+`CarouselModal.tsx` et le hero (aucun défaut retenu sur ces deux derniers).
+**Rotation de questions** : **C — Mouvement**, point de reprise explicite
+du cycle 032 (seule des cinq jamais posée par écrit hors zone prioritaire
+sur le reste du site pris globalement).
+
+### Note de continuité — §4 revérifié sur le code, pas sur le seul journal
+
+`grep 'id: "0[456]"' src/data/projects.ts` → les trois entrées existent ;
+`grep 'project.id ===' src/OnePage.tsx` → 01/02/03/06 ont leur carousel
+dédié, 04/05 tombent dans la branche générique `demoLink ? <LiveDemoEmbed>`
+(voulu, Q2/Q3 tranchées). `npm run build` vert avant tout changement. **Le
+§4 reste intégralement traité, reconfirmé pour la 8e fois consécutive
+(cycles 026-033).**
+
+### Constats d'audit
+
+Audit complet dans `docs/ui-loop/AUDIT-2026-09-13-cycle-033.md` (à purger
+après 24h). Résumé :
+- **Transition d'onglet de `ProjectDetailModal`** (`duration: 0.2`, seule
+  transition du composant sans easing nommé du design system) mesurée par
+  une sonde ad hoc : ~227ms jusqu'à pleine opacité sous `no-preference`,
+  0ms sous `reduce` (aucune animation ne se joue), aucun contenu invisible
+  si l'animation ne se déclenche pas. Coût sous plancher de contraste
+  ~150-200ms max — même classe qu'un point déjà arbitré P2 en zone
+  prioritaire (cycle 022) mais un ordre de grandeur en dessous des cas déjà
+  traités. **Investigué, non retenu.**
+- **Onglets Outputs/Links jamais vérifiés vides** : seul le projet 03 a des
+  `screenshots` (4, jamais sparse) ; `links` absent uniquement sur le
+  projet 06 (voulu, non public, §4.3). **Pas de défaut.**
+- **`ProjectCarousel.tsx`/`CarouselModal.tsx`** (partagés par les projets
+  01/02/03/06) : lock `isAnimating`, eases nommés (`ease-fall`/`ease-float`,
+  `gsap-setup.ts`) au lieu de valeurs par défaut, fondu seul sous
+  `prefersReduced` (pas de translation), visibilité fixée
+  déterministiquement au montage (pas d'`IntersectionObserver`). **Pas de
+  défaut trouvé sous rotation C.**
+- **Contraste mesuré au probe maison (`probe-color.js`) sur hero, carousel
+  et les 5 onglets des 6 modales projet, 390/1440 × EN/FR** : hero 0
+  violation ; `.pc-watermark` à 1.06:1 mais `aria-hidden="true"` (filigrane
+  décoratif, WCAG 1.4.3 non applicable, **non retenu**) ; **P0 mesuré —
+  `.project-case-study span` (eyebrows du case-study) à 4.28:1 et
+  `.project-overview-grid aside > span` (labels Status/Source
+  folder/Workspace evidence) à 4.02:1**, tous deux à 10px, sous le plancher
+  de 4.5:1, partagés identiquement par les 6 modales projet. axe-core scopé
+  à la modale : 0 violation `color-contrast` avant comme après — blind-spot
+  déjà loggé (cycle 021), jamais vérifié sur ce composant précis jusqu'ici.
+
+### Changements livrés
+
+- `fc41f49` — fix(project-modal): alpha `0.5`/`0.48` → `0.58` sur
+  `.project-case-study span`/`.project-key-takeaway span` et
+  `.project-overview-grid aside > span` (`src/index.css`) — même valeur
+  déjà tranchée pour le kicker/toggle (cycles 002/018) sur un cas de figure
+  identique (petit texte translucide sur fond quasi noir).
+
+### Vérification
+
+- Build : ✅ avant et après (`npm run build` — CSS 87,22 kB inchangé au
+  centième, cohérent avec un changement de 2 caractères sur 2 règles ; JS
+  679,81 kB inchangé). `tsc -b` (inclus) : ✅.
+- Mesures avant/après (sonde ad hoc, alpha recherché par dichotomie sur le
+  fond composite réellement résolu par `bgOf()`) : 4.28:1 → **5.46:1** et
+  4.02:1 → **5.46:1** (seuil théorique minimal 4.5:1 à alpha 0.516 ; 0.58
+  choisi pour la marge, cohérent avec le précédent du projet).
+- axe-core scopé à `.project-detail-panel` (script ad hoc, supprimé après
+  usage), projet 01 : **0 violation** avant et après (le blind-spot de
+  contraste subsiste, sans conséquence puisque la mesure du chantier vient
+  du probe maison, pas d'axe).
+- Sweep de confirmation post-fix sur les 6 modales projet (390/1440 ×
+  EN/FR) : **0 violation résiduelle** sur les combinaisons qui ont pu
+  ouvrir la modale (quelques tentatives sur 04/05/06 ont expiré sur le
+  chevauchement `position: sticky` déjà documenté cycle 032, contournées
+  par nouvelle tentative — composant partagé, pas de variation par projet
+  attendue ni observée).
+- Viewports vérifiés : 390 et 1440 (sonde de mesure + galerie). 768/1920
+  non re-testés séparément (aucun changement dimensionnel, seul un canal
+  alpha modifié sur 2 règles).
+- Langues : FR ✅ EN ✅ (même règle CSS, aucune dépendance à la langue).
+- reduced-motion : sans objet — aucune animation touchée (2 valeurs de
+  couleur statiques).
+- Navigation clavier : sans objet — aucun élément interactif touché.
+- Régression détectée : non.
+
+### Reverté
+
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024, reconfirmé
+  pour la 8e fois consécutive.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025, reconfirmé de
+  même.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026,
+  reconfirmé de même.
+- **Le §4 de MISSION-UI.md reste intégralement traité, revérifié sur le
+  code réel pour la 8e fois consécutive (cycles 026-033).**
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Prochain cycle — point de reprise exact
+- Relire MISSION-UI.md en entier (§0) puis reprendre l'ordre de priorité
+  §2 phase 4 normal : (1) tout P0 réel détecté en phase 1 ; (2) §3 reste
+  P2 gelée sauf régression/bug bloquant/violation d'accessibilité
+  mesurée/raccord imposé ; (3) « reste du site ». Les cinq rotations sont
+  désormais toutes posées par écrit au moins une fois hors zone
+  prioritaire (A cycle 030, B cycle 032, C ce cycle, D cycle 029, E cycle
+  027) — un futur cycle peut reprendre n'importe laquelle sur une partie du
+  site pas encore auditée sous cet angle, ou approfondir le probe de
+  contraste maison sur d'autres composants jamais balayés ainsi (footer
+  dans son détail complet, pages `/cv`, `BuildMode`). `project-detail-modal`
+  a désormais consommé 2/3 passes (compteur §6) — la 3e et dernière passe
+  n'est légitime que pour un défaut mesuré neuf (le plafond ne se contourne
+  pas avec « je peux faire mieux »).
+- Candidats P2 déjà chiffrés au backlog, non traités ce cycle : bundle JS
+  679,81 kB (226 kB gzip, warning Vite « chunk > 500kB ») ; mode
+  `--freeze-at=<ms>` pour `ui-gallery.mjs` ; mode dédié qui verrouille
+  `scrollY` avant de positionner une cible `viewport:` ; tokens CSS
+  orphelins `--fictif-ink`/`--fictif-border` (`tokens.css`, `index.css`),
+  sans coût ni risque, toujours en place.
+
+### Questions bloquantes ouvertes
+- Aucune (Q1-Q4 résolues le 2026-09-12, voir `QUESTIONS.md`).
+
+---
+
 ## Cycle 032 — 2026-09-13 01:10
 
 **Zone travaillée** : hors zone prioritaire (§3, gelée sur toutes ses

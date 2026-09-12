@@ -383,6 +383,25 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   coup. Les tokens CSS `--fictif-ink`/`--fictif-border` (`tokens.css`,
   `index.css`), désormais orphelins eux aussi mais sans coût ni risque,
   laissés en place — hors périmètre de ce chantier.
+- [x] **`.project-case-study span`/`.project-overview-grid aside > span`
+  (`ProjectDetailModal.tsx`, onglet Overview) mesurés à 4.28:1 et 4.02:1**
+  (cycle 033, rotation C, mesure de contraste au probe maison plutôt qu'à
+  l'œil). Sous le plancher de 4.5:1 (§6), à 10px, partagé identiquement par
+  les 6 modales projet. axe-core scopé à `.project-detail-panel` : **0
+  violation `color-contrast` avant comme après** — le panneau composite sa
+  couleur de fond d'une façon qu'axe ne résout pas, exactement le blind-spot
+  déjà loggé plus haut (cycle 021). `.pc-watermark` (le grand numéro de fond
+  du carousel) mesuré à 1.06:1 au même passage mais **non retenu** :
+  `aria-hidden="true"`, filigrane décoratif non porteur d'information, WCAG
+  1.4.3 ne s'applique pas. Corrigé : alpha `0.5`/`0.48` → `0.58` (même valeur
+  déjà tranchée pour le kicker/toggle, cycles 002/018) sur les deux règles,
+  mesuré à **5.46:1** après. Rotation C sur la transition d'onglet
+  (`duration: 0.2` sans easing nommé) et sur `ProjectCarousel`/
+  `CarouselModal` investiguée dans le même cycle, **rien retenu** : la
+  transition d'onglet ne dépasse jamais 200ms sous le plancher (un ordre de
+  grandeur sous les cas déjà arbitrés en zone prioritaire), et le carousel
+  répond déjà aux trois questions de la rotation (eases nommés, pas de
+  contenu invisible, reduced-motion propre).
 - [ ] **`ui-gallery.mjs` : le mode `viewport:<cible>@<y>` suppose qu'un
   scroll ne change que la position de la cible dans le document** (cycle
   029). Faux pour toute section pilotée par la position de scroll absolue
