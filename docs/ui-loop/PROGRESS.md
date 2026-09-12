@@ -6,6 +6,119 @@
 
 ---
 
+## Cycle 030 — 2026-09-12 22:55
+
+**Zone travaillée** : hors zone prioritaire (§3, gelée) et hors §4 (reconfirmé
+intégralement traité) — carousels projet (`.pc-cover`, données dans
+`src/data/projects/jobtrackr.ts` et `src/data/projects/video-analysis.ts`).
+Outillage : `scripts/ui-hierarchy-probe.mjs` étendu au hero/nav/carte projet.
+**Rotation de questions** : **A — Hiérarchie**, seule des cinq jamais posée
+par écrit hors zone prioritaire (point de reprise explicite du cycle 029).
+
+### Note de continuité — §4 revérifié sur le code, pas sur le seul journal
+
+`grep 'id: "0[456]"' src/data/projects.ts` → les trois entrées existent ;
+`grep 'project.id ===' src/OnePage.tsx` → 01/02/03/06 ont leur carousel
+dédié, 04/05 tombent dans la branche générique `demoLink ? <LiveDemoEmbed>`
+(voulu, aucun lien repo sur 04/05 conformément à Q2/Q3). `npm run build` vert
+avant tout changement. **Le §4 reste intégralement traité, reconfirmé pour
+la 5e fois consécutive (cycles 026-030).** Conformément à l'ordre de
+priorité §2 phase 4, aucun P0 réel détecté et §3 reste P2 gelée sans fait
+nouveau → cycle retombé sur « P2 — reste du site », rotation A.
+
+### Constats d'audit
+
+Audit complet dans `docs/ui-loop/AUDIT-2026-09-12-cycle-030.md` (à purger
+après 24h). Résumé :
+- `scripts/ui-hierarchy-probe.mjs` étendu à `.city-nav`, `.city-content`,
+  `#profile` et `#project-01 .home-project-card` (jusqu'ici limité aux 4
+  blocs de la zone prioritaire). Nav et hero : rien à corriger (2-8 niveaux
+  selon viewport/état, salience dominée par le CTA de conversion sur la nav
+  et par le titre d'affichage sur le hero — hiérarchie attendue). Un
+  near-duplicate de luminance relevé sur `profile` à 390 uniquement (deux
+  libellés différents, delta 0.036, sous le seuil de 0.06) — investigué,
+  aucune collision ni confusion réelle, aucun chantier ouvert.
+- **P2, corrigé — `#project-01 .home-project-card` remontait 18 niveaux
+  typographiques sur une seule carte.** En creusant les échantillons : deux
+  nœuds à la même taille portaient deux phrases quasi identiques —
+  `project.description` (statique, toujours visible) et le champ `sub` du
+  slide "cover" du carousel (visible par défaut, avant toute interaction).
+  Généralisé aux 4 projets à carousel : **JobTrackr (02)** et **Analyse
+  vidéo football (06)** avaient un `sub` purement redondant avec la copie
+  adjacente (`description` pour 02 ; `hook` déjà redit deux fois — `thesis`
+  puis `sub` — pour 06). **Football Data Pipeline (01)** et **Retirement
+  Sustainability Model (03)** ont un `sub` qui ajoute une information réelle
+  absente de la copie adjacente (cadrage "reproducible and falsifiable" pour
+  01 ; fait narratif sur la date de publication du rapport COR pour 03) —
+  laissés intacts après vérification.
+
+### Changements livrés
+
+- `6a4b0a5` — chore(ui-hierarchy-probe): `.city-nav`, `.city-content`,
+  `#profile`, `#project-01 .home-project-card` ajoutés aux sections mesurées.
+- `04a678e` — fix(carousel): champ `sub` retiré (EN+FR) des slides "cover"
+  de JobTrackr et Analyse vidéo football — redondant avec la copie statique
+  adjacente, aucune information perdue. `01` et `03` non touchés (le test
+  "perd-on de l'information ?" a répondu oui pour ces deux-là).
+- `a28cf3c` — audit + galerie du cycle consignés.
+
+### Vérification
+
+- Build : ✅ (`npm run build` vert avant et après — JS 693,72 → **693,28 kB**,
+  cohérent avec 4 lignes de texte retirées). `tsc --noEmit` : ✅ sans sortie.
+- axe-core pleine page après scroll complet, 1440 EN : **0 violation**,
+  inchangé depuis le cycle 028.
+- Viewports vérifiés : 390 et 1440 (captures dédiées des deux cover slides
+  modifiés, EN). `.pc-cover` est `display:flex; justify-content:center` —
+  le retrait d'une ligne recentre proprement la colonne sans laisser de
+  trou, vérifié visuellement aux deux largeurs pour les deux projets.
+- Langues : FR ✅ (édité en même temps que EN, structure de données
+  identique) EN ✅.
+- reduced-motion : non concerné (changement de contenu texte statique,
+  aucune animation touchée).
+- Navigation clavier : non concernée (aucun élément interactif touché,
+  `sub` est un `<p>` non focusable).
+- Régression détectée : non.
+
+### Reverté
+
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024, reconfirmé
+  pour la 5e fois consécutive.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025, reconfirmé de même.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026,
+  reconfirmé de même.
+- **Le §4 de MISSION-UI.md reste intégralement traité, revérifié sur le code
+  réel pour la 5e fois consécutive (cycles 026-030).**
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Prochain cycle — point de reprise exact
+- Relire MISSION-UI.md en entier (§0) puis reprendre l'ordre de priorité §2
+  phase 4 normal : (1) tout P0 réel détecté en phase 1 ; (2) §3 reste P2
+  gelée sauf régression/bug bloquant/violation d'accessibilité
+  mesurée/raccord imposé ; (3) « reste du site ». Les cinq rotations ont
+  désormais toutes été posées par écrit au moins une fois hors zone
+  prioritaire (A ce cycle, D au cycle 029, E au cycle 027) — un futur cycle
+  peut reprendre n'importe laquelle sur une partie du site pas encore
+  auditée sous cet angle (les carousels des projets 02/03/06 individuellement,
+  pas seulement 01 comme échantillon ce cycle ; le footer sous rotation A/C ;
+  les pages de détail `ProjectDetailModal`/`DeepDivePage`, jamais auditées
+  par aucune rotation jusqu'ici).
+- Candidats P2 déjà chiffrés au backlog, non traités ce cycle : bundle JS
+  693,28 kB (230 kB gzip, warning Vite « chunk > 500kB ») ; couverture du
+  probe de contraste maison limitée à la zone prioritaire
+  (`scripts/lib/probe-color.js`) ; mode `--freeze-at=<ms>` pour
+  `ui-gallery.mjs` ; mode dédié `ui-gallery.mjs` qui verrouille `scrollY`
+  avant de positionner une cible `viewport:` (utile pour toute future
+  section scroll-scrubée, voir note cycle 029).
+
+### Questions bloquantes ouvertes
+- Aucune (Q1-Q4 résolues le 2026-09-12, voir `QUESTIONS.md`).
+
+---
+
 ## Cycle 029 — 2026-09-12 21:40
 
 **Zone travaillée** : hors zone prioritaire (§3, gelée) et hors §4 (reconfirmé

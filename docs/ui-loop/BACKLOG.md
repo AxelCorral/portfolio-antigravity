@@ -321,6 +321,22 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   ce cycle. Corrigé commit `ce479ca` : pilule dupliquée retirée, CSS mort
   `.opening-secondary` nettoyé. Un seul CTA reste, sans perte d'information
   (destination identique).
+- [x] **Redondance de contenu entre la copie statique de carte et le slide
+  "cover" du carousel** (rotation A, cycle 030). `#project-01
+  .home-project-card` remontait 18 niveaux typographiques (probe étendu au
+  hero/nav/carte projet ce cycle) ; en creusant les échantillons, deux des
+  quatre projets à carousel avaient un champ `sub` de slide "cover" qui
+  redisait presque mot pour mot la `description`/le `hook` statique déjà
+  visible juste à côté : JobTrackr (`sub` = mêmes 3 faits que `description`,
+  reformulés) et Analyse vidéo football (`sub` redit le `hook`, `thesis` du
+  même slide le redit déjà aussi — trois phrases pour deux faits). Corrigé
+  commit `04a678e` : `sub` retiré (EN+FR) sur ces deux projets uniquement.
+  Football Data Pipeline et Retirement Sustainability Model **laissés
+  intacts** après la même vérification — leurs `sub` respectifs ajoutent un
+  cadrage ("reproducible and falsifiable") ou un fait narratif (date de
+  publication du rapport COR) absents de la copie adjacente ; les retirer
+  aurait perdu de l'information, contrairement au test que rotation A
+  demande d'appliquer avant de couper.
 - [ ] Bundle JS 693,72 kB (230 kB gzip), warning Vite "chunk > 500kB" au build.
   Pas urgent (pas de garde-fou performance chiffré dans la mission), mais à
   garder à l'œil si de nouvelles démos iframe/vidéo alourdissent encore le
