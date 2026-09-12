@@ -54,7 +54,7 @@ export function LanguageToggle() {
     <div
       className="language-toggle"
       data-tucked={tucked ? "true" : "false"}
-      role="group"
+      role="navigation"
       aria-label="Language selector"
     >
       {(["en", "fr"] as const).map((option, index) => (
