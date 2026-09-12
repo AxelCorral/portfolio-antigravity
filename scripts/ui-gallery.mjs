@@ -32,6 +32,7 @@
  *   --why="..."        légende d'une ligne (obligatoire)
  *   --slug=...         nom de fichier (défaut : dérivé du label)
  *   --lang=fr|en       langue des captures (défaut : en)
+ *   --path=/cv         route à visiter avant toute capture (défaut : "/")
  *   --commits=a,b      hashes courts affichés sous le bloc (défaut : before..after)
  *   --prescroll=no     n'effectue pas le passage de scroll de préchauffage. Ce
  *                      passage déclenche les reveals `once: true` ; il est
@@ -69,6 +70,10 @@ const LANG = args.lang ?? "en";
 const WHY = args.why ?? "";
 const PRESCROLL = args.prescroll !== "no";
 const SETTLE = Number(args.settle ?? 500);
+// La galerie ne visitait jamais que "/" : tout chantier vivant sur une autre
+// route (`/cv`) ne pouvait pas avoir de paire AVANT/APRÈS. `--path=/cv`
+// ajoute la route à l'URL de base, sans toucher au reste de la capture.
+const ROUTE_PATH = args.path ? String(args.path) : "";
 
 /* 390 and 1440 are the pair MISSION-UI.md §7bis mandates, and the default.
    `--viewports=1024x800,1440` overrides it for the rare chantier whose proof
@@ -166,7 +171,7 @@ async function captureState(baseUrl) {
         ([key, value]) => window.localStorage.setItem(key, value),
         ["portfolio-language", LANG],
       );
-      await page.goto(baseUrl, { waitUntil: "networkidle" });
+      await page.goto(baseUrl + ROUTE_PATH, { waitUntil: "networkidle" });
       await page.waitForTimeout(600);
 
       // Un passage de scroll complet déclenche les reveals GSAP/ScrollTrigger, sinon
