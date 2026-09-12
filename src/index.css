@@ -2964,15 +2964,27 @@ a {
   padding-inline: 0.625rem;
   align-items: center;
   justify-content: center;
-  color: rgba(225, 224, 204, 0.7);
+  /* Pleine ivoire, pas 0.7. Le classement de salience du footer (cycle 021,
+     identique aux 4 viewports et dans les 2 langues) mettait ces trois liens
+     aux rangs 4 et 5 sur 5, a 7,65:1, derriere la ligne de copyright — et
+     derriere un lien « retour en haut » a 16,76:1. MISSION-UI.md §3 demande que
+     le parcours de conversion soit evident une fois arrive en bas ; il etait
+     litteralement le plus sourd de son propre bloc. A 15,74:1 les trois liens
+     passent aux rangs 1 a 3, a egalite de ton avec `.site-footer-mark`. */
+  color: #e1e0cc;
   font-size: 0.8125rem;
-  text-decoration: none;
-  transition: color 180ms ease;
+  transition: text-decoration-color 180ms ease;
+  text-decoration: underline solid transparent;
+  text-underline-offset: 0.35em;
+  text-decoration-thickness: 1px;
 }
 
+/* Le repos ayant pris la couleur qui servait de survol, l'affordance passe au
+   soulignement : elle apparait au pointeur comme au clavier, et ne repose pas
+   sur une variation de couleur trop fine pour etre lue comme un etat. */
 .site-footer-links a:hover,
 .site-footer-links a:focus-visible {
-  color: #e1e0cc;
+  text-decoration-color: rgba(225, 224, 204, 0.55);
 }
 
 .site-footer-top {
@@ -2983,24 +2995,28 @@ a {
   align-self: center;
   align-items: center;
   gap: 0.5rem;
-  border: 1px solid rgba(225, 224, 204, 0.18);
-  border-radius: 999px;
-  background: rgba(225, 224, 204, 0.06);
-  padding: 0.6rem 1.1rem;
-  color: #f1efdf;
+  /* Plus de pilule, plus de `#f1efdf`. `.site-footer-top` portait le costume
+     d'action de la zone — bordure + fond + rayon 999px, exactement
+     `.contact-links a` — et le texte le plus clair de toute la zone
+     prioritaire, plus clair que les titres de 86px et que l'ivoire de la
+     marque. Sur le dernier ecran de la page, le seul objet dessine comme un
+     bouton etait donc celui qui renvoie le visiteur en haut.
+     Texte + fleche est l'idiome de lien deja etabli dans la zone par
+     `.card-link` : l'affordance tient, le poids visuel revient aux trois liens
+     de conversion. 0.58 d'ivoire = 5,41:1, au-dessus du plancher de §6 pour du
+     12px, et le niveau le plus sourd du bloc — ce qu'un lien utilitaire doit
+     etre. Les 44px de cible tactile (cycle 016) sont conserves : ils tiennent
+     desormais au `min-height` et au padding, plus a la pilule. */
+  padding: 0.6rem 0;
+  color: rgba(225, 224, 204, 0.58);
   font-size: 0.75rem;
   text-decoration: none;
-  transition:
-    border-color 180ms ease,
-    background 180ms ease,
-    transform 180ms ease;
+  transition: color 180ms ease;
 }
 
 .site-footer-top:hover,
 .site-footer-top:focus-visible {
-  transform: translateY(-2px);
-  border-color: rgba(225, 224, 204, 0.42);
-  background: rgba(225, 224, 204, 0.13);
+  color: #e1e0cc;
 }
 
 @media (min-width: 768px) {
