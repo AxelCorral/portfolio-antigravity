@@ -176,6 +176,48 @@ a {
   pointer-events: none;
 }
 
+/* The scrim above makes the *switch* legible over the page. It cannot make the
+   *page* legible under the switch — both occupy the same pixels. Measured cycle
+   019, collision scan every 60px: page text ran under this control on 24 of 49
+   scroll positions across the priority zone at 390 (43/70 over the whole page),
+   and on 2 to 6 of 15 from 768 to 1440; worst case, the word "with" in the
+   "Analytical profile" headline was cut in half. So the control tucks away while
+   the reader scrolls down and returns the moment they scroll up — the language
+   choice is made at the top of the page, where it never tucks (see
+   ALWAYS_VISIBLE_ABOVE in LanguageToggle.tsx). */
+.language-toggle {
+  transition:
+    transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 180ms ease;
+}
+
+.language-toggle[data-tucked="true"] {
+  transform: translateY(-0.75rem);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Keyboard access must survive the tuck: `opacity: 0` (never `visibility` or
+   `display`) keeps the two buttons in the tab order, and landing on either one
+   brings the whole control back before it is painted. */
+.language-toggle[data-tucked="true"]:focus-within {
+  transform: none;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* reduced-motion variant (§6): the control still gets out of the reader's way —
+   that is a legibility fix, not decoration — it just does it without travelling. */
+@media (prefers-reduced-motion: reduce) {
+  .language-toggle {
+    transition: none;
+  }
+
+  .language-toggle[data-tucked="true"] {
+    transform: none;
+  }
+}
+
 .language-toggle-sep {
   color: rgba(225, 224, 204, 0.3);
   font-size: 0.6875rem;
