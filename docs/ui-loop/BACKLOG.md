@@ -314,10 +314,28 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   effectivement un contrôle de navigation interlangue), sans effet visuel
   (`role` n'affecte pas le style). Troisième et dernière passe de retouche
   autorisée sur `language-toggle` (compteur §6, désormais gelée).
-- [ ] Bundle JS 641 kB (215 kB gzip), warning Vite "chunk > 500kB" au build.
+- [x] **CTA dupliqué dans l'état d'ouverture du hero** (rotation D, cycle
+  029). `.city-content` portait deux boutons — "View projects" et "View
+  selected work" — tous deux `href="#selected-work"`, mesuré aux 4
+  combinaisons (1440/390 × EN/FR) avec le probe d'évidence étendu au hero/nav
+  ce cycle. Corrigé commit `ce479ca` : pilule dupliquée retirée, CSS mort
+  `.opening-secondary` nettoyé. Un seul CTA reste, sans perte d'information
+  (destination identique).
+- [ ] Bundle JS 693,72 kB (230 kB gzip), warning Vite "chunk > 500kB" au build.
   Pas urgent (pas de garde-fou performance chiffré dans la mission), mais à
   garder à l'œil si de nouvelles démos iframe/vidéo alourdissent encore le
   bundle initial.
+- [ ] **`ui-gallery.mjs` : le mode `viewport:<cible>@<y>` suppose qu'un
+  scroll ne change que la position de la cible dans le document** (cycle
+  029). Faux pour toute section pilotée par la position de scroll absolue
+  (crossfade scroll-scrubé du hero, `CinematicOpening.tsx`) : positionner
+  `.city-content` à `anchorTop=0` forçait ~400-470px de scroll, assez pour
+  faire basculer l'état affiché (ville → cliff/profil) et produire une paire
+  AVANT/APRÈS sans preuve (constaté et rejeté avant publication ce cycle,
+  contourné avec un `anchorTop=400` choisi à la main). **P2 — outillage** :
+  un mode qui verrouille `scrollY` avant de positionner la cible éviterait de
+  deviner un `anchorTop` par essai si une autre section scroll-scrubée est
+  retouchée un jour.
 - [x] **`scripts/ui-audit.mjs` se bloquait/crashait sur un run complet**.
   Observé cycle 015 (blocage silencieux 14+ min) puis cycle 027 (`Target
   crashed` Chromium, reproductible à deux reprises à des points différents du

@@ -6,6 +6,159 @@
 
 ---
 
+## Cycle 029 — 2026-09-12 21:40
+
+**Zone travaillée** : hors zone prioritaire (§3, gelée) et hors §4 (reconfirmé
+intégralement traité) — hero (`CinematicOpening.tsx`, `.city-content`,
+`.opening-primary`/`.opening-secondary`). Outillage : `scripts/ui-evidence-probe.mjs`
+étendu au hero/nav.
+**Rotation de questions** : **D — Crédibilité**, jamais posée par écrit sur le
+hero/nav pris isolément (point de reprise explicite du cycle 028 : « rotation
+D ou A sur hero + carousels + nav, les deux seules jamais posées par écrit
+hors zone prioritaire »).
+
+### Note de continuité — §4 revérifié sur le code, pas sur le seul journal
+
+Consigne de run reçue : « ne te fie pas aux cycles passés ». Revérifié
+indépendamment, pour la 4e fois consécutive (cycles 026-029) : `grep 'id:
+"0[456]"' src/data/projects.ts` → les trois entrées existent ; `grep
+'project.id ===' src/OnePage.tsx` → 01/02/03/06 ont leur carousel dédié,
+04/05 tombent dans la branche générique `demoLink ? <LiveDemoEmbed>`
+(comportement voulu) ; aucun lien `type: "github"`/`"repository"` sur 04/05
+(conforme Q2/Q3, démo live uniquement). `npm run build` et `tsc --noEmit`
+verts avant tout changement. **Le §4 de MISSION-UI.md — priorité absolue de
+ce run — reste intégralement traité : rien à y avancer, aucun des trois
+livrables (carte/page/démo) des trois projets n'est manquant ou dégradé.**
+Conformément à l'ordre de priorité §2 phase 4 (P0 build/régression → P0 zone
+prioritaire → P1 §4 → P1 démos existantes → P2 reste du site), le cycle
+retombe donc sur "P2 — reste du site", exactement comme les cycles 026-028.
+
+### Constats d'audit
+
+Audit complet dans `docs/ui-loop/AUDIT-2026-09-12-cycle-029.md` (à purger
+après 24h). Résumé :
+- **P2 — CTA dupliqué dans l'état d'ouverture du hero.** `.city-content`
+  (état "ville", visible au chargement en motion non réduite) portait deux
+  boutons — "View projects" et "View selected work" / "Voir les projets" et
+  "Voir les projets sélectionnés" — tous deux `href="#selected-work"`. Deux
+  libellés différents promettant deux contenus, un seul livré : c'est la
+  toute première chose qu'un visiteur voit. Mesuré par lecture du DOM aux 4
+  combinaisons (1440/390 × EN/FR) avec le probe d'évidence étendu ce cycle.
+- **Investigué, pas un défaut** — le probe d'évidence rapportait `#opening`
+  (jump depuis le bas de page) à `painted=0/25` aux 4 combinaisons,
+  suggérant un contenu qui resterait invisible après un saut d'ancre (bug
+  potentiel, rotation C). Vérifié avec un clic réel (pas une assignation de
+  `window.location.hash`) : le scroll (natif + Lenis) se stabilise à
+  `scrollY=0` en moins de 500ms depuis un point de scroll modéré, et jusqu'à
+  ~1000-1100ms depuis le bas réel d'une page très longue — pile la fenêtre
+  d'attente du probe (1100ms). C'est une marge d'attente insuffisante de
+  l'instrument, pas un bug applicatif : `.city-content` finit toujours
+  repeint à opacité 1 une fois le scroll stabilisé. Consigné dans l'audit
+  pour qu'un futur cycle ne rouvre pas cette fausse piste.
+- Reste du hero/nav : proof-links présents partout (5 sur `#profile`, 2 sur
+  `.city-content`, 7 sur `.city-nav`), aucune métrique inventée, nav desktop
+  à 5 destinations distinctes sans redondance. Nav mobile sans liens visibles
+  sous le point de rupture : choix déjà établi, aucune régression mesurée,
+  aucun chantier ouvert.
+
+### Changements livrés
+
+- `a4684a4` — chore(ui-evidence-probe): `.city-nav`, `.city-content`,
+  `#profile` ajoutés aux blocs mesurés ; le suivi des ancres internes couvre
+  désormais tout bloc non-vitrine (au lieu du seul rôle `zone`).
+- `ce479ca` — fix(hero): pilule "View selected work" retirée de l'état
+  d'ouverture du hero (doublon exact de "View projects" vers
+  `#selected-work`) ; CSS mort `.opening-secondary` retiré du même geste.
+- `d36a3f2` — ui-loop: galerie régénérée pour ce cycle (voir Vérification —
+  incident d'outillage documenté dans le message de commit).
+- `7ffef05` — journalisation : compteur de retouche §6 mis à jour
+  (`hero-cta` nouvelle entrée, 1/3).
+- `9572bde` — audit du cycle consigné.
+
+### Vérification
+
+- Build : ✅ (`npm run build` vert avant et après le changement — CSS 96,89 →
+  **96,77 kB**, JS 693,91 → **693,72 kB**, cohérent avec le retrait d'un
+  bouton et de son CSS). `tsc --noEmit` : ✅ sans sortie.
+- axe-core pleine page après scroll complet, 3 combinaisons (1440 EN, 1440
+  FR, 390 EN) : **0 violation**, inchangé depuis le cycle 028.
+- Viewports vérifiés : 390, 768, 1440, 1920 (captures dédiées, EN ; FR
+  revérifié à 390 et 1440). Rendu identique aux 4 largeurs : un seul CTA
+  "View projects"/"Voir les projets", aucun trou ni décalage visuel.
+- Langues : FR ✅ EN ✅.
+- reduced-motion : ✅ — `.city-content` reste à `display: none` sous
+  `prefers-reduced-motion: reduce` (inchangé, le sous-arbre entier où vivait
+  le doublon n'est jamais rendu dans ce mode) ; `#profile` (état B, seul
+  affiché sous reduced-motion) à opacité 1, non affecté par ce chantier.
+- Navigation clavier : ✅ — ordre de tabulation revérifié (`EN` → `FR` →
+  `Skip to content` → `AXEL` → `Profile` → `Projects` …), aucun trou laissé
+  par le bouton retiré.
+- **Incident d'outillage rencontré et corrigé avant publication de la
+  galerie** : `ui-gallery.mjs --sections=viewport:.city-content@0` cale la
+  cible à 0px du haut du viewport via un scroll délibéré ; pour ce hero
+  piloté par un crossfade scroll-scrubé (`CinematicOpening.tsx`,
+  `scrollYProgress` global), `.city-content` étant naturellement à ~400-470px
+  du haut du viewport, un `anchorTop=0` forçait ~400-470px de scroll — assez
+  pour faire basculer la capture sur l'état B (cliff/profil) au lieu de
+  l'état A (ville) où vit le chantier. Premier essai constaté (AVANT et
+  APRÈS montraient tous deux l'état B, donc une paire sans preuve) et rejeté
+  avant tout commit de galerie — jamais publié. Corrigé en choisissant
+  `anchorTop=400` (proche de la position naturelle de `.city-content` aux
+  deux viewports, donc scroll quasi nul) : la paire republiée montre
+  effectivement le bon état aux deux révisions. Piste pour un futur cycle si
+  le besoin se répète : le mode `viewport:<cible>@<y>` du script suppose
+  qu'un scroll ne change que la position de la cible dans le document, ce
+  qui est faux pour toute section pilotée par la position de scroll absolue
+  (crossfades, pins) — un mode dédié qui verrouille `scrollY` avant de
+  positionner la cible éviterait d'avoir à deviner un `anchorTop` par essai.
+- Régression détectée : non.
+
+### Reverté
+
+- Aucun changement de code applicatif reverté. Un premier essai de capture de
+  galerie (état B au lieu de l'état A) a été rejeté avant publication — voir
+  Vérification ci-dessus — mais aucun commit n'en portait trace.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024, reconfirmé
+  par lecture du code pour la 4e fois consécutive.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025, reconfirmé de même.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026,
+  reconfirmé de même.
+- **Le §4 de MISSION-UI.md reste intégralement traité, revérifié sur le code
+  réel pour la 4e fois consécutive (cycles 026, 027, 028, 029).**
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Prochain cycle — point de reprise exact
+- **§4 reste clos : ne pas le rouvrir sans fait nouveau.** Relire
+  MISSION-UI.md en entier (§0) puis reprendre l'ordre de priorité §2 phase 4
+  normal : (1) tout P0 réel détecté en phase 1 ; (2) §3 reste P2 gelée sauf
+  régression/bug bloquant/violation d'accessibilité mesurée/raccord imposé ;
+  (3) « reste du site » (hero, slides projets, nav) — la rotation D vient
+  d'être posée par écrit sur le hero/nav pour la première fois (ce cycle) ;
+  **rotation A reste la seule des cinq jamais posée par écrit hors zone
+  prioritaire** (candidat naturel pour le prochain cycle sur "reste du
+  site" : hero + carousels + nav sous l'angle hiérarchie — où va l'œil en
+  premier, combien de niveaux typographiques, qu'est-ce qui est
+  supprimable).
+- Candidats P2 déjà chiffrés au backlog, non traités ce cycle : bundle JS
+  693,72 kB (230 kB gzip, warning Vite « chunk > 500kB ») ; couverture du
+  probe de contraste maison limitée à la zone prioritaire
+  (`scripts/lib/probe-color.js`) ; mode `--freeze-at=<ms>` pour
+  `ui-gallery.mjs` (toujours pas implémenté) ; un mode dédié pour
+  `ui-gallery.mjs` qui verrouille `scrollY` avant de positionner une cible
+  `viewport:` (nouvelle piste, voir Vérification ci-dessus) — utile si un
+  futur chantier retouche une autre section pilotée par scroll absolu
+  (le hero lui-même, ou toute future section scroll-scrubée).
+- Note d'outillage : voir l'incident `ui-gallery.mjs`
+  `viewport:<cible>@<y>` documenté ci-dessus (Vérification) avant de refaire
+  une capture de galerie sur une section scroll-scrubée.
+
+### Questions bloquantes ouvertes
+- Aucune (Q1-Q4 résolues le 2026-09-12, voir `QUESTIONS.md`).
+
+---
+
 ## Cycle 028 — 2026-09-12 20:10
 
 **Zone travaillée** : hors zone prioritaire (§3, gelée) et hors §4
