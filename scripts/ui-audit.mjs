@@ -78,11 +78,17 @@ async function setLanguage(page, lang) {
   );
 }
 
-async function capturePage({ browser, lang, viewport, reducedMotion }) {
+async function capturePage({ lang, viewport, reducedMotion }) {
   const tag = `${viewport.name}_${lang}${reducedMotion ? "_reduced-motion" : ""}`;
   const dir = path.join(OUT_DIR, tag);
   await mkdir(dir, { recursive: true });
 
+  // A fresh browser per capture, not a shared one across the whole run: a long-lived
+  // Chromium instance accumulates memory across ~10 screenshot-heavy sessions (GSAP
+  // scenes, full-page captures, progressive scroll) and reliably crashes ("Target
+  // crashed") a few captures in. One browser per call costs a few seconds of launch
+  // time but survives the full run instead of losing every capture after the crash.
+  const browser = await chromium.launch();
   const context = await browser.newContext({
     viewport: { width: viewport.width, height: viewport.height },
     reducedMotion: reducedMotion ? "reduce" : "no-preference",
@@ -224,6 +230,7 @@ async function capturePage({ browser, lang, viewport, reducedMotion }) {
   }
 
   await context.close();
+  await browser.close();
   return result;
 }
 
@@ -243,33 +250,36 @@ async function main() {
     await waitForServer(BASE_URL);
     console.log(`Dev server ready at ${BASE_URL}`);
 
-    const browser = await chromium.launch();
     const runs = [];
+    const persist = () =>
+      writeFile(path.join(OUT_DIR, "report.json"), JSON.stringify(runs, null, 2));
 
+    const jobs = [];
     for (const lang of LANGS) {
       for (const viewport of VIEWPORTS) {
-        console.log(`Capturing ${viewport.name} / ${lang}...`);
-        runs.push(await capturePage({ browser, lang, viewport, reducedMotion: false }));
+        jobs.push({ lang, viewport, reducedMotion: false });
       }
     }
-
     // Dedicated reduced-motion pass (laptop viewport, both languages — see MISSION-UI.md
     // Rotation C: "Le site est-il utilisable et élégant avec reduced-motion ?").
     for (const lang of LANGS) {
-      console.log(`Capturing reduced-motion / laptop-1440 / ${lang}...`);
-      runs.push(
-        await capturePage({
-          browser,
-          lang,
-          viewport: VIEWPORTS.find((v) => v.name === "laptop-1440"),
-          reducedMotion: true,
-        }),
-      );
+      jobs.push({ lang, viewport: VIEWPORTS.find((v) => v.name === "laptop-1440"), reducedMotion: true });
     }
 
-    await browser.close();
+    for (const job of jobs) {
+      const label = `${job.viewport.name} / ${job.lang}${job.reducedMotion ? " / reduced-motion" : ""}`;
+      console.log(`Capturing ${label}...`);
+      try {
+        runs.push(await capturePage(job));
+      } catch (err) {
+        // One crashed Chromium target must not discard every capture already on disk —
+        // record the failure and keep going with the remaining viewport/language combos.
+        console.error(`Capture failed for ${label}: ${err.message ?? err}`);
+        runs.push({ tag: `${job.viewport.name}_${job.lang}`, lang: job.lang, viewport: job.viewport.name, reducedMotion: job.reducedMotion, captureError: String(err) });
+      }
+      await persist();
+    }
 
-    await writeFile(path.join(OUT_DIR, "report.json"), JSON.stringify(runs, null, 2));
     console.log(`\nAudit complete. Output: ${OUT_DIR}`);
 
     const totalAxeViolations = runs.reduce((sum, r) => sum + (r.axeViolations?.length ?? 0), 0);
