@@ -33,6 +33,7 @@ import { useCallback, useEffect, useRef, useState, type RefObject } from "react"
 import { BuildMode } from "@/components/BuildMode";
 import { ProjectDetailModal } from "@/components/build-mode/ProjectDetailModal";
 import { CinematicOpening } from "@/components/CinematicOpening";
+import { LiveDemoEmbed } from "@/components/LiveDemoEmbed";
 import { AnimatedLetter, WordsPullUpMultiStyle } from "@/components/PortfolioMotion";
 import { getLocalizedProjects, type Project } from "@/data/projects";
 import { scrollToId } from "@/scroll/scrollToId";
@@ -212,7 +213,17 @@ function ProjectShowcaseCard({
   labels: ReturnType<typeof useLanguage>["t"]["projects"];
   language: Language;
 }) {
-  const primaryLink = project.links?.[0];
+  // Each link type gets its own labeled action instead of blindly showing
+  // `links[0]` under the "View repository" label. JobTrackr's first link is
+  // its live demo, not its repo — before this, the button read "View
+  // repository" while pointing at the demo URL, and the GitHub link was
+  // never shown at all. Vers l'Élysée has no repository link by design (Q2,
+  // docs/ui-loop/QUESTIONS.md): a project with only a demo link now shows
+  // only a demo action, never a mislabeled or fabricated repository link.
+  const repoLink = project.links?.find(
+    (link) => link.type === "github" || link.type === "repository",
+  );
+  const demoLink = project.links?.find((link) => link.type === "demo");
   const reportLink = project.links?.find((link) => link.type === "report");
 
   return (
@@ -267,10 +278,16 @@ function ProjectShowcaseCard({
                 {labels.openCaseStudy}
               </button>
             ) : null}
-            {primaryLink ? (
-              <a href={primaryLink.url} target="_blank" rel="noreferrer">
+            {repoLink ? (
+              <a href={repoLink.url} target="_blank" rel="noreferrer">
                 <GitBranch size={16} aria-hidden="true" />
                 {labels.viewRepository}
+              </a>
+            ) : null}
+            {demoLink ? (
+              <a href={demoLink.url} target="_blank" rel="noreferrer">
+                <ExternalLink size={16} aria-hidden="true" />
+                {labels.viewDemo}
               </a>
             ) : null}
             {reportLink ? (
@@ -301,6 +318,18 @@ function ProjectShowcaseCard({
             <ProjectCarousel
               projectId={project.id}
               slides={language === "fr" ? retirementAnalysisSlidesFr : retirementAnalysisSlidesEn}
+            />
+          </div>
+        ) : demoLink ? (
+          <div className="home-project-proof home-project-proof--embed">
+            <LiveDemoEmbed
+              src={demoLink.url}
+              frameTitle={project.title}
+              posterSrc={project.previewImage}
+              posterAlt={project.previewAlt ?? project.title}
+              launchLabel={labels.demoLaunch}
+              captionLabel={project.demoCaption ?? project.title}
+              openLabel={labels.viewDemo}
             />
           </div>
         ) : (

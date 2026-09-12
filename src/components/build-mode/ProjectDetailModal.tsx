@@ -262,8 +262,12 @@ export function ProjectDetailModal({
                   <aside>
                     <span>{t.modal.status}</span>
                     <strong>{project.status}</strong>
-                    <span>{t.modal.sourceFolder}</span>
-                    <code>{project.sourcePath}</code>
+                    {project.sourcePath ? (
+                      <>
+                        <span>{t.modal.sourceFolder}</span>
+                        <code>{project.sourcePath}</code>
+                      </>
+                    ) : null}
                     <span>{t.modal.workspaceEvidence}</span>
                     <ul>
                       {project.evidence.map((item) => (

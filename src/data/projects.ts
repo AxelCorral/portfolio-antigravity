@@ -45,10 +45,17 @@ export type Project = {
   results: ProjectResult[];
   screenshots?: ProjectScreenshot[];
   links?: ProjectLink[];
-  sourcePath: string;
+  // Local-repo projects set this to their folder in the workspace. Demo-only
+  // projects (no public repository, e.g. Vers l'Élysée) leave it unset rather
+  // than fabricate a path — ProjectDetailModal hides the "source folder" row
+  // when it is absent instead of showing a folder that does not exist.
+  sourcePath?: string;
   evidence: string[];
   previewImage?: string;
   previewAlt?: string;
+  // Caption shown under a live iframe demo (see LiveDemoEmbed). Only read when
+  // `links` contains an entry with `type: "demo"`.
+  demoCaption?: string;
   translations?: Partial<Record<Exclude<Language, "en">, ProjectTranslation>>;
 };
 
@@ -69,6 +76,7 @@ export type ProjectTranslation = Partial<
     | "links"
     | "evidence"
     | "previewAlt"
+    | "demoCaption"
   >
 > & {
   caseStudy?: ProjectCaseStudySection[];
@@ -603,6 +611,218 @@ export const projects: Project[] = [
         ],
         previewAlt:
           "Graphique de frontière d’équilibre du projet de soutenabilité des retraites",
+      },
+    },
+  },
+  {
+    id: "04",
+    title: "Vers l'Élysée",
+    category: "Probabilistic Modeling",
+    status: "Deployed project",
+    hook: "A probabilistic campaign simulator built to be audited, not just played.",
+    description:
+      "A narrative and probabilistic simulator of a French presidential campaign, playable directly in the browser: 31 decisions, 9 real political parties and fictional candidates, resolved by a documented model rather than a scripted outcome.",
+    whyItMatters:
+      "It shows Axel can carry a probabilistic model end to end: state hypotheses, implement them, audit the resulting output and explain the variance behind it, then publish that process instead of only the finished product.",
+    longDescription:
+      "Vers l'Élysée simulates a full presidential campaign as a sequence of 31 branching decisions across 9 real French political parties, mapped to fictional candidates so the exercise stays methodological rather than personal. It runs live in the browser with a Supabase backend, deployed on Vercel. The code was implemented with Claude Code, while the conception, hypotheses, metrics and interpretation were directed by Axel — and documented publicly through a 3-episode LinkedIn series, \"Vers l'Élysée — Data Notebook\", covering a model audit, counterfactual scenarios and a variance decomposition.",
+    keyTakeaway:
+      "The strongest signal is not the campaign narrative itself: it is the published audit trail behind it — model assumptions, a documented audit, counterfactuals and a variance decomposition, released alongside the simulator rather than kept private.",
+    caseStudy: [
+      {
+        eyebrow: "Context / problem",
+        title: "A playable campaign is only meaningful if its odds are auditable.",
+        body:
+          "A narrative political simulator can easily become a scripted story wearing the appearance of a model. The challenge was to make 31 campaign decisions resolve through a probabilistic model that could later be questioned, audited and explained — not a fixed branching script.",
+        points: [
+          "31 decisions span a full campaign arc.",
+          "9 real French political parties, mapped to fictional candidates to keep the exercise methodological rather than personal.",
+        ],
+      },
+      {
+        eyebrow: "Pipeline / method",
+        title: "A browser-playable simulator backed by a documented model.",
+        body:
+          "The simulator runs live in the browser with a Supabase backend, deployed on Vercel. The implementation itself was carried out with Claude Code, while the conception, the hypotheses, the metrics and their interpretation were directed by Axel throughout.",
+        points: [
+          "Live deployment: political-destiny.vercel.app.",
+          "Backend: Supabase.",
+          "Code implemented with Claude Code under Axel's direction.",
+        ],
+      },
+      {
+        eyebrow: "Evidence / result",
+        title: "The modeling process is published, not just the simulator.",
+        body:
+          "A companion 3-episode LinkedIn series, \"Vers l'Élysée — Data Notebook\", documents the parts of the work a simulator alone cannot show: a model audit, counterfactual scenarios and a variance decomposition.",
+        points: [
+          "Episode 1: model audit.",
+          "Episode 2: counterfactual scenarios.",
+          "Episode 3: variance decomposition.",
+        ],
+      },
+      {
+        eyebrow: "What it demonstrates",
+        title: "Modeling discipline applied to a subject built to be enjoyable.",
+        body:
+          "The project pairs a genuinely playable interface with a model whose assumptions are stated and auditable — and treats a politically sensitive subject with a neutral, methodological framing rather than a partisan one.",
+        points: [
+          "Fictional candidates avoid mapping outcomes onto real public figures.",
+          "The published Data Notebook series lets the modeling choices be reviewed independently of the simulator itself.",
+        ],
+      },
+    ],
+    technologies: ["Supabase", "Vercel", "Claude Code"],
+    highlights: [
+      "31 branching decisions across a full presidential campaign.",
+      "9 real political parties, mapped to fictional candidates to keep the simulation methodological.",
+      "Live browser-playable simulator with a Supabase backend, deployed on Vercel.",
+      "Companion \"Vers l'Élysée — Data Notebook\" LinkedIn series: model audit, counterfactuals, variance decomposition.",
+      "Code implemented with Claude Code; conception, hypotheses, metrics and interpretation directed by Axel.",
+    ],
+    results: [
+      {
+        label: "Decision architecture",
+        description:
+          "31 decisions branch across a full campaign, resolved by a probabilistic model rather than a fixed script.",
+      },
+      {
+        label: "Party coverage",
+        description:
+          "9 real French political parties are represented, mapped to fictional candidates to keep the exercise methodological.",
+      },
+      {
+        label: "Deployment",
+        description:
+          "The simulator runs live on Vercel with a Supabase backend, playable directly in the browser.",
+      },
+      {
+        label: "Published methodology",
+        description:
+          "A 3-episode LinkedIn series, \"Vers l'Élysée — Data Notebook\", documents a model audit, counterfactual scenarios and a variance decomposition.",
+      },
+    ],
+    links: [
+      {
+        label: "Open the live simulator",
+        url: "https://political-destiny.vercel.app",
+        type: "demo",
+      },
+    ],
+    evidence: [
+      "31 decisions",
+      "9 real parties",
+      "Live on Vercel",
+      "3-episode Data Notebook series",
+    ],
+    previewImage: "/projects/political-destiny/hero-preview.webp",
+    previewAlt: "Homepage of the Vers l'Élysée campaign simulator",
+    demoCaption:
+      "You're looking at the live simulator, embedded directly from its Vercel deployment.",
+    translations: {
+      fr: {
+        title: "Vers l'Élysée",
+        category: "Modélisation probabiliste",
+        status: "Projet déployé",
+        hook:
+          "Un simulateur de campagne probabiliste conçu pour être audité, pas seulement joué.",
+        description:
+          "Un simulateur narratif et probabiliste de campagne présidentielle française, jouable directement dans le navigateur : 31 décisions, 9 partis politiques réels et des candidats fictifs, résolus par un modèle documenté plutôt que par un scénario écrit à l'avance.",
+        whyItMatters:
+          "Ce projet montre qu'Axel sait porter un modèle probabiliste de bout en bout : poser des hypothèses, les implémenter, auditer le résultat et en expliquer la variance, puis publier cette démarche plutôt que seulement le produit fini.",
+        longDescription:
+          "Vers l'Élysée simule une campagne présidentielle complète comme une séquence de 31 décisions à embranchements, réparties sur 9 partis politiques français réels, associés à des candidats fictifs pour que l'exercice reste méthodologique plutôt que personnel. Il tourne en direct dans le navigateur avec un backend Supabase, déployé sur Vercel. Le code a été implémenté avec Claude Code, tandis que la conception, les hypothèses, les métriques et leur interprétation ont été pilotées par Axel — et documentées publiquement via une série LinkedIn en 3 épisodes, « Vers l'Élysée — Data Notebook », consacrée à un audit du modèle, à des scénarios contrefactuels et à une décomposition de variance.",
+        keyTakeaway:
+          "Le signal le plus fort n'est pas la campagne elle-même : c'est la démarche publiée derrière elle — hypothèses du modèle, audit documenté, contrefactuels et décomposition de variance, publiés aux côtés du simulateur plutôt que gardés en interne.",
+        caseStudy: [
+          {
+            eyebrow: "Contexte / problème",
+            title: "Une campagne jouable n'a de sens que si ses probabilités sont auditables.",
+            body:
+              "Un simulateur politique narratif peut facilement devenir une histoire scénarisée qui prend l'apparence d'un modèle. L'enjeu était de faire résoudre 31 décisions de campagne par un modèle probabiliste qui puisse ensuite être questionné, audité et expliqué — pas par un arbre de décision figé.",
+            points: [
+              "31 décisions couvrent une campagne complète.",
+              "9 partis politiques français réels, associés à des candidats fictifs pour garder l'exercice méthodologique plutôt que personnel.",
+            ],
+          },
+          {
+            eyebrow: "Pipeline / méthode",
+            title: "Un simulateur jouable dans le navigateur, adossé à un modèle documenté.",
+            body:
+              "Le simulateur tourne en direct dans le navigateur avec un backend Supabase, déployé sur Vercel. L'implémentation a été réalisée avec Claude Code, tandis que la conception, les hypothèses, les métriques et leur interprétation ont été pilotées par Axel de bout en bout.",
+            points: [
+              "Déploiement en ligne : political-destiny.vercel.app.",
+              "Backend : Supabase.",
+              "Code implémenté avec Claude Code, sous la direction d'Axel.",
+            ],
+          },
+          {
+            eyebrow: "Preuve / résultat",
+            title: "La démarche de modélisation est publiée, pas seulement le simulateur.",
+            body:
+              "Une série LinkedIn compagnon en 3 épisodes, « Vers l'Élysée — Data Notebook », documente ce qu'un simulateur seul ne peut pas montrer : un audit du modèle, des scénarios contrefactuels et une décomposition de variance.",
+            points: [
+              "Épisode 1 : audit du modèle.",
+              "Épisode 2 : scénarios contrefactuels.",
+              "Épisode 3 : décomposition de variance.",
+            ],
+          },
+          {
+            eyebrow: "Ce que ça démontre",
+            title: "Une rigueur de modélisation appliquée à un sujet pensé pour être agréable à utiliser.",
+            body:
+              "Le projet associe une interface réellement jouable à un modèle dont les hypothèses sont énoncées et auditables — et traite un sujet politiquement sensible avec un cadrage neutre et méthodologique plutôt que partisan.",
+            points: [
+              "Des candidats fictifs évitent de faire correspondre les résultats à de vraies personnalités publiques.",
+              "La série Data Notebook publiée permet d'examiner les choix de modélisation indépendamment du simulateur lui-même.",
+            ],
+          },
+        ],
+        highlights: [
+          "31 décisions à embranchements sur une campagne présidentielle complète.",
+          "9 partis politiques réels, associés à des candidats fictifs pour garder la simulation méthodologique.",
+          "Simulateur jouable en direct dans le navigateur, avec un backend Supabase, déployé sur Vercel.",
+          "Série LinkedIn compagnon « Vers l'Élysée — Data Notebook » : audit du modèle, contrefactuels, décomposition de variance.",
+          "Code implémenté avec Claude Code ; conception, hypothèses, métriques et interprétation pilotées par Axel.",
+        ],
+        results: [
+          {
+            label: "Architecture de décision",
+            description:
+              "31 décisions s'embranchent sur une campagne complète, résolues par un modèle probabiliste plutôt que par un scénario figé.",
+          },
+          {
+            label: "Couverture partisane",
+            description:
+              "9 partis politiques français réels sont représentés, associés à des candidats fictifs pour garder l'exercice méthodologique.",
+          },
+          {
+            label: "Déploiement",
+            description:
+              "Le simulateur tourne en direct sur Vercel avec un backend Supabase, jouable directement dans le navigateur.",
+          },
+          {
+            label: "Méthodologie publiée",
+            description:
+              "Une série LinkedIn en 3 épisodes, « Vers l'Élysée — Data Notebook », documente un audit du modèle, des scénarios contrefactuels et une décomposition de variance.",
+          },
+        ],
+        links: [
+          {
+            label: "Ouvrir le simulateur en ligne",
+            url: "https://political-destiny.vercel.app",
+            type: "demo",
+          },
+        ],
+        evidence: [
+          "31 décisions",
+          "9 partis réels",
+          "En ligne sur Vercel",
+          "Série Data Notebook en 3 épisodes",
+        ],
+        previewAlt: "Page d'accueil du simulateur de campagne Vers l'Élysée",
+        demoCaption:
+          "Vous regardez le simulateur en direct, intégré depuis son déploiement Vercel.",
       },
     },
   },

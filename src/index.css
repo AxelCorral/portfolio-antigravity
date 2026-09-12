@@ -1004,7 +1004,7 @@ a {
   backdrop-filter: blur(14px);
 }
 
-.home-project-proof:not(.home-project-proof--carousel) span {
+.home-project-proof:not(.home-project-proof--carousel):not(.home-project-proof--embed) span {
   display: block;
   margin-bottom: 0.4rem;
   color: rgba(225, 224, 204, 0.48);
@@ -3306,6 +3306,133 @@ a {
 /* Override proof panel when it contains a carousel */
 .home-project-proof--carousel {
   padding: 0;
+}
+
+/* Live iframe demo (e.g. Vers l'Élysée). The caption sits in its own row
+   below the frame rather than overlaid on it, so once the iframe is loaded
+   the caption never sits on top of a control inside the live app — and its
+   "open in a new tab" link is the visible fallback if the embed itself is
+   ever blocked, not just decoration. */
+.home-project-proof--embed {
+  padding: 0;
+}
+
+.demo-embed {
+  position: absolute;
+  inset: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(215, 226, 234, 0.14);
+  border-radius: 1rem;
+  overflow: hidden;
+  background: #090a0a;
+}
+
+.demo-embed-frame {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.demo-embed-frame iframe,
+.demo-embed-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.demo-embed-poster {
+  object-fit: cover;
+  object-position: top center;
+  opacity: 0.75;
+}
+
+.demo-embed-launch {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: linear-gradient(180deg, rgba(9, 10, 10, 0.1), rgba(9, 10, 10, 0.72));
+  cursor: pointer;
+}
+
+.demo-embed-launch-btn {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 0.55rem;
+  border: 1px solid rgba(225, 224, 204, 0.4);
+  border-radius: 999px;
+  background: rgba(8, 9, 10, 0.78);
+  backdrop-filter: blur(12px);
+  padding: 0 1.25rem;
+  color: #e1e0cc;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: border-color 200ms ease, background-color 200ms ease;
+}
+
+.demo-embed-launch:hover .demo-embed-launch-btn,
+.demo-embed-launch:focus-visible .demo-embed-launch-btn {
+  border-color: rgba(225, 224, 204, 0.7);
+  background: rgba(8, 9, 10, 0.94);
+}
+
+.demo-embed-launch:focus-visible {
+  outline: 2px solid rgba(225, 224, 204, 0.7);
+  outline-offset: -2px;
+}
+
+.demo-embed-caption {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-top: 1px solid rgba(215, 226, 234, 0.14);
+  background: rgba(8, 9, 10, 0.92);
+  padding: 0.65rem 0.9rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+/* Overrides `.home-project-proof:not(...) span` (a generic eyebrow-label
+   rule elsewhere in this file) which otherwise wins on specificity for any
+   bare `span` here and drops the caption to a 0.48 alpha — 4.00:1, below the
+   4.5:1 floor (§6) at this font size. Named class instead of relying on
+   selector order, so the two rules can't collide again later. */
+.demo-embed-caption-text {
+  display: inline;
+  margin-bottom: 0;
+  color: rgba(225, 224, 204, 0.68);
+  font-size: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.demo-embed-caption a {
+  display: inline-flex;
+  min-height: 44px;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.3rem;
+  color: #e1e0cc;
+  white-space: nowrap;
+}
+
+.demo-embed-caption a:hover,
+.demo-embed-caption a:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 1023px) {
+  .home-project-proof--embed {
+    min-height: 360px;
+  }
 }
 
 /* Carousel floats with equal gutter on all 4 sides */
