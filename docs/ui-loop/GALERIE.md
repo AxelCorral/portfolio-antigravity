@@ -5,6 +5,17 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 034 — 2026-09-12 · Contraste, cibles tactiles et mesure de lecture de /cv
+
+> Page jamais visitee par aucun outil d'audit de la boucle ; kicker/print-note/dates sous 4.5:1, liens email/GitHub a 40px, puces de mission a 111 caracteres/ligne (voir PROGRESS.md pour le detail des trois defauts hors cadre).
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-034/contraste-cibles-tactiles-et-mesure-de-lecture-de-cv-390-avant.webp) | ![après 390](shots/cycle-034/contraste-cibles-tactiles-et-mesure-de-lecture-de-cv-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-034/contraste-cibles-tactiles-et-mesure-de-lecture-de-cv-1440-avant.webp) | ![après 1440](shots/cycle-034/contraste-cibles-tactiles-et-mesure-de-lecture-de-cv-1440-apres.webp) |
+
+`a47fe85`
+
 ## Cycle 033 — 2026-09-12 · Contraste des eyebrows du case-study projet (ProjectDetailModal)
 
 > Deux libelles partages par les 6 modales projet mesuraient 4.28:1 et 4.02:1, sous le plancher de 4.5:1 (§6) ; portes a 5.46:1 (alpha 0.58).
