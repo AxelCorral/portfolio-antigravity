@@ -220,6 +220,7 @@ export function ProjectDetailModal({
               id="project-detail-content"
               className="project-detail-content"
               role="tabpanel"
+              tabIndex={0}
               key={`${project.id}-${activeTab}`}
               initial={reduceMotion ? false : { opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}

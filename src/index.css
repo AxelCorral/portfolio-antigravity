@@ -2406,7 +2406,7 @@ a {
 }
 
 .project-detail-tabs button {
-  min-height: 34px;
+  min-height: 44px;
   cursor: pointer;
   white-space: nowrap;
   border: 1px solid transparent;
@@ -2440,6 +2440,7 @@ a {
 }
 
 .project-overview-grid > div > p {
+  max-width: var(--measure-lede);
   margin: 0 0 2rem;
   color: #c1c4c5;
   font-size: clamp(1rem, 1.4vw, 1.15rem);
