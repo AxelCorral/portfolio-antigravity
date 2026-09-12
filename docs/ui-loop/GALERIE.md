@@ -5,6 +5,28 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 030 — 2026-09-12 · Redondance cover/description retiree (JobTrackr, Analyse video football) — section `#project-02 .pc-cover`
+
+> Le sous-titre du slide cover redisait la description statique presque mot pour mot ; retire sans perte d'information (rotation A).
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-030/redondance-cover-description-retiree-jobtrackr-analyse-video-project-02-pc-cover-390-avant.webp) | ![après 390](shots/cycle-030/redondance-cover-description-retiree-jobtrackr-analyse-video-project-02-pc-cover-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-030/redondance-cover-description-retiree-jobtrackr-analyse-video-project-02-pc-cover-1440-avant.webp) | ![après 1440](shots/cycle-030/redondance-cover-description-retiree-jobtrackr-analyse-video-project-02-pc-cover-1440-apres.webp) |
+
+`04a678e`
+
+## Cycle 030 — 2026-09-12 · Redondance cover/description retiree (JobTrackr, Analyse video football) — section `#project-06 .pc-cover`
+
+> Le sous-titre du slide cover redisait la description statique presque mot pour mot ; retire sans perte d'information (rotation A).
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-030/redondance-cover-description-retiree-jobtrackr-analyse-video-project-06-pc-cover-390-avant.webp) | ![après 390](shots/cycle-030/redondance-cover-description-retiree-jobtrackr-analyse-video-project-06-pc-cover-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-030/redondance-cover-description-retiree-jobtrackr-analyse-video-project-06-pc-cover-1440-avant.webp) | ![après 1440](shots/cycle-030/redondance-cover-description-retiree-jobtrackr-analyse-video-project-06-pc-cover-1440-apres.webp) |
+
+`04a678e`
+
 ## Cycle 029 — 2026-09-12 · Hero : CTA duplique supprime
 
 > Les deux boutons de l'etat d'ouverture du hero menaient au meme endroit (#selected-work) ; un seul suffit, l'autre etait du bruit pur.
