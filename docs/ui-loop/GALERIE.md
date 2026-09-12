@@ -5,6 +5,22 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 031 — 2026-09-13 · Suppression de la page fantôme `/projet/:slug`
+
+> Pas de paire AVANT/APRÈS générée par `scripts/ui-gallery.mjs` : le chantier
+> supprime une route inatteignable depuis toute page réellement visitable du
+> site (aucun lien n'y menait, confirmé par grep exhaustif) — l'outil de
+> galerie ne navigue que vers la racine et cette preuve ne relève pas de la
+> surface qu'il documente. Preuve alternative, authentique mais non
+> commitée : capture Playwright ad hoc de `/projet/jobtrackr` avant
+> suppression (texte français sans variante EN, chiffres JobTrackr
+> divergents de la vraie carte) puis après (page vide, seul le sélecteur de
+> langue global reste) — voir `docs/ui-loop/AUDIT-2026-09-13-cycle-031.md`.
+> Preuve mesurable committée : bundle JS 693,28 → 679,80 kB, CSS
+> 96,77 → 87,19 kB (`npm run build`).
+
+`f0686d2`
+
 ## Cycle 030 — 2026-09-12 · Redondance cover/description retiree (JobTrackr, Analyse video football) — section `#project-02 .pc-cover`
 
 > Le sous-titre du slide cover redisait la description statique presque mot pour mot ; retire sans perte d'information (rotation A).

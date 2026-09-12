@@ -337,10 +337,27 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   publication du rapport COR) absents de la copie adjacente ; les retirer
   aurait perdu de l'information, contrairement au test que rotation A
   demande d'appliquer avant de couper.
-- [ ] Bundle JS 693,72 kB (230 kB gzip), warning Vite "chunk > 500kB" au build.
+- [ ] Bundle JS ~680 kB (226 kB gzip), warning Vite "chunk > 500kB" au build.
   Pas urgent (pas de garde-fou performance chiffré dans la mission), mais à
   garder à l'œil si de nouvelles démos iframe/vidéo alourdissent encore le
   bundle initial.
+- [x] **Page fantôme `/projet/:slug` (`DeepDivePage.tsx`) atteignable par URL
+  directe mais reliée à aucun élément d'interface** (cycle 031, point de
+  reprise du cycle 030 : auditer `ProjectDetailModal`/`DeepDivePage`, jamais
+  couverts par aucune rotation). Un premier jet de système de page de détail
+  (`content/projects.ts`, `content/deepdives.{ts,md}`, `content/projets.md`,
+  `sections/DeepDive.tsx`, `pages/DeepDivePage.tsx`, `components/{ProjectCard,
+  FictifTag,LazyMediaSlot}.tsx`), jamais retiré après que le système actuel
+  (`data/projects.ts` + `ProjectDetailModal.tsx`) l'a remplacé, restait
+  accessible en devinant l'URL et affichait un texte 100 % français sans
+  variante EN (violation §1) avec des chiffres JobTrackr divergents de la
+  carte réelle. Exhaustivement vérifié mort par `grep -rln` fichier par
+  fichier avant suppression (commit `f0686d2`). Bundle : JS 693,28 → 679,80 kB,
+  CSS 96,77 → 87,19 kB. Aucun import partagé touché (`useDocumentMeta` reste
+  utilisé par `CVPage.tsx`), homepage vérifiée visuellement identique après
+  coup. Les tokens CSS `--fictif-ink`/`--fictif-border` (`tokens.css`,
+  `index.css`), désormais orphelins eux aussi mais sans coût ni risque,
+  laissés en place — hors périmètre de ce chantier.
 - [ ] **`ui-gallery.mjs` : le mode `viewport:<cible>@<y>` suppose qu'un
   scroll ne change que la position de la cible dans le document** (cycle
   029). Faux pour toute section pilotée par la position de scroll absolue
