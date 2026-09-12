@@ -228,7 +228,7 @@ export function ProjectCarousel({
         </div>
 
         {/* Navigation */}
-        <nav className="pc-nav" aria-label={t.carousel.slideNavigation}>
+        <nav className="pc-nav" aria-label={`${t.carousel.slideNavigation}: ${label}`}>
           <span className="pc-counter" aria-live="polite" aria-atomic="true">
             {counter}
           </span>

@@ -307,6 +307,7 @@ function ProjectShowcaseCard({
           <div className="home-project-proof home-project-proof--carousel">
             <ProjectCarousel
               projectId={project.id}
+              label={project.title}
               slides={language === "fr" ? footballPipelineSlidesFr : footballPipelineSlidesEn}
             />
           </div>
@@ -314,6 +315,7 @@ function ProjectShowcaseCard({
           <div className="home-project-proof home-project-proof--carousel">
             <ProjectCarousel
               projectId={project.id}
+              label={project.title}
               slides={language === "fr" ? jobtrackrSlidesFr : jobtrackrSlidesEn}
             />
           </div>
@@ -321,6 +323,7 @@ function ProjectShowcaseCard({
           <div className="home-project-proof home-project-proof--carousel">
             <ProjectCarousel
               projectId={project.id}
+              label={project.title}
               slides={language === "fr" ? retirementAnalysisSlidesFr : retirementAnalysisSlidesEn}
             />
           </div>
@@ -328,6 +331,7 @@ function ProjectShowcaseCard({
           <div className="home-project-proof home-project-proof--carousel">
             <ProjectCarousel
               projectId={project.id}
+              label={project.title}
               slides={language === "fr" ? footballVideoAnalysisSlidesFr : footballVideoAnalysisSlidesEn}
             />
           </div>
