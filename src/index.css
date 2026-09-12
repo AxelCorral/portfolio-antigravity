@@ -718,7 +718,15 @@ a {
 .home-section-heading > span,
 .contact-panel p:not(.contact-kicker) {
   display: block;
-  max-width: 42rem;
+  /* Was `42rem` — a pixel guess, not a reading measure. One rule, three blocks,
+     three line lengths: 58 characters for the Capabilities subtitle (a short
+     string that happens to fit on one line), 95 for the Contact one and 102 for
+     Selected work — 23% and 36% over the 75-character ceiling MISSION-UI.md §2
+     rotation B sets (cycle 020 audit B-5). `--measure-lede` is the measure the
+     cycle 019 audit already calibrated on both languages for the `#about`
+     paragraph, which is the same kind of copy at the same size; it had simply
+     never been applied to the other supporting blocks. */
+  max-width: var(--measure-lede);
   margin-top: 1.25rem;
   color: #9ca3af;
   font-size: 1rem;
