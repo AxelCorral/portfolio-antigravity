@@ -6,6 +6,138 @@
 
 ---
 
+## Cycle 025 — 2026-09-12 18:38
+
+**Zone travaillée** : §4 — intégration d'**Ombrair** (carte, page, démo).
+Aucun chantier de la zone prioritaire (§3, P2) n'a été ouvert, conformément à
+la consigne de run reçue pour cette exécution.
+**Rotation de questions** : non applicable — la rotation A-E porte sur la
+zone prioritaire (§3) ; ce cycle est un chantier §4, deuxième des trois dans
+l'ordre imposé.
+
+### Constats de vérification (tenant lieu d'audit pour ce chantier)
+
+- **En-têtes HTTP revérifiés avant d'implémenter**, comme demandé par le
+  point de reprise du cycle 024 (« ne pas se fier à une vérification de
+  cycle 003 sans la rejouer ») : `curl -I https://ombrair.vercel.app` →
+  `200 OK`, aucun `X-Frame-Options` ni `Content-Security-Policy:
+  frame-ancestors`. L'iframe live reste réalisable (format 1, §5), inchangé
+  depuis la vérification du cycle 003.
+- **Reconnaissance du site déployé avant d'écrire le contenu éditorial**,
+  plutôt que de s'en tenir uniquement aux faits déjà couchés dans
+  MISSION-UI.md §4.2. La page `/a-propos` du site en ligne énonce elle-même
+  le cadre exact du projet : exercice de création d'entreprise du Master
+  MIASHS de l'Université Toulouse Jean Jaurès, sur la thématique des
+  canicules et du confort thermique du logement, avec la phrase « Projet
+  fictif [...] Aucune vente réelle n'est associée à ce site » répétée en
+  pied de page. Ce n'est pas une donnée inventée : c'est le texte du site
+  lui-même, plus précis que le résumé de la mission, et il sécurise
+  l'exigence §4.2 « le caractère fictif de l'entreprise doit être explicite ».
+- **Recherche du bon écran pour le hook visuel 3D**, plutôt que de capturer
+  la page d'accueil par défaut. La page d'accueil ne montre aucune 3D ; le
+  visualiseur (glisser pour pivoter, molette/pincement pour zoomer, bouton
+  « Vue éclatée ») n'apparaît que sur une page produit individuelle
+  (`/gammes/capteur`). Le poster de démo (`hero-preview.webp`) a été capturé
+  sur cette page précise, cadré pour que le visualiseur occupe la moitié
+  droite de l'image — la mission demande explicitement que « la 3D se
+  montre, pas qu'elle se dise ».
+- Aucune trace de panier/checkout sur le site : le parcours d'achat réel est
+  une demande de devis (`/devis`), pas un panier. Le texte du chantier a été
+  écrit pour rester conforme à ce qui est réellement observable (catalogue,
+  tarif par produit, demande de devis) sans reprendre littéralement
+  l'expression « e-commerce » de la mission d'une façon qui laisserait
+  supposer un panier d'achat inexistant.
+
+### Changements livrés
+
+- `fd39663` — ui(projects): intégrer Ombrair — carte, page et démo live.
+  - **Carte** : entrée `id: "05"` dans `src/data/projects.ts` (EN+FR
+    complet), rendue par le même `ProjectShowcaseCard` que les quatre
+    projets existants — aucun composant parallèle. Catégorie « Rapid Product
+    Delivery » pour porter l'angle vitesse d'exécution / pilotage agentique
+    imposé par la mission (§4.2).
+  - **Page** : case study 4 sections (contexte, pipeline, preuve, ce que ça
+    démontre) exploitée par `ProjectDetailModal` sans modification de sa
+    structure — le champ `sourcePath` optionnel ajouté au cycle 024 sert de
+    nouveau ici (aucun lien repo, Q3 tranchée).
+  - **Démo** : `LiveDemoEmbed` réutilisé tel quel, iframe montée au clic vers
+    `ombrair.vercel.app`. Poster capturé par Playwright sur la page produit
+    du capteur (voir constats ci-dessus).
+- `78c0d8f` — chore(ui-loop): purge des 8 `AUDIT-*.md` de plus de 24h
+  (cycles 016-023), conformément à MISSION-UI.md §6.
+
+### Vérification
+
+- Build : ✅ (`npm run build` vert). `tsc --noEmit` : ✅ sans sortie.
+- axe-core sur `#project-05` (démo iframe non chargée, état par défaut) en
+  EN et en FR : **0 violation** dans les deux langues.
+- Viewports vérifiés : **390 / 1440** en détail (captures, overflow), plus
+  vérification visuelle du rendu de carte à 1440. **0 overflow horizontal**
+  à 390px (`document.body.scrollWidth - window.innerWidth === 0`).
+- Langues : FR ✅ EN ✅ — carte, case study (onglets Overview/Results/
+  Links/Tech), légende de démo et libellés de lien capturés et lus dans les
+  deux langues. Onglet « Links » vérifié : un seul lien affiché (« Open the
+  live site » / « Ouvrir le site en ligne »), aucun lien repo fabriqué.
+- reduced-motion : ✅ — aucune animation nouvelle introduite (composant
+  identique à celui vérifié sous reduced-motion au cycle 024).
+- Nav clavier : ✅ — `Tab` atteint le bouton de lancement de la démo,
+  `Enter` monte l'iframe (vérifié : 1 iframe montée après l'appui), le lien
+  de repli « ouvrir dans un nouvel onglet » de la légende reste atteignable
+  au tabulateur.
+- Régression détectée : non — carte et démo capturées côte à côte avec les
+  projets 01-04 au même run, aucun changement visuel sur les cartes
+  existantes.
+
+### Reverté
+
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024.
+- **Ombrair : terminé** (carte ✅ page ✅ démo ✅) — deuxième des trois
+  chantiers §4, livré ce cycle.
+- Analyse vidéo football : non commencé.
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 024.
+
+### Prochain cycle — point de reprise exact
+- **Ouvrir « Analyse vidéo football » (§4.3) en chantier unique.** Troisième
+  et dernier des trois chantiers §4, dans l'ordre imposé.
+  1. Ce projet n'est **pas public** : aucun lien code, aucun lien démo live
+     (contrairement à Vers l'Élysée et Ombrair). C'est une section
+     d'**introduction** uniquement (démarche + ambition, pas un livrable
+     fini) — donc pas de `LiveDemoEmbed` pour ce projet. Revoir la
+     hiérarchie des formats de démo (§5) : la piste retenue par Q4
+     (`QUESTIONS.md`, résolue 2026-09-12) est constituée de **schémas
+     abstraits reconstruits** (diagramme de flux du pipeline, schéma de
+     terrain stylisé, représentation conceptuelle du tracking) — jamais une
+     capture TV ni un logo de club/compétition, jamais un visuel présenté
+     comme une sortie réelle du pipeline.
+  2. Prévoir explicitement, dans le code ou les données (`src/data/
+     projects.ts` ou un composant dédié), un **emplacement documenté** où
+     Axel pourra brancher les vrais exports du pipeline plus tard sans
+     retoucher la mise en page — exigence structurelle de Q4, à ne pas
+     oublier au moment d'écrire le composant.
+  3. Angle éditorial imposé (§4.3) : positionner comme un travail de
+     recherche **en cours** (atout, pas une excuse), assumer frontalement la
+     contrainte CPU-only comme contrainte d'ingénierie.
+  4. Faits vérifiés déjà disponibles dans MISSION-UI.md §4.3 (YOLOv8 +
+     ByteTrack, homographie, interface Streamlit à 5 pages, clustering
+     d'équipes, deux matchs réels Real Madrid–Dortmund et Swansea–Man City,
+     piste de tracking persistant inter-segments en cours d'étude) — projet
+     non public, donc pas de site à aller inspecter comme cela a été fait
+     pour Ombrair ce cycle-ci ; s'en tenir strictement à ces faits, ne rien
+     inventer au-delà.
+  5. Une fois ce troisième chantier livré avec ses trois livrables, le §4
+     de la mission sera intégralement traité ; le cycle suivant devra alors
+     relire MISSION-UI.md en entier pour déterminer la nouvelle priorité
+     (probablement un retour d'audit général zone prioritaire + reste du
+     site, la zone basse restant P2 sauf régression).
+
+### Questions bloquantes ouvertes
+- Aucune (Q1-Q4 résolues le 2026-09-12, voir `QUESTIONS.md`).
+
+---
+
 ## Cycle 024 — 2026-09-12 18:26
 
 **Zone travaillée** : §4 — intégration de **Vers l'Élysée** (carte, page, démo).

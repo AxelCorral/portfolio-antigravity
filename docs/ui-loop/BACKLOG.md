@@ -55,12 +55,15 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   (montage au clic uniquement, poster + repli lien externe). Aucun lien
   repo (Q2 tranchée). En-têtes revérifiés au cycle 024, toujours `200 OK`
   sans `X-Frame-Options` ni `frame-ancestors`.
-- [ ] **Ombrair** — carte projet + page détail + section démo (iframe live vers
-  `ombrair.vercel.app`, avec mise en avant de l'affichage 3D produit). Angle :
-  vitesse d'exécution, pilotage agentique. Statut fictif de l'entreprise à
-  rendre explicite dans le texte. Vérifié cycle 003 : `curl -I
-  https://ombrair.vercel.app` → `200 OK`, aucun en-tête bloquant — iframe
-  live confirmée réalisable (format 1).
+- [x] **Ombrair** — carte projet + page détail + section démo (iframe live vers
+  `ombrair.vercel.app`, avec mise en avant de l'affichage 3D produit). Livré
+  cycle 025 (commit `fd39663`) : carte `05` dans `.home-project-*`, case
+  study complet dans `ProjectDetailModal`, démo via `LiveDemoEmbed` (poster
+  capturé sur la page produit du capteur pour montrer le visualiseur 3D,
+  pas seulement le décrire). Angle vitesse d'exécution / pilotage agentique
+  et caractère fictif explicite, ce dernier confirmé par le texte du site
+  déployé lui-même (page `/a-propos`). Aucun lien repo (Q3 tranchée).
+  En-têtes revérifiés au cycle 025, toujours `200 OK` sans en-tête bloquant.
 - [ ] **Analyse vidéo football (introduction)** — section d'introduction
   uniquement, sans lien code/démo live (projet non public). Démo en format 2
   (vidéo/capture animée) ou 3 (carrousel), à produire à partir de rendus du

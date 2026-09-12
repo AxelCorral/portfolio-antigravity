@@ -5,6 +5,17 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 025 — 2026-09-12 · Integration d'Ombrair (carte, page, demo live)
+
+> Deuxieme des trois chantiers §4 livre : carte projet, case study complet et demo iframe embarquee vers ombrair.vercel.app, poster cadre sur le visualiseur 3D.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | — (section nouvelle, pas d'état antérieur) | ![après 390](shots/cycle-025/integration-d-ombrair-carte-page-demo-live-390-apres.webp) |
+| **1440** | — (section nouvelle, pas d'état antérieur) | ![après 1440](shots/cycle-025/integration-d-ombrair-carte-page-demo-live-1440-apres.webp) |
+
+`78c0d8f` · `fd39663`
+
 ## Cycle 024 — 2026-09-12 · Integration de Vers l'Elysee (carte, page, demo live)
 
 > Premier des trois chantiers §4 livre : carte projet, case study complet et demo iframe embarquee vers political-destiny.vercel.app.
