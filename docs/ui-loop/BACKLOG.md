@@ -341,6 +341,31 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   Pas urgent (pas de garde-fou performance chiffré dans la mission), mais à
   garder à l'œil si de nouvelles démos iframe/vidéo alourdissent encore le
   bundle initial.
+- [x] **`ProjectDetailModal.tsx` jamais audité sous aucune rotation** (relevé
+  cycle 031, point de reprise explicite). Rotation B appliquée cycle 032, un
+  ad hoc probe Playwright (supprimé après usage) a mesuré trois défauts :
+  `.project-detail-tabs button` à 34px de haut (sous 44px, seul chemin de clic
+  pour changer d'onglet) ; le paragraphe overview à 81 caractères/ligne (EN) et
+  77 (FR) à 1440, au-dessus du plafond de 75 que rotation B fixe ; et, trouvé
+  incidemment par un scan axe-core scopé à la modale, `#project-detail-content`
+  (zone scrollable `overflow-y:auto`) sans accès clavier
+  (`scrollable-region-focusable`). Corrigé commit `e6305ff` : `min-height: 44px`
+  sur les onglets, `max-width: var(--measure-lede)` (58ch, déjà calibré cycles
+  019/020 pour la même classe de copie) sur le paragraphe, `tabIndex={0}` sur
+  la zone de contenu. Après : 0 violation axe-core sur la modale (contre 1),
+  73/72 caractères/ligne à 1440, ordre du focus trap revérifié inchangé
+  (fermer → onglet → contenu → fermer, Échap ferme toujours).
+- [x] **`ui-gallery.mjs` ne savait pas capturer un chantier vivant dans une
+  modale ouverte par un `<button>`** (cycle 032, besoin du chantier ci-dessus :
+  les 6 modales projet s'ouvrent toutes via un bouton, jamais un `<a href>`,
+  hors du mode `click:` existant). Ajouté `openmodal:<boutonSelecteur>|
+  <cibleSelecteur>` (commit `b444223`). Premier essai bloqué en timeout : les
+  cartes projet sont un empilement `position: sticky`, et
+  `scrollIntoViewIfNeeded()` atterrit parfois sous la carte suivante déjà
+  empilée (bouton géométriquement recouvert bien que Playwright le juge
+  visible) — corrigé (commit `cb5d790`) avec un `scrollIntoView({block:
+  "start"})` natif qui cale le haut de la carte ciblée en haut du viewport
+  avant le clic.
 - [x] **Page fantôme `/projet/:slug` (`DeepDivePage.tsx`) atteignable par URL
   directe mais reliée à aucun élément d'interface** (cycle 031, point de
   reprise du cycle 030 : auditer `ProjectDetailModal`/`DeepDivePage`, jamais

@@ -418,7 +418,10 @@ instance de `.pc-nav`, correctif `landmark-unique`) · `city-heading` (hero) **1
 (cycle 028 : `aria-label` prohibé remplacé par un texte `sr-only`, correctif
 `aria-prohibited-attr`) · `hero-cta` (`.opening-primary`/`.opening-secondary`,
 hero) **1/3** (cycle 029 : CTA dupliqué vers `#selected-work` supprimé,
-rotation D)
+rotation D) · `project-detail-modal` (`ProjectDetailModal.tsx`) **1/3**
+(cycle 032 : cible tactile des onglets 34→44px, mesure de lecture du
+paragraphe overview via `--measure-lede`, `tabIndex` sur la zone de
+contenu scrollable — correctif `scrollable-region-focusable`)
 
 Les sections gelées ne rouvrent que par dérogation écrite. Ce plafond existe parce
 que la boucle a produit 26 commits sur la zone basse pendant que les trois projets

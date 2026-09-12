@@ -6,6 +6,134 @@
 
 ---
 
+## Cycle 032 — 2026-09-13 01:10
+
+**Zone travaillée** : hors zone prioritaire (§3, gelée sur toutes ses
+sous-sections) et hors §4 (reconfirmé intégralement traité) —
+`ProjectDetailModal.tsx`/`src/index.css` (modale de détail projet,
+composant partagé par les 6 projets). Outillage :
+`scripts/ui-gallery.mjs` étendu (mode `openmodal:`).
+**Rotation de questions** : **B — Rythme & espace**, appliquée pour la
+première fois à ce composant, jamais couvert par aucune rotation
+jusqu'ici (point de reprise explicite du cycle 031).
+
+### Note de continuité — §4 revérifié sur le code, pas sur le seul journal
+
+`grep 'id: "0[456]"' src/data/projects.ts` → les trois entrées
+existent ; `grep 'project.id ===' src/OnePage.tsx` → 01/02/03/06 ont
+leur carousel dédié, 04/05 tombent dans la branche générique
+`demoLink ? <LiveDemoEmbed>` (voulu, Q2/Q3 tranchées). `npm run build`
+vert avant tout changement. **Le §4 reste intégralement traité,
+reconfirmé pour la 7e fois consécutive (cycles 026-032).**
+
+### Constats d'audit
+
+Audit complet dans `docs/ui-loop/AUDIT-2026-09-13-cycle-032.md` (à
+purger après 24h). Résumé — sonde Playwright ad hoc (supprimée après
+usage) ouvrant la modale du projet 01 par un clic réel, mesurant
+rythme vertical et longueur de ligne aux 4 combinaisons 390/1440 ×
+EN/FR :
+- **`.project-detail-tabs button` à 34px de haut** (78-113px de large
+  selon la langue) — seul contrôle au clic pour changer d'onglet,
+  sous le plancher de 44px déjà établi (`.city-contact`, `.pc-arrow`,
+  cycle 027). P1 mesuré.
+- **Paragraphe overview à 81 caractères/ligne (EN) et 77 (FR) à
+  1440** — au-dessus du plafond de 75 que rotation B fixe. Le projet a
+  déjà le token `--measure-lede` (58ch, cycle 019) pour cet exact
+  usage, jamais appliqué à ce paragraphe. À 390 déjà conforme
+  (51-52 caractères), non touché.
+- **Trouvé incidemment, hors rotation programmée** : un scan axe-core
+  scopé à la modale ouverte (aucun run pleine page ne clique jamais
+  pour ouvrir une modale, donc jamais vu avant) relève
+  `scrollable-region-focusable` sur `#project-detail-content`
+  (`overflow-y: auto` sans accès clavier) — violation d'accessibilité
+  mesurée, traitée au titre du garde-fou §6 même hors rotation B.
+- Rythme vertical (header→onglets 0px, onglets→contenu 0px, gaps
+  intra-colonne 32/32/24px) et échelle 4/8px : rien à corriger, écarts
+  volontaires (bordures de séparation) et déjà sur l'échelle.
+
+### Changements livrés
+
+- `e6305ff` — fix(project-modal): `.project-detail-tabs button`
+  `min-height` 34px→44px ; `.project-overview-grid > div > p` gagne
+  `max-width: var(--measure-lede)` ; `tabIndex={0}` sur
+  `#project-detail-content` (correctif `scrollable-region-focusable`).
+- `b444223` — chore(ui-gallery): nouveau mode
+  `openmodal:<bouton>|<cible>` — les 6 modales projet s'ouvrent via un
+  `<button>`, jamais un `<a href>`, hors du mode `click:` existant.
+- `cb5d790` — ui-loop: galerie du cycle régénérée + correctif de
+  scroll pour `openmodal:` (voir Note d'outillage).
+
+### Vérification
+
+- Build : ✅ avant et après chaque commit (CSS 87,19 → **87,22 kB**,
+  JS 679,80 → **679,81 kB**, deltas cohérents). `tsc -b` (inclus dans
+  `npm run build`) : ✅.
+- axe-core scopé à `.project-detail-panel` (script ad hoc, supprimé
+  après usage) : 1 violation (`scrollable-region-focusable`) →
+  **0** après le `tabIndex={0}`.
+- Mesures avant/après (même sonde) : onglets 34px → **44px** aux 4
+  combinaisons ; paragraphe overview 81/77 → **73/72** caractères à
+  1440 (390 inchangé).
+- Focus trap clavier revérifié après l'ajout du `tabIndex` : ordre
+  inchangé fermer → onglet actif → contenu → fermer (boucle à 3
+  arrêts, roving tabindex des onglets inactifs à `-1` préservé),
+  Échap ferme toujours la modale.
+- Viewports vérifiés : 390 et 1440 (captures dédiées + galerie), EN et
+  FR pour les mesures. 768/1920 non re-testés séparément (aucun
+  changement de grille, seulement une hauteur de bouton et une largeur
+  de paragraphe).
+- reduced-motion : sans objet — aucune animation touchée (dimensions
+  CSS statiques + un attribut HTML).
+- Overflow horizontal : 0 aux deux viewports testés sur le projet 01
+  après changement.
+- Régression détectée : non.
+
+### Reverté
+
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024,
+  reconfirmé pour la 7e fois consécutive.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025, reconfirmé
+  de même.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle
+  026, reconfirmé de même.
+- **Le §4 de MISSION-UI.md reste intégralement traité, revérifié sur
+  le code réel pour la 7e fois consécutive (cycles 026-032).**
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Prochain cycle — point de reprise exact
+- Relire MISSION-UI.md en entier (§0) puis reprendre l'ordre de
+  priorité §2 phase 4 normal : (1) tout P0 réel détecté en phase 1 ;
+  (2) §3 reste P2 gelée sauf régression/bug bloquant/violation
+  d'accessibilité mesurée/raccord imposé ; (3) « reste du site ».
+  `ProjectDetailModal.tsx` a désormais consommé 1/3 passes de retouche
+  (compteur §6) — les autres onglets de la modale (Results, Outputs,
+  Links, Tech), jamais spécifiquement audités, restent un candidat
+  pour une future rotation (C — mouvement : transition d'onglet à
+  `duration:0.2` sans easing nommé, jamais mesurée ; ou D —
+  crédibilité : le contenu `Outputs`/`Links` n'existe que pour les
+  projets qui ont des `screenshots`/`links`, jamais vérifié si ce
+  choix laisse un onglet vide ou un contenu incomplet sur un des 6
+  projets). Rotation C reste par ailleurs la seule des cinq jamais
+  posée par écrit hors zone prioritaire sur le reste du site pris
+  globalement (footer, carousels individuels 02/03/06).
+- Candidats P2 déjà chiffrés au backlog, non traités ce cycle : bundle
+  JS 679,81 kB (226 kB gzip, warning Vite « chunk > 500kB ») ;
+  couverture du probe de contraste maison limitée à la zone
+  prioritaire (`scripts/lib/probe-color.js`) ; mode `--freeze-at=<ms>`
+  pour `ui-gallery.mjs` ; mode dédié qui verrouille `scrollY` avant de
+  positionner une cible `viewport:` (utile pour toute future section
+  scroll-scrubée) ; tokens CSS orphelins `--fictif-ink`/
+  `--fictif-border` (`tokens.css`, `index.css`), sans coût ni risque.
+
+### Questions bloquantes ouvertes
+- Aucune (Q1-Q4 résolues le 2026-09-12, voir `QUESTIONS.md`).
+
+---
+
 ## Cycle 031 — 2026-09-13 00:20
 
 **Zone travaillée** : hors zone prioritaire (§3, gelée sur toutes ses
