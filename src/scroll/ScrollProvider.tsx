@@ -5,6 +5,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import { consumeReturnPosition } from "./returnPosition";
 import { attachScrollSnap } from "./scrollSnap";
+import { scrollTargetFor } from "./scrollToId";
 
 /** Touch/coarse pointers get native scroll feel; snap is a fine-pointer-only nicety. */
 const SNAP_QUERY = "(hover: hover) and (pointer: fine)";
@@ -45,10 +46,18 @@ export function ScrollProvider({ children }: { children: ReactNode }) {
   const scrollToSectionRef = useRef((id: string) => {
     const el = document.getElementById(id);
     if (!el) return;
+    // Resolve the destination ourselves rather than handing the element over:
+    // both `lenis.scrollTo(el)` and `scrollIntoView` read the sticky-shifted
+    // box (see `scrollToId.ts`). For every non-sticky target this computes
+    // exactly what they would have computed.
+    const target = scrollTargetFor(el);
     if (lenisRef.current) {
-      lenisRef.current.scrollTo(el, { duration: 1.3 });
+      lenisRef.current.scrollTo(target, { duration: 1.3 });
     } else {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      // Native scroll honours `scroll-behavior`, which index.css already sets to
+      // `auto` under `prefers-reduced-motion: reduce` — so this stays instant
+      // for readers who asked for no motion, exactly as before.
+      window.scrollTo({ top: target });
     }
   });
 

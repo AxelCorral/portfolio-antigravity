@@ -34,6 +34,7 @@ import { ProjectDetailModal } from "@/components/build-mode/ProjectDetailModal";
 import { CinematicOpening } from "@/components/CinematicOpening";
 import { AnimatedLetter, WordsPullUpMultiStyle } from "@/components/PortfolioMotion";
 import { getLocalizedProjects, type Project } from "@/data/projects";
+import { scrollToId } from "@/scroll/scrollToId";
 import { useLanguage, type Language } from "@/i18n/language";
 
 function getCapabilities(language: Language): Array<{
@@ -472,7 +473,26 @@ function CapabilityCard({
           />
         </Link>
       ) : (
-        <a className="card-link group" href={capability.linkHref}>
+        // In-page evidence link. It stays a real anchor — middle-click, "open in
+        // new tab" and no-JS all keep working — but the scroll is resolved by
+        // the shared helper rather than by the browser's fragment jump, because
+        // the two targets it can point at (`#project-01`, `#project-03`) are
+        // sticky-stacked slides whose native destination is the same document
+        // position once the reader is below the stack. Before this, on every
+        // desktop width in both languages, "See Football Data Pipeline" landed
+        // the reader on Retirement Sustainability Model (cycle 023 audit, D-1).
+        <a
+          className="card-link group"
+          href={capability.linkHref}
+          onClick={(event) => {
+            if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey) return;
+            const id = capability.linkHref.slice(1);
+            if (!document.getElementById(id)) return;
+            event.preventDefault();
+            scrollToId(id);
+            window.history.replaceState(null, "", capability.linkHref);
+          }}
+        >
           {capability.linkLabel}
           <ArrowRight
             className="transition-transform duration-300 group-hover:translate-x-1"
@@ -626,8 +646,10 @@ function OnePage() {
   useEffect(() => {
     if (!window.location.hash) return;
     const id = window.location.hash.slice(1);
+    // Same sticky-resolution problem as the capability evidence links: a deep
+    // link to `#project-01` must not be resolved from the slide's shifted box.
     const frame = requestAnimationFrame(() => {
-      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      scrollToId(id);
     });
     return () => cancelAnimationFrame(frame);
   }, []);
