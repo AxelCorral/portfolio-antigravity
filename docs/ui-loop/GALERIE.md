@@ -5,6 +5,28 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 023 — 2026-09-12 · Le chapo d'Analytical profile, relie a sa preuve
+
+> Analytical profile affirmait 537 caracteres sans un seul geste de verification, le seul bloc de toute la page dans ce cas ; l'affirmation d'ouverture pointe desormais vers /cv#experience, deja utilisee par la carte 01 de Capabilities.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-023/le-chapo-d-analytical-profile-relie-a-sa-preuve-390-avant.webp) | ![après 390](shots/cycle-023/le-chapo-d-analytical-profile-relie-a-sa-preuve-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-023/le-chapo-d-analytical-profile-relie-a-sa-preuve-1440-avant.webp) | ![après 1440](shots/cycle-023/le-chapo-d-analytical-profile-relie-a-sa-preuve-1440-apres.webp) |
+
+`9f9b57e`
+
+## Cycle 023 — 2026-09-12 · Le lien de preuve, redirige vers la preuve annoncee
+
+> A 1440 et 1920, dans les deux langues, cliquer sur See Football Data Pipeline depuis le bas de page affichait Retirement Sustainability Model : les trois slides sticky declarent la meme position une fois le lecteur passe sous l'empilement.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-023/le-lien-de-preuve-redirige-vers-la-preuve-annoncee-390-avant.webp) | ![après 390](shots/cycle-023/le-lien-de-preuve-redirige-vers-la-preuve-annoncee-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-023/le-lien-de-preuve-redirige-vers-la-preuve-annoncee-1440-avant.webp) | ![après 1440](shots/cycle-023/le-lien-de-preuve-redirige-vers-la-preuve-annoncee-1440-apres.webp) |
+
+`1961935`
+
 ## Cycle 022 — 2026-09-12 · L'entree des cartes Capabilities, resserree
 
 > Grille calee a 560 px du haut et figee sans delai : les quatre cartes entrent ensemble, le decalage ne donnait donc aucun ordre de lecture — il laissait la carte 04 sous le plancher de contraste pendant 727 ms.

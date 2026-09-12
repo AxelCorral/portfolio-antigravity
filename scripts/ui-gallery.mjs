@@ -182,6 +182,41 @@ async function captureState(baseUrl) {
 
       for (const id of SECTIONS) {
         const key = `${id}-${viewport.name}`;
+
+        // "click:<href>" rejoue le seul geste qui peut révéler un chantier de
+        // *destination* (une ancre qui atterrit au mauvais endroit) : une
+        // capture statique de la section ne changerait pas d'une révision à
+        // l'autre puisque le bug ne vit pas dans le rendu de la section, mais
+        // dans la résolution du clic. On se place en bas de page (le cas réel
+        // du cycle 023 : on vérifie une preuve après avoir lu toute la page),
+        // on clique le vrai lien, on attend que le scroll se stabilise, puis on
+        // capture le viewport — honnête aux deux révisions, buggé à l'ancienne,
+        // corrigé à la nouvelle, sans aucune retouche.
+        if (id.startsWith("click:")) {
+          const href = id.slice("click:".length);
+          const height = await page.evaluate(() => document.body.scrollHeight);
+          await page.evaluate((y) => window.scrollTo(0, y), height);
+          await page.waitForTimeout(400);
+          const link = page.locator(`a[href="${href}"]`).first();
+          if ((await link.count()) === 0) {
+            out[key] = null;
+            continue;
+          }
+          await link.click();
+          // Attend que scrollY cesse de bouger (scroll natif ou smooth) avant de
+          // figer la capture, plutôt qu'un délai fixe qui figerait un scroll
+          // encore en vol.
+          let last = -1;
+          for (let i = 0; i < 20; i += 1) {
+            await page.waitForTimeout(150);
+            const y = await page.evaluate(() => window.scrollY);
+            if (y === last) break;
+            last = y;
+          }
+          out[key] = await page.screenshot();
+          continue;
+        }
+
         // "viewport:<id>" cadre le viewport calé sur le haut de la section, au
         // lieu de l'élément seul : c'est le seul moyen de montrer un chantier qui
         // porte sur un overlay `position: fixed` (le sélecteur de langue), qui par

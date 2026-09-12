@@ -6,6 +6,192 @@
 
 ---
 
+## Cycle 023 — 2026-09-12 15:10
+
+**Zone travaillée** : zone prioritaire (§3) — `#capabilities` (`.card-link` vers
+les slides projets), `#about` (chapo). Ainsi que, hors zone, un chantier de
+gouvernance : réorientation de `MISSION-UI.md` (§3/§4/§6). Conformément à la
+consigne de run reçue pour cette exécution, la priorité §4 est désormais P0
+pour les cycles suivants ; ce cycle-ci clôt le travail de zone déjà audité et
+implémenté avant la réorientation.
+**Rotation de questions** : **D — Crédibilité** (précédentes : D, E, D, A, B,
+C, D, E, B, A, C → **D**). D avait servi au cycle 018, avant les reprises du
+contraste (018 lui-même sur d'autres axes), du rythme (020), de la hiérarchie
+(021) et du mouvement (022) : ses trois questions se reposaient sur une zone
+qui n'avait plus d'écart mesuré ouvert sur ces quatre axes.
+
+**Note de continuité** : le travail décrit ci-dessous (audit, outillage,
+implémentation, réorientation de la mission) a été exécuté avant cette entrée
+de journal, dans le prolongement direct du cycle 022 — voir les commits
+listés plus bas, tous horodatés avant celle-ci. Cette entrée ferme la phase 7
+(JOURNALISER) qui n'avait pas encore été écrite : un cycle non journalisé est
+un cycle perdu (§0), donc rien n'est considéré comme acquis tant que cette
+entrée n'existe pas. Les phases 6 (VÉRIFIER) ci-dessous ont été rejouées dans
+cette session, sur l'arbre de travail actuel, et non simplement recopiées des
+commits.
+
+### Outillage ajouté
+`scripts/ui-evidence-probe.mjs` (rotation D) : ratio affirmation/preuve par
+bloc sémantique, résolution réelle de chaque ancre interne de la zone depuis
+le bas de page, écart de finition vitrine/zone. Contrôle de couverture
+d'abord (leçon du cycle 021) : `#about` 352, `#capabilities` 35, `#contact` 9,
+`.site-footer` 6 nœuds — identiques aux cycles 021-022, aucun nœud sauté.
+Une première version comptait les affirmations sur les **feuilles** du DOM et
+donnait « `#about` = 2 affirmations, 30 caractères » — le bloc le moins
+déclaratif de la page alors qu'il porte 537 caractères d'assertion, parce que
+`AnimatedLetter`/`WordsPullUpMultiStyle` le découpent en spans d'un caractère
+ou d'un mot. Corrigé avant tout diagnostic : comptage sur les blocs
+sémantiques, jamais sur les feuilles.
+
+Étendu ce cycle, en phase de vérification/galerie : `scripts/ui-gallery.mjs`
+gagne un mode `click:<href>` — scroll en bas de page, clic réel sur le lien,
+attente de stabilisation de `scrollY`, puis capture du viewport. Nécessaire
+parce que le chantier D-1 est un bug de *destination*, invisible dans le
+rendu statique d'une section : sans ce mode, la galerie aurait montré deux
+captures identiques de `#capabilities` et revendiqué une correction que
+personne ne peut voir. Avec, la paire AVANT/APRÈS montre littéralement le
+clic atterrir sur le mauvais projet puis sur le bon, sur l'arbre de travail
+réel aux deux révisions — aucune image fabriquée à la main.
+
+### Constats d'audit
+Audit complet dans `docs/ui-loop/AUDIT-2026-09-12-cycle-023.md`. Résumé :
+- **D-1 / P1 — les liens de preuve de `#capabilities` n'atterrissaient pas sur
+  la preuve annoncée.** 4 des 8 combinaisons desktop (1440/1920 × EN/FR)
+  étaient fausses de façon déterministe : cliquer « See Football Data
+  Pipeline » depuis le bas de page affichait Retirement Sustainability Model.
+  Cause mesurée : `.home-project-step` passe en `position: sticky` dès
+  1024px, Chromium rapporte la boîte décalée d'un élément sticky, et une fois
+  le lecteur passé sous l'empilement les trois slides déclarent le même
+  `offsetTop` — les trois ancres deviennent la même destination, et c'est le
+  z-index le plus haut qui s'affiche. En dessous de 1024, la croissance du
+  document pendant le saut produisait un comportement non déterministe plutôt
+  que faux (390/768 : 4 combinaisons non fiables, pas fausses).
+- **D-2 / P1 — `#about` était le seul bloc de toute la page à affirmer sans
+  offrir un seul geste de vérification.** Inventaire affirmation/preuve,
+  1440 EN : `#selected-work` 67 blocs / 8 liens / 4 médias ; `#about` **3
+  blocs / 0 lien / 0 média** ; `#capabilities` 22/4/0 ; `#contact` 3/2/0 ;
+  footer 1/3/0. L'affirmation centrale du bloc (« a data profile shaped by
+  field experience ») a déjà une preuve en ligne et vérifiée
+  (`/cv#experience`, déjà utilisée par la carte 01 de Capabilities) ; `#about`
+  ne la reliait à rien.
+- **D-3 — écart de finition vitrine/zone : mesuré, refermé.** Le diagnostic
+  de départ de §3 était juste aux cycles 001-015, plus sur les axes déjà
+  repris (finition d'exécution : 3 violations axe-core identiques aux cycles
+  001-022, 0 overflow, 0 erreur console ; fin de page : état livré aux cycles
+  019-021, tient). Écart résiduel légitime : densité de preuve (une section de
+  compétences n'est pas une galerie). Aucun chantier ouvert sur D-3.
+- Fermé sans code : le profil GitHub de la carte 04 (`AxelCorral` → 200),
+  `/cv#experience` (atterrit juste), aucune métrique inventée dans la zone.
+
+### Changements livrés
+- `3727306` / `493805a` / `abc9949` — reportés du cycle 022 (déjà journalisés).
+- `1961935` — ui(capabilities): faire atterrir les liens de preuve sur la
+  preuve annoncée. `scrollToId()` résout la position de flux en neutralisant
+  `position` le temps d'une lecture synchrone puis retranche l'offset sticky.
+  Reste une vraie ancre (clic milieu, nouvel onglet, sans-JS inchangés).
+  Après : 0 échec sur 32 (16 combinaisons × 2 liens), titre cible en vue à
+  187-250px du haut à toutes les largeurs.
+- `9f9b57e` — ui(about): relier l'affirmation d'ouverture de la zone à sa
+  preuve. Lien `/cv#experience` ajouté sous le paragraphe de soutien, idiome
+  `.card-link` déjà établi par la zone (texte + flèche, 44px), aligné au bord
+  gauche du chapo. Aucune donnée nouvelle : le chaînon manquant entre une
+  affirmation et une preuve déjà en ligne.
+- `1cff436` — réorientation de `MISSION-UI.md` : §3 (zone basse) passe en P2
+  maintenance, §4 (Vers l'Élysée / Ombrair / analyse vidéo football) devient
+  P0 unique, plafond de retouche de 3 passes par section instauré (sections
+  déjà gelées : `#capabilities` 9/3, `#about` 6/3, footer 5/3, zone/sections
+  5/3 ; `language-toggle` 2/3, `#contact` 1/3, `nav` 1/3). Q1-Q4 tranchées par
+  Axel et appliquées : URL LinkedIn réelle ajoutée à `contactLinks` ; Vers
+  l'Élysée et Ombrair en démo live sans lien repo ; football en schémas
+  abstraits avec emplacement réservé documenté. Hygiène : `.tmp-*` et
+  `scripts/.tmp/` ignorés, audits >24h purgés (cycles 001, 002), règle inscrite
+  dans les garde-fous.
+- Ce cycle (journalisation) — `scripts/ui-gallery.mjs` : mode `click:<href>`
+  ajouté pour documenter honnêtement D-1 (voir Outillage ci-dessus).
+
+### Vérification
+- Build : ✅ (`npm run build` vert sur l'arbre de travail actuel, rejoué dans
+  cette session — `tsc -b && vite build`). CSS **94.92 kB**, JS **645.98 kB**
+  (le lien `/cv#experience` d'`#about` et `scrollToId`/`ScrollProvider`
+  ajoutent le delta depuis le cycle 022). `tsc --noEmit` : ✅ sans sortie.
+- Vérification comportementale rejouée dans cette session (Playwright, script
+  ad hoc, 1440) : clic sur `a[href="#project-01"]` depuis le bas de page
+  atterrit sur `#project-01` (confirmé par `elementFromPoint` au centre du
+  viewport) ; le lien `a[href="/cv#experience"]` d'`#about` est bien présent
+  dans le DOM après scroll en bas de page.
+- Viewports vérifiés à la génération de la galerie : 390 / 1440, capture
+  réelle sur l'arbre de travail courant (APRÈS) et sur un worktree détaché aux
+  révisions `305122d` (AVANT de D-1) et `1961935` (AVANT de D-2) — jamais une
+  capture recyclée d'un autre cycle.
+- Langues : EN vérifiée par capture et par le check comportemental ci-dessus ;
+  FR non re-testée dans cette session (déjà vérifiée par l'audit cycle 023
+  avant journalisation, 8/8 combinaisons documentées dans
+  `AUDIT-2026-09-12-cycle-023.md`).
+- reduced-motion : non re-testé dans cette session ; aucun des deux chantiers
+  n'introduit d'animation (un fix de résolution d'ancre et un lien statique).
+- Régression détectée : non — `npm run build` et `tsc --noEmit` verts, et les
+  deux chantiers ne touchent aucun sélecteur partagé hors de leur périmètre
+  (`scrollToId` est un nouveau module, `.card-link` est réutilisé tel quel).
+
+### Reverté
+- Aucun.
+
+### Leçon d'outillage du cycle (la septième de la série 017-023)
+- **Un chantier dont la preuve est un comportement (une destination de clic)
+  ne peut pas être documenté par une capture statique de la section** : la
+  section `#capabilities` est pixel pour pixel identique avant et après D-1,
+  puisque le bug vivait dans la résolution de l'ancre, pas dans le rendu. La
+  galerie a donc gagné le mode `click:<href>` plutôt que de laisser ce
+  chantier sans preuve visuelle, ou pire, de lui en fabriquer une à la main.
+  Corollaire : avant de choisir les `--sections=` d'un chantier, vérifier
+  d'abord *où* vit la preuve — dans le style d'un élément, ou dans ce qui se
+  passe quand on interagit avec lui.
+- Rappel des six précédentes : 017 « une mesure prise pendant un `transform`
+  ne mesure pas le CSS » ; 018 « une capture prise avant un reveal ne mesure
+  pas le rendu » ; 019 « un élément `fixed` dans une capture d'élément haute
+  n'est pas là où le visiteur le voit » ; 020 « les quatre viewports de
+  référence laissent un angle mort entre 1024 et 1440 » ; 021 « un instrument
+  qui ne sait pas lire une valeur ne le dit pas : il rend un résultat plus
+  propre » ; 022 « deux instruments du même cycle ne doivent pas avoir deux
+  définitions de "le lecteur le regarde" ».
+
+### État des chantiers structurels
+- Vers l'Élysée : non commencé (iframe vérifiée réalisable cycle 003)
+- Ombrair : non commencé (iframe vérifiée réalisable cycle 003)
+- Analyse vidéo football : non commencé
+- Démos projets existants : 3/3 conformes (inchangé depuis cycle 003)
+
+### Prochain cycle — point de reprise exact
+- **La zone prioritaire (§3) passe en P2 à partir de ce cycle** (voir
+  `MISSION-UI.md` §3, réorientation du 2026-09-12) : ne plus y ouvrir de
+  chantier de sa propre initiative, seulement régression/bug bloquant/violation
+  d'accessibilité mesurée/raccord imposé par un chantier §4.
+- **Ouvrir « Vers l'Élysée » (§4.1) au prochain cycle, en chantier unique.**
+  C'est désormais le seul P0. Livrables attendus, dans l'ordre : carte projet
+  dans `.work-grid`/`ProjectShowcaseCard` (lire d'abord les conventions dans
+  `OnePage.tsx`), page ou vue détaillée, section démo en iframe live vers
+  `political-destiny.vercel.app` (en-têtes vérifiés cycle 003 : `200 OK`,
+  aucun `X-Frame-Options` ni `frame-ancestors` — à revérifier avant
+  implémentation, un en-tête peut changer). Titre affiché « Vers l'Élysée »
+  (jamais « political destiny »), ton neutre imposé (sujet politique, §4.1),
+  angle « démarche de modélisation » (hypothèses → modèle → audit →
+  contrefactuels), **aucun lien repo** (Q2 tranchée). Ne pas ouvrir Ombrair ni
+  football tant que Vers l'Élysée n'a pas ses trois livrables.
+- Notes d'outillage pour ce chantier : (1) le sélecteur de langue escamotable
+  recouvre la zone en `position: fixed` — vérifier que son
+  `pointer-events: none` à l'état escamoté ne mange pas un clic destiné à
+  l'iframe. (2) Échantillonner la bande 1024-1280, pas seulement 768/1440
+  (leçon cycle 020). (3) Toute nouvelle ancre interne dans les slides projets
+  doit utiliser `scrollToId()` (nouveau depuis ce cycle), pas
+  `scrollIntoView()` ni le saut natif du navigateur, si elle peut être visée
+  depuis sous l'empilement sticky.
+
+### Questions bloquantes ouvertes
+- Aucune. Q1-Q4 résolues et appliquées (voir `QUESTIONS.md` et le commit
+  `1cff436` ci-dessus).
+
+---
+
 ## Cycle 022 — 2026-09-12 09:55
 
 **Zone travaillée** : zone prioritaire (§3) uniquement — `.about-title` et
