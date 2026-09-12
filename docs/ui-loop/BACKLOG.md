@@ -294,12 +294,26 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   les images longues. A rouvrir avec une mesure `PerformanceObserver` de
   `longtask` pendant un scroll scripte, pas avec un avis. **P2.**
 
-- [ ] `aria-prohibited-attr` sur `.city-heading` (hero) — attribut ARIA non
-  permis, à corriger.
-- [ ] `landmark-unique` — `.pc-nav` du carrousel projet 01 dupliqué sans nom
-  accessible distinct par slide/instance.
-- [ ] `region` — `.language-toggle` hors de tout landmark (violation axe
-  moderate, cosmétique du point de vue lecteur d'écran).
+- [x] `aria-prohibited-attr` sur `.city-heading` (hero) — `<p>` porte le rôle
+  ARIA implicite "paragraph", qui n'admet pas `aria-label`. Corrigé cycle 028
+  (commit `db4cc52`) : `aria-label` retiré, remplacé par un `<span
+  className="sr-only">` portant le même texte — les lignes visibles de
+  `CharacterLines` étaient déjà `aria-hidden`, donc le rendu à l'écran est
+  inchangé (confirmé par capture cycle 028).
+- [x] `landmark-unique` — `.pc-nav` dupliqué sans nom accessible distinct par
+  instance. Cause : le prop `label` de `ProjectCarousel`/`CarouselModal`
+  n'était jamais passé aux 4 sites d'appel (`OnePage.tsx`, projets 01/02/03/06)
+  et retombait sur le même défaut générique "Project walkthrough" partout, si
+  bien que les 4 `<nav aria-label="Slide navigation">` de la page portaient le
+  même nom. Corrigé cycle 028 (commit `64dde59`) : `label={project.title}`
+  passé à chaque appel, nav renommée `"Slide navigation: <titre du projet>"` —
+  4 noms de landmark désormais uniques (vérifié par lecture du DOM aux 3
+  combinaisons EN/FR/mobile).
+- [x] `region` — `.language-toggle` hors de tout landmark. Corrigé cycle 028
+  (commit `77904d9`) : `role="group"` → `role="navigation"` (c'est
+  effectivement un contrôle de navigation interlangue), sans effet visuel
+  (`role` n'affecte pas le style). Troisième et dernière passe de retouche
+  autorisée sur `language-toggle` (compteur §6, désormais gelée).
 - [ ] Bundle JS 641 kB (215 kB gzip), warning Vite "chunk > 500kB" au build.
   Pas urgent (pas de garde-fou performance chiffré dans la mission), mais à
   garder à l'œil si de nouvelles démos iframe/vidéo alourdissent encore le
@@ -319,6 +333,19 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
 
 ## Terminé
 
+- [x] Cycle 028 — §4 reconfirmé intégralement traité (code réel revérifié, pas
+  seulement le journal), zone prioritaire toujours P2 gelée sans fait nouveau
+  → cycle retombé en P2 "reste du site". Trois violations axe-core présentes
+  depuis les cycles 001-027 (jamais 0 sur aucun run complet, cf. relevés
+  répétés "3 violations identiques") corrigées : `aria-prohibited-attr`
+  (`.city-heading`), `landmark-unique` (`.pc-nav`), `region`
+  (`.language-toggle`). axe-core pleine page, 3 combinaisons (1440 EN, 1440
+  FR, 390 EN), après scroll complet : **0 violation** (contre 3 à chaque
+  cycle depuis 001). Outillage : bug Windows dans `scripts/ui-gallery.mjs`
+  trouvé et corrigé en documentant ce chantier (`:` dans un nom de fichier
+  issu de `--sections=viewport:...` faisait échouer l'écriture en silence sur
+  NTFS — `slugify()` appliqué au nom de fichier, l'`id` brut reste utilisé
+  pour la résolution de l'élément).
 - [x] Cycle 027 — Le §4 étant intégralement traité (cycles 024-026, revérifié
   par le code plutôt que le seul journal), audit rotation E (mobile-first) sur
   le reste du site (hors zone prioritaire, gelée en §3). Deux cibles tactiles
