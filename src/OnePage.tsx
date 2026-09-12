@@ -4,6 +4,7 @@ import {
   BarChart3,
   BookOpen,
   Boxes,
+  Briefcase,
   Check,
   Database,
   ExternalLink,
@@ -174,6 +175,13 @@ const contactLinks = [
     value: "github.com/AxelCorral",
     href: "https://github.com/AxelCorral",
     icon: GitBranch,
+    internal: false,
+  },
+  {
+    label: "LinkedIn",
+    value: "linkedin.com/in/axelcorral",
+    href: "https://www.linkedin.com/in/axelcorral",
+    icon: Briefcase,
     internal: false,
   },
 ];

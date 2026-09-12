@@ -200,7 +200,7 @@ capture d'un autre cycle en la faisant passer pour l'état AVANT.
 
 ---
 
-## 3. ZONE PRIORITAIRE ABSOLUE
+## 3. ZONE BASSE — MAINTENANCE (P2 depuis le 2026-09-12)
 
 Tout ce qui se trouve **sous les slides de projets**, à partir de la section qui
 commence par :
@@ -226,16 +226,43 @@ le bas a été « fini vite ». Ton premier audit doit répondre à :
 - Le parcours de conversion (contact, CV, LinkedIn, GitHub) est-il évident **sans
   scroll supplémentaire** une fois arrivé en bas ?
 
-Traite ces sections comme si elles étaient la première chose que voit un recruteur.
-Chaque cycle doit y consacrer au moins un chantier tant qu'elles ne sont pas au
-niveau du haut de page.
+> ⚠️ **Changement de priorité du 2026-09-12.** Cette zone a été la priorité absolue
+> des cycles 001 à 023 et a reçu 26 commits. Le diagnostic ci-dessus est traité :
+> la mesure de lecture, le contraste, la hiérarchie typographique, les cibles
+> tactiles et le footer de clôture sont au niveau. **Elle passe en P2.**
+>
+> Tu n'y ouvres plus de chantier de ta propre initiative. Tu n'y interviens que
+> pour : une **régression**, un **bug bloquant**, une **violation d'accessibilité
+> mesurée**, ou un raccord rendu nécessaire par un chantier §4. Toute intervention
+> en P2 doit être justifiée par un constat mesuré, pas par une préférence.
 
 Le reste du site (hero, slides projets, navigation) est audité aussi, à chaque cycle,
 mais n'est corrigé qu'en P2 — sauf régression ou bug bloquant.
 
 ---
 
-## 4. INTÉGRATION DES NOUVEAUX PROJETS (de A à Z)
+## 4. PRIORITÉ ABSOLUE — INTÉGRATION DES NOUVEAUX PROJETS (P0 depuis le 2026-09-12)
+
+> **C'est désormais ta priorité unique.** Ces trois chantiers sont restés à
+> « non commencé » pendant 22 cycles pendant que la zone basse recevait 26 commits.
+> Ils étaient bloqués sur des arbitrages ; **ils ne le sont plus** (voir
+> `docs/ui-loop/QUESTIONS.md`, Q2/Q3/Q4 tranchées le 2026-09-12).
+>
+> **Ordre imposé, sans réordonnancement :**
+> 1. **Vers l'Élysée** 2. **Ombrair** 3. **Analyse vidéo football**
+>
+> **Un cycle = un chantier avancé.** Tu ne passes au projet suivant que lorsque le
+> précédent a ses trois livrables : **carte**, **page**, **démo**. Tu ne fais pas
+> avancer les trois de front. Si un cycle ne peut pas terminer un livrable, il en
+> livre une tranche cohérente et consigne dans le journal l'état exact des trois
+> livrables du projet en cours.
+>
+> **Arbitrages déjà tranchés, à ne pas rouvrir :**
+> - *Vers l'Élysée* et *Ombrair* : **démo live uniquement, aucun lien repo.**
+> - *Analyse vidéo football* : **schémas abstraits reconstruits**, aucune capture
+>   inventée, et un **emplacement propre et documenté** où Axel branchera les
+>   vrais exports du pipeline sans avoir à retoucher la mise en page.
+
 
 Trois projets à intégrer entièrement : structure, contenu, visuels, animations,
 démo, versions FR/EN. Tu les intègres **dans le système existant** (même grille de
@@ -361,6 +388,34 @@ Règles communes à toute démo :
 - ✅ Toujours : build vert avant commit, screenshot avant/après, journal à jour.
 - ✅ Contraste texte ≥ 4.5:1 (≥ 3:1 pour les grands titres) — mesuré, pas estimé.
 - ✅ Toute animation ajoutée doit avoir sa variante `prefers-reduced-motion`.
+- ✅ En fin de cycle : supprimer les `docs/ui-loop/AUDIT-*.md` de plus de 24 h et
+  les sondes jetables (`.tmp-*`, `scripts/.tmp/`). Le journal et la galerie sont la
+  mémoire longue ; les audits sont jetables.
+
+### Plafond de retouche — 3 passes par section
+
+Une même section ne peut pas être retouchée **plus de trois fois** au total. Au
+delà, tout nouveau chantier sur elle exige un **changement de fond** explicitement
+justifié dans le journal, sous une rubrique `### Dérogation au plafond de retouche`
+indiquant :
+
+1. le nombre de passes déjà effectuées et ce que chacune a changé ;
+2. le **fait nouveau** qui rend la quatrième nécessaire — régression mesurée, bug
+   d'accessibilité chiffré, ou raccord imposé par un chantier §4 ;
+3. pourquoi ce n'était **pas** détectable lors des passes précédentes.
+
+« Je peux faire mieux », « le rythme me gêne » ou « l'easing serait plus juste »
+ne sont pas des faits nouveaux. Sans dérogation écrite, la section est **gelée** et
+tu passes au chantier suivant.
+
+Compteur au 2026-09-12 (passes déjà consommées) :
+`#capabilities` **9/3 — gelée** · `#about` **6/3 — gelée** · `footer` **5/3 — gelée** ·
+`zone`/`sections` **5/3 — gelées** · `language-toggle` **2/3** · `#contact` **1/3** ·
+`nav` **1/3**
+
+Les sections gelées ne rouvrent que par dérogation écrite. Ce plafond existe parce
+que la boucle a produit 26 commits sur la zone basse pendant que les trois projets
+du §4 n'avançaient pas d'une ligne.
 
 ---
 

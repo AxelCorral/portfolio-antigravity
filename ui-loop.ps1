@@ -34,7 +34,7 @@ param(
     # utilisée seulement si le message de Claude ne donne pas d'heure de reset.
     [int]    $LimitWaitMinutes = 20,
 
-    [string] $Model           = 'opus',
+    [string] $Model           = 'sonnet',
 
     # 0 = pas de plafond de tours par cycle.
     [int]    $MaxTurns        = 0,
@@ -333,8 +333,21 @@ Contraintes de ce run :
 - Ne termine pas ta réponse par une question.
 - Si une décision exige un arbitrage humain, consigne-la dans
   docs/ui-loop/QUESTIONS.md et passe au chantier suivant.
-- Priorité absolue : la zone située sous les slides de projets, à partir de la
-  section "Analytical profile".
+PRIORITÉ DE CE RUN (elle a changé le 2026-09-12, ne te fie pas aux cycles passés) :
+- Priorité absolue : les TROIS CHANTIERS DU §4, dans cet ordre imposé :
+  1. Vers l'Élysée   2. Ombrair   3. Analyse vidéo football
+- Un cycle = UN chantier avancé. Tu ne passes au projet suivant que lorsque le
+  précédent a ses trois livrables : carte, page, démo. Pas de front commun.
+- La zone sous "Analytical profile" est passée en P2 (maintenance). Tu n'y
+  ouvres plus de chantier de ta propre initiative : uniquement régression, bug
+  bloquant, violation d'accessibilité mesurée, ou raccord imposé par le §4.
+- Plafond de retouche : une section déjà retouchée 3 fois est gelée. Pour y
+  retoucher malgré tout, il faut un fait nouveau consigné dans le journal sous
+  "Dérogation au plafond de retouche" (voir MISSION-UI.md §6).
+- Q1 à Q4 de docs/ui-loop/QUESTIONS.md ont été tranchées : plus aucun blocage.
+  Vers l'Élysée et Ombrair = démo live seulement, aucun lien repo. Football =
+  schémas abstraits reconstruits, aucune capture inventée, et un emplacement
+  propre et documenté pour les vrais visuels à venir.
 "@
 }
 

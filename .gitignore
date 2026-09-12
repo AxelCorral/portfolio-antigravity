@@ -36,3 +36,7 @@ dist-ssr
 /PAUSE
 logs/
 docs/ui-loop/screenshots/
+
+# Sondes jetables écrites par les cycles (ne doivent jamais être committées)
+.tmp-*
+scripts/.tmp/
