@@ -6,6 +6,174 @@
 
 ---
 
+## Cycle 027 — 2026-09-12 19:35
+
+**Zone travaillée** : hors zone prioritaire (§3, gelée sauf régression) et
+hors §4 (intégralement traité, voir ci-dessous) — header (`.city-contact`) et
+navigation des carousels projet (`.pc-arrow`, composant partagé par les 6
+projets 01-06). Outillage : `scripts/ui-audit.mjs`.
+**Rotation de questions** : **E — Mobile-first réel** (dernière rotation
+explicite : D au cycle 023 ; les cycles 024-026 étaient des chantiers §4 hors
+rotation). E n'avait pas resservi depuis avant le cycle 018.
+
+### Note de continuité — la priorité §4 de ce run était déjà traitée
+
+Le prompt de ce run redemandait explicitement les trois chantiers §4 (Vers
+l'Élysée, Ombrair, Analyse vidéo football) comme priorité absolue, dans
+l'ordre imposé, en précisant « ne te fie pas aux cycles passés ». Conformément
+à cette dernière consigne, je n'ai pas fait confiance au journal des cycles
+024-026 sur parole : `git log` confirme les trois commits d'intégration
+(`6e66d36`, `fd39663`, `7119fcf`), `npm run build` est vert, et
+`grep 'id: "0[456]"' src/data/projects.ts` + `grep 'project.id === "06"'
+src/OnePage.tsx` confirment que les trois entrées existent bien et sont
+branchées dans le code réel — pas seulement décrites dans un journal. Les
+trois chantiers ont donc bien leurs trois livrables (carte/page/démo). Seul
+écart trouvé : `docs/ui-loop/BACKLOG.md` n'avait jamais coché la ligne
+« Analyse vidéo football », alors que le journal du cycle 026 la déclarait
+terminée — corrigé ce cycle (voir Changements livrés).
+
+Le §4 étant réellement clos, ce cycle est retombé sur l'échelon suivant de
+l'ordre de priorité de MISSION-UI.md §2 phase 4 : aucune régression P0
+trouvée (build vert, `tsc --noEmit` propre), la zone prioritaire (§3) reste en
+P2 gelée sans fait nouveau justifiant une dérogation, donc audit rotation E
+sur le reste du site.
+
+### Constats d'audit
+
+- **Outillage cassé avant même de pouvoir auditer** : `scripts/ui-audit.mjs`
+  a crashé deux fois de suite (`page.evaluate: Target crashed`), à des points
+  différents du run (pendant le scroll progressif une fois, pendant la passe
+  clavier/reduced-motion l'autre). Cause : un unique `browser` Chromium
+  partagé entre les ~10 sessions de capture (4 viewports × 2 langues + 2
+  passes reduced-motion), chacune faisant un plein scroll + captures GSAP,
+  accumulait de la mémoire jusqu'au crash — et perdait alors la totalité du
+  run (aucun `report.json` écrit). Corrigé avant de pouvoir auditer quoi que
+  ce soit d'autre : navigateur frais par capture + écriture incrémentale du
+  rapport + tolérance à l'échec d'une seule combinaison. Après correction :
+  8/8 combinaisons principales terminées proprement (0 overflow horizontal,
+  3 violations axe-core identiques à la référence historique 001-026 sur les
+  4 combinaisons échantillonnées, 0 erreur console/page) ; la passe
+  reduced-motion a encore crashé une fois sur deux (EN capturé jusqu'au bout
+  du scroll puis crash en fin de passe clavier, FR non atteint dans le temps
+  imparti) — la robustesse en run complet est meilleure mais pas absolue,
+  noté dans `BACKLOG.md` pour un futur cycle si ça re-bloque un audit complet.
+- **P1 mesuré — `.city-contact` (CTA « Contact » du header) sous le plancher
+  tactile** : `min-height: 36px` codé en dur, mesuré 70×36px à 390 comme à
+  1440/1920. C'est le contrôle le plus visible de la page (visible dès le
+  premier écran, sur toutes les largeurs), et il répond directement à la
+  question de rotation E « les zones tactiles font-elles ≥ 44 px ? ».
+- **P1 mesuré — `.pc-arrow` (flèches Previous/Next des carousels projet)
+  sous le plancher tactile** : 30×30px mesuré, composant partagé par les 6
+  carousels projet (01 à 06 inclus, donc aussi les trois projets intégrés aux
+  cycles 024-026). C'est le seul contrôle **bouton** pour naviguer un
+  carousel sans clavier (les flèches ‹/› ne sont pas décoratives : chaque clic
+  avance/recule d'une diapositive, vérifié cycle 026 pour la navigation
+  clavier équivalente).
+- **Revu et explicitement non retenu — `.pc-dot` (points de pagination des
+  carousels, 4px / 18px actif)** : chaque point est un vrai `<button>` avec
+  un `aria-label` nommant sa diapositive exacte (« Project 01 · Data
+  Engineering », « Step 03 — Analytical SQL », etc.), mais 4×4px est très en
+  dessous de 44px. Non corrigé : une alternative de même fonction existe déjà
+  sur la même page (les flèches Previous/Next + la navigation clavier,
+  vérifiée cycle 026) — l'exception de contrôle équivalent de WCAG 2.5.8
+  s'applique. Forcer 44px sur une rangée dense de 7-8 points aurait exigé une
+  refonte du nav de carousel (chevauchement des zones tactiles adjacentes à
+  cette densité), hors du cadre d'une amélioration incrémentale (§6). Consigné
+  explicitement pour qu'un futur cycle ne remesure pas la même chose en
+  pensant avoir trouvé un défaut neuf.
+- Reste du site (hero, slides projets hors carousel-nav, footer) : rien de
+  nouveau mesuré cette rotation au-delà des deux points ci-dessus — la
+  couverture complète (4 viewports, axe-core, clavier) n'a pu être rejouée
+  qu'après la correction de l'outillage, dans le temps restant du cycle.
+
+### Changements livrés
+
+- `e6f49c2` — chore(ui-audit): un navigateur frais par capture au lieu d'un
+  seul partagé sur tout le run, écriture incrémentale de `report.json`,
+  tolérance à l'échec d'une seule combinaison. Condition préalable à tout
+  audit de ce cycle et au-delà.
+- `cba1747` — ui(nav): `.city-contact` 36px → **44px** de hauteur minimale ;
+  `.pc-arrow` 30×30 → **44×44px**. Aucune règle ajoutée, deux valeurs
+  ajustées ; style visuel inchangé (pilule pleine largeur, icône de flèche
+  centrée). `.pc-dot` non touché (voir Constats ci-dessus).
+- `af629f3` — journalisation : `BACKLOG.md` coche l'intégration d'Analyse
+  vidéo football (jamais cochée depuis le cycle 026, corrigé après
+  revérification du code réel — pas du seul journal), compteur de retouche
+  §6 mis à jour (`nav` 2/3, nouvelle ligne `carousel-nav` 1/3), galerie
+  régénérée avec les deux chantiers de ce cycle.
+
+### Vérification
+
+- Build : ✅ (`npm run build` vert avant et après le commit `cba1747` — CSS
+  **96,75 kB inchangé** : ajustement de deux valeurs existantes, aucune règle
+  ajoutée). `tsc --noEmit` : ✅ sans sortie.
+- Mesures avant/après (Playwright ad hoc, 390 et 1440) : `.city-contact`
+  70×36 → **70×44** ; `.pc-arrow` 30×30 → **44×44**. **0 overflow horizontal**
+  aux deux largeurs après le changement.
+- Viewports vérifiés visuellement : **390** (hero + header capturés,
+  pilule Contact proportionnée, aucune coupure) et **1440/1920** (bande de
+  nav complète capturée, hauteur de bandeau légèrement accrue — de l'ordre de
+  8-14px — sans rupture de mise en page, `.language-toggle`/logo/liens nav
+  inchangés).
+- Langues : le changement ne touche aucun texte ; non re-vérifié séparément
+  par langue (rien à vérifier qui dépende de la langue sur ces deux règles
+  CSS dimensionnelles).
+- reduced-motion : ✅ pour le CTA header et les flèches (aucune animation
+  concernée par le changement, ce sont des dimensions statiques) ; passe
+  complète reduced-motion de l'outillage partiellement aboutie (voir Constats
+  ci-dessus), sans lien avec le chantier CSS lui-même.
+- Nav clavier : ✅ — `Tab` atteint bien `.pc-arrow` (vérifié par script,
+  activeElement porte la classe `pc-arrow` après une séquence de tabulations
+  depuis le haut de page), 0 erreur console/page pendant le parcours.
+- Régression détectée : non — les 6 carousels projet (01-06) et le header
+  utilisent la même règle CSS partagée, aucune règle scindée par projet ;
+  captures desktop (1440/1920) et mobile (390) confirment visuellement
+  qu'aucune autre zone n'a bougé.
+
+### Reverté
+
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024, reconfirmé
+  par lecture du code ce cycle (voir Note de continuité).
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025, reconfirmé de même.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026,
+  reconfirmé de même. **`BACKLOG.md` était en retard d'une case à cocher,
+  corrigé ce cycle.**
+- **Le §4 de MISSION-UI.md est intégralement traité et reconfirmé sur le code
+  réel, pas seulement sur la foi du journal.**
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Prochain cycle — point de reprise exact
+- **§4 est clos et reconfirmé : ne pas le rouvrir sans fait nouveau.** Relire
+  MISSION-UI.md en entier (§0) puis reprendre l'ordre de priorité §2 phase 4
+  normal : (1) tout P0 réel détecté en phase 1 (build cassé, régression) ; (2)
+  §3 reste P2 gelée sauf régression/bug bloquant/violation d'accessibilité
+  mesurée/raccord imposé — ne pas y ouvrir de chantier de sa propre
+  initiative ; (3) continuer l'audit rotation E (mobile-first) sur le reste du
+  site, qui n'a été rejoué que partiellement ce cycle faute de temps après la
+  réparation de l'outillage — candidats déjà identifiés mais non mesurés ce
+  cycle : `.capability-card` (grille à 4 colonnes dès 1024px, backlog §P2
+  ligne ~195), bundle JS 641-694 kB (backlog §P2, pas de garde-fou chiffré
+  mais à surveiller), couverture du probe de contraste maison limitée aux 4
+  sections de la zone prioritaire (backlog §P2 ligne ~220).
+- Si la rotation E ne remonte plus rien de mesurable sous le plafond de
+  retouche, rotation suivante par ordre (dernières utilisées : D (023), C
+  (022), B (020), A (021) — E ce cycle-ci ; candidat naturel : A ou B sur le
+  reste du site, jamais auditées hors zone prioritaire).
+- Note d'outillage pour tout futur run de `scripts/ui-audit.mjs` : la passe
+  reduced-motion peut encore crasher occasionnellement même après la
+  correction de ce cycle (navigateur frais par capture) — si un futur run la
+  perd systématiquement, envisager de réduire le nombre de captures de scroll
+  par run plutôt que d'ajouter un troisième correctif de robustesse au même
+  script.
+
+### Questions bloquantes ouvertes
+- Aucune (Q1-Q4 résolues le 2026-09-12, voir `QUESTIONS.md`).
+
+---
+
 ## Cycle 026 — 2026-09-12 19:05
 
 **Zone travaillée** : §4 — intégration d'**Analyse vidéo football** (carte,
