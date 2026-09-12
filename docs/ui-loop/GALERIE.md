@@ -5,6 +5,28 @@
 > Captures : viewports 390 et 1440, `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 019 — 2026-09-12 · Sélecteur de langue escamoté au scroll descendant
+
+> Contrôle fixed sans stratégie d'évitement : du texte de page passait dessous sur 24 des 49 positions de scroll de la zone à 390px — ici le mot « with » du titre Analytical profile, coupé en deux.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-019/language-toggle-tuck-390-avant.webp) | ![après 390](shots/cycle-019/language-toggle-tuck-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-019/language-toggle-tuck-1440-avant.webp) | ![après 1440](shots/cycle-019/language-toggle-tuck-1440-apres.webp) |
+
+`64f7bb2` · `42333f3`
+
+## Cycle 019 — 2026-09-12 · Mesure et alignement du paragraphe Analytical profile
+
+> Le paragraphe composait 108 à 110 caractères par ligne sur desktop et neuf lignes centrées à neuf bords gauches différents sur 390 ; il est désormais ferré à gauche sur une mesure de 58ch (70 caractères au pire).
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-019/about-lede-mesure-390-avant.webp) | ![après 390](shots/cycle-019/about-lede-mesure-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-019/about-lede-mesure-1440-avant.webp) | ![après 1440](shots/cycle-019/about-lede-mesure-1440-apres.webp) |
+
+`64f7bb2` · `b164c62`
+
 ## Cycle 018 — 2026-09-11 · Les trois liens du footer deviennent des cibles tactiles de 44px
 
 > Email 31.9, GitHub 40, CV 17.7 px de large : le dernier point de conversion de la page etait plus etroit que le plancher WCAG 2.5.8. Ils font desormais 44px minimum, a espacement percu constant.

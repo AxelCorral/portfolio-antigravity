@@ -6,6 +6,185 @@
 
 ---
 
+## Cycle 019 — 2026-09-12 03:40
+
+**Zone travaillée** : zone prioritaire (§3) uniquement — `#about` (paragraphe de
+soutien) et `.language-toggle`, le contrôle flottant qui recouvre la zone.
+Conformément à la consigne de run, les deux chantiers sont dans la zone ; aucun
+chantier §4/§5 n'a été ouvert.
+**Rotation de questions** : **E — Mobile-first réel** (précédentes : D, E, D, A,
+B, C, D → E). E avait déjà servi au cycle 013, mais jamais après la remise à
+niveau des cycles 015-018 : les deux questions qu'elle pose habituellement
+(cibles tactiles, scroll horizontal) sont désormais closes, ce qui a laissé la
+place à sa troisième — « les sections du bas sont-elles pensées ou juste
+empilées ? » — qui n'avait encore jamais été creusée.
+
+### Constats d'audit
+
+Audit complet dans `docs/ui-loop/AUDIT-2026-09-12-cycle-019.md`. Résumé :
+
+- **E1 — cibles tactiles** : **11 sur 11 conformes** dans la zone, aux trois
+  viewports mesurés (390 / 768 / 1440) et dans les deux langues. Zéro sous
+  44×44. Aboutissement des cycles 016-018 ; rien à faire.
+- **E2 — scroll horizontal** : aucun.
+  `document.documentElement.scrollWidth === window.innerWidth` aux 4 viewports
+  dans les 2 langues.
+- **E3 — échelle mobile des blocs** : `.about-card` 64/24 → 112/64,
+  `.contact-panel` 24/24 → 57.6/57.6, `.capability-card` **24/24 partout**.
+  Padding de section : `#about` 80→112, `#capabilities` 80→96, `#contact`
+  **48/56 figé**, footer **32/40 figé**. Deux constats **P2 consignés au
+  backlog**, pas traités : ce sont des arbitrages de rythme qui relèvent d'un
+  cycle de rotation B, pas de corrections d'écart mesuré.
+- **E-A / P0** — `.language-toggle` est `position: fixed` sans aucune stratégie
+  d'évitement du contenu. Balayage de collision, pas de 60px, toute boîte de
+  texte recouvrant le rectangle du contrôle de plus de 2px sur les deux axes :
+
+  | viewport | positions avec collision (zone prioritaire) |
+  | --- | --- |
+  | **390** | **24 / 49** |
+  | 768 | 6 / 15 |
+  | 1024 | 6 / 15 |
+  | 1440 | 2 / 15 |
+
+  Sur la page entière à 390 : **43/70**. Pire cas mesuré (390 EN, `y = 6712`) :
+  le mot **`with`** du titre « Analytical profile » **coupé en deux** par
+  « EN · FR », le dernier mot de la ligne au-dessus noyé dans le voile. Deux
+  textes clairs superposés : le contraste n'y est pas insuffisant, il **n'est
+  pas défini** — garde-fou §6. Le backlog qualifiait ce reliquat de « défaut
+  intermittent » depuis le cycle 016 ; la mesure dit qu'il est **majoritaire**
+  sur mobile. Requalifié **P0**. Le voile du cycle 016 rendait le *contrôle*
+  lisible sur la page ; il ne pouvait pas rendre la *page* lisible sous le
+  contrôle — les deux occupent les mêmes pixels.
+- **E-B / P1** — `#about p:last-of-type` portait `max-w-3xl` (768px) et héritait
+  du `text-align: center` de `.about-card`. Comptage caractère par caractère des
+  lignes réellement composées (`Range.getClientRects()`) :
+
+  | viewport / langue | lignes | caractères max | bords gauches distincts |
+  | --- | --- | --- | --- |
+  | 390 EN | 9 | 49 | **9** |
+  | 390 FR | 9 | 51 | 7 |
+  | 768 EN | 5 | 84 | 5 |
+  | 1440 EN | 4 | **108** | 4 |
+  | 1440 FR | 4 | **110** | 4 |
+  | 1920 FR | 4 | **110** | 4 |
+
+  Deux défauts opposés dans le même bloc : **45 % au-dessus du plafond de 75
+  caractères** que pose la rotation B sur desktop, et **neuf lignes centrées à
+  neuf bords gauches différents** sur 390. Le centrage est une figure
+  d'affiche : il tient sur deux ou trois lignes, pas sur neuf.
+
+### Changements livrés
+
+Deux chantiers, pas trois, alors que §4 en autorise trois. E-A porte sur un
+contrôle global présent sur toute la page et E-B sur le premier bloc de la zone :
+les deux demandent une vérification aux 4 viewports × 2 langues × 2 modes de
+mouvement. Deux chantiers vérifiés valent mieux qu'un troisième bâclé.
+
+- `42333f3` — ui(language-toggle): escamoter le sélecteur au scroll descendant.
+  Le contrôle s'efface pendant que le lecteur descend et revient dès qu'il
+  remonte ; sous 160px de scroll il reste toujours visible, puisque c'est en
+  haut de page qu'on choisit sa langue. Zone morte de 6px sur le delta pour ne
+  pas confondre l'inertie de scroll avec un changement de direction.
+- `b164c62` — ui(about): poser la mesure du paragraphe Analytical profile et le
+  ferrer à gauche. Le titre d'affiche reste centré ; seul le paragraphe passe au
+  fer à gauche, dans une boîte qui reste centrée dans la carte — la composition
+  du bloc ne bouge pas, seule sa lecture est réparée. Mesure introduite comme
+  token (`--measure-lede`, 58ch), pas comme valeur codée dans le composant.
+
+### Vérification
+
+- Build : ✅ (`npm run build` vert avant chaque commit ; CSS 94.12 → **94.61 kB**,
+  JS 644.53 → **644.73 kB**). `tsc --noEmit` : ✅ sans sortie.
+- Viewports vérifiés : 390 / 768 / 1440 / 1920 (runs `zone-c019-before` et
+  `zone-c019-after`, 10 combinaisons chacun, **0 erreur console**, **0 overflow
+  horizontal** sur les 20).
+- Langues : FR ✅ EN ✅ (aucun texte ajouté ; chaque mesure prise séparément dans
+  les deux langues, et le token `--measure-lede` calibré sur les deux).
+- reduced-motion : ✅ — l'escamotage fonctionne aussi sous `reduce`, sans
+  translation ni transition (`transition-property: none` mesuré). Choix assumé :
+  l'évitement est une correction de lisibilité, pas une décoration ; le
+  désactiver rendrait le P0 aux seuls utilisateurs qui demandent moins de
+  mouvement.
+- Nav clavier : ✅ — **Tab atteint le sélecteur dès le premier appui même
+  escamoté**, aux 2 viewports testés au clavier pur, et `:focus-within` le
+  ramène avant qu'il ne soit peint. C'est la raison pour laquelle l'escamotage
+  passe par `opacity: 0` et jamais par `visibility` ni `display`. Indicateur de
+  focus inchangé (soulignement custom `.language-toggle-btn:focus-visible::before`).
+- **Mesures avant/après** :
+
+  | | AVANT | APRÈS |
+  | --- | --- | --- |
+  | collisions texte/contrôle, 390 (zone) | **24 / 49** | **0 / 49** |
+  | collisions, 768 / 1440 / 1920 | 6/15 · 2/15 · — | **0/28 · 0/30 · 0/32** |
+  | caractères par ligne, 1440-1920 | **108 à 110** | **68 à 70** |
+  | caractères par ligne, 768 | 84 | 68 |
+  | bords gauches distincts, 390 EN | **9** | **1** |
+  | lignes du paragraphe, desktop | 4 | 6 |
+  | hauteur de `#about`, 1440/1920 | 1085 | 1137 (+52) |
+  | hauteur de `#about`, 390 | 807 | **807** (inchangée) |
+
+- Contraste du paragraphe au plancher de révélation : **5.18:1**, identique
+  avant et après — le chantier E-B ne touche ni la couleur ni l'opacité, et le
+  plancher posé au cycle 017 (0.58) tient.
+- Non-régression : `#capabilities` et `#contact` **au pixel près** sur les 10
+  combinaisons ; seul `#about` bouge, et seulement là où le paragraphe gagne
+  deux lignes. `--measure-lede` et `.about-lede` sont tous deux nouveaux et
+  utilisés par un seul élément.
+- axe-core : **3 violations, strictement identiques aux cycles 001 à 018**
+  (`aria-prohibited-attr` sur `.city-heading`, `landmark-unique` sur `.pc-nav`,
+  `region` sur `.language-toggle`), toutes hors zone prioritaire. Aucune
+  nouvelle, aucune résolue.
+- Régression détectée : non.
+
+### Reverté
+- Aucun.
+
+### Faux positif d'outillage identifié (à ne pas reproduire)
+- Dans `zone-c019-before/*/capabilities.png`, le bouton « Skip to content »
+  apparaît posé au milieu des cartes. `.skip-link` est `fixed` avec
+  `translateY(-180%)` et ne se montre qu'au `:focus` : sur une capture
+  d'**élément** plus haute que le viewport, Playwright rend les éléments `fixed`
+  à leur position de **document**, pas d'écran. Troisième leçon d'outillage de la
+  série : 017 « une mesure prise pendant un `transform` ne mesure pas le CSS »,
+  018 « une capture prise avant un reveal ne mesure pas le rendu », 019 « un
+  élément `fixed` dans une capture d'élément haute n'est pas là où le visiteur
+  le voit ». Vérifié à la main : le lien reste hors écran sans focus.
+
+### État des chantiers structurels
+- Vers l'Élysée : non commencé (iframe vérifiée réalisable cycle 003)
+- Ombrair : non commencé (iframe vérifiée réalisable cycle 003)
+- Analyse vidéo football : non commencé
+- Démos projets existants : 3/3 conformes (inchangé depuis cycle 003)
+
+### Prochain cycle — point de reprise exact
+- La zone prioritaire n'a plus **aucun écart mesuré ouvert**. Ce qui y reste est
+  de deux natures, et aucune ne se règle par une mesure : un arbitrage éditorial
+  (`#about` sans ancre de preuve, ouvert depuis le cycle 018) et deux arbitrages
+  de rythme consignés ce cycle (`.capability-card` sans échelle mobile,
+  `#contact`/footer à padding de section figé) qui demandent un cycle de
+  rotation **B** pour être tranchés sur mesure et non au jugé.
+- **Ouvrir « Vers l'Élysée » (§4.1)** en chantier principal — premier P1 de
+  l'ordre imposé, reporté depuis le cycle 017. Lire d'abord les conventions de
+  carte projet dans `OnePage.tsx` (liste `.home-project-*`,
+  `ProjectShowcaseCard`, `ProjectDetailModal`) pour s'y intégrer sans créer un
+  pattern parallèle, puis carte projet + vue détail + démo iframe vers
+  `political-destiny.vercel.app` (en-têtes vérifiés cycle 003 : `200 OK`, aucun
+  `X-Frame-Options` ni `frame-ancestors`). Ton neutre imposé, angle « démarche de
+  modélisation », titre affiché « Vers l'Élysée » (jamais « political
+  destiny »), pas de lien repo tant que Q2 n'est pas tranchée.
+- Note d'outillage pour ce chantier : toute nouvelle démo en iframe passe sous
+  le sélecteur de langue escamotable. Vérifier que le `pointer-events: none` de
+  l'état escamoté ne masque pas un clic destiné à l'iframe — il ne devrait pas,
+  le contrôle devient transparent aux clics quand il est escamoté, mais c'est
+  exactement le genre d'interaction qui se teste plutôt qu'elle ne se raisonne.
+
+### Questions bloquantes ouvertes
+- Q1, Q2, Q3, Q4 — voir `docs/ui-loop/QUESTIONS.md` (inchangées). Aucune
+  nouvelle question ce cycle : les deux chantiers sont des corrections appuyées
+  sur des mesures, pas des arbitrages factuels.
+
+---
+
 ## Cycle 018 — 2026-09-11 23:59
 
 **Zone travaillée** : zone prioritaire (§3) uniquement — `#contact` (kicker de

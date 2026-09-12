@@ -168,6 +168,21 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   hauteur sur les 10 combinaisons du run d'audit — la marge fantôme plus
   l'écart de corps.
 
+- [ ] **`.capability-card` est le bloc de la zone qui réagit le moins à la
+  largeur** (rotation E, cycle 019) : padding interne de **24px à tous les
+  viewports**, là où `.about-card` va de 64/24 à 112/64 et `.contact-panel` de
+  24/24 à 57.6/57.6. Le cycle 016 a fixé délibérément le rythme interne de ces
+  cartes, donc ce n'est pas une régression ; c'est simplement le seul bloc sans
+  échelle mobile. **P2.**
+
+- [ ] **`#contact` et `.site-footer` ont un padding de section figé** (48/56 et
+  32/40 à tous les viewports), là où `#about` va de 80 à 112 et `#capabilities`
+  de 80 à 96 (rotation E, cycle 019). Sur 1440 la descente de page donne donc
+  112 / 96 / 48 / 32 : la dernière section respire à 43 % de sa voisine du
+  dessus. Partiellement compensé par le padding propre de `.contact-panel`
+  (57.6px à partir de 1024). À trancher dans un cycle de rotation B, avec une
+  mesure avant/après des écarts perçus, pas au jugé. **P2.**
+
 - [ ] **`#about` est le seul bloc de la zone sans aucune ancre de preuve**
   (rotation D, cycle 018). Le bloc « Analytical profile » est 100 % assertif :
   phrase-titre + paragraphe énumérant « business intelligence, Power BI, SQL,
@@ -179,13 +194,24 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   vérifier. Arbitrage éditorial, pas un défaut mesuré : à traiter quand un
   cycle n'a pas d'écart chiffré plus urgent dans la zone.
 
-- [ ] **Le voile du sélecteur de langue masque un mot de carte sur 390px** à
-  certaines positions de scroll (visible dans la paire APRÈS de la galerie
-  cycle 016 : "…and reporting [EN] models"). C'est un progrès net sur la
-  superposition illisible d'avant, et le mot réapparaît dès qu'on scrolle de
-  quelques pixels, mais ce n'est pas un état final. Pistes : gouttière droite
-  réservée sur les cartes en mobile, ou masquage du toggle au scroll
-  descendant.
+- [x] **Le voile du sélecteur de langue masque le texte de la page sur 390px**.
+  Qualifié de « défaut intermittent » depuis le cycle 016 ; le balayage de
+  collision du cycle 019 (pas de 60px, toute boîte de texte recouvrant le
+  rectangle du contrôle de plus de 2px sur les deux axes) dit qu'il était
+  **majoritaire** : 24 des 49 positions de scroll de la zone prioritaire à 390
+  (43/70 sur la page entière), 6/15 à 768 et 1024, 2/15 à 1440. Pire cas mesuré
+  à 390 EN : le mot « with » du titre « Analytical profile » coupé en deux par
+  « EN · FR ». Deux textes clairs superposés = contraste non pas insuffisant
+  mais **non défini** (garde-fou §6) — **requalifié P0** à ce titre. Corrigé
+  cycle 019 (commit `42333f3`) : le contrôle s'escamote au scroll descendant et
+  revient au scroll montant, et reste toujours visible sous 160px de scroll
+  puisque c'est en haut de page qu'on choisit sa langue. Après : **0 collision**
+  sur 49/51 (390), 28/32 (768), 30/31 (1440), 31/32 (1920) positions, EN et FR.
+  Clavier préservé (`opacity: 0` et jamais `visibility`, plus `:focus-within`) :
+  Tab atteint le contrôle dès le premier appui même escamoté, vérifié sur les
+  12 combinaisons. Variante `prefers-reduced-motion` : escamotage sans
+  translation ni transition — l'évitement est une correction de lisibilité, pas
+  une décoration, il ne se désactive donc pas.
 - [ ] `aria-prohibited-attr` sur `.city-heading` (hero) — attribut ARIA non
   permis, à corriger.
 - [ ] `landmark-unique` — `.pc-nav` du carrousel projet 01 dupliqué sans nom
@@ -209,6 +235,22 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   silencieux.
 
 ## Terminé
+
+- [x] Cycle 019 — Zone prioritaire, rotation E (mobile-first réel), 2 chantiers.
+  Les deux questions historiques de la rotation E sont closes et le sont restées :
+  **11 cibles interactives sur 11 conformes** dans la zone aux 3 viewports
+  mesurés et dans les 2 langues, et **aucun scroll horizontal** aux 4 viewports
+  (`scrollWidth === innerWidth` partout). Le troisième angle — « les sections du
+  bas sont-elles pensées ou juste empilées ? » — a sorti deux constats mesurés :
+  le sélecteur de langue défigurait le texte sur la majorité du scroll mobile
+  (`42333f3`, requalifié P0), et le paragraphe « Analytical profile » composait
+  108 à 110 caractères par ligne sur desktop tout en étant centré sur neuf
+  lignes à 390 (`b164c62`). Introduit au système de design : `--measure-lede`
+  (58ch), première mesure de lecture nommée du projet. Leçon d'outillage, la
+  troisième de la série 017-018-019 : **un élément `position: fixed` apparaît à
+  sa position de document, et non à sa position d'écran, dans une capture
+  d'élément plus haute que le viewport** — c'est pourquoi « Skip to content »
+  semblait posé au milieu des cartes Capabilities.
 
 - [x] Cycle 018 — Zone prioritaire, rotation D (crédibilité), 3 chantiers, tous
   issus de mesures et non d'impressions : kicker de contact rendu à
