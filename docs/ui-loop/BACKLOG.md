@@ -168,20 +168,38 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   hauteur sur les 10 combinaisons du run d'audit — la marge fantôme plus
   l'écart de corps.
 
-- [ ] **`.capability-card` est le bloc de la zone qui réagit le moins à la
+- [x] **`.capability-card` est le bloc de la zone qui réagit le moins à la
   largeur** (rotation E, cycle 019) : padding interne de **24px à tous les
   viewports**, là où `.about-card` va de 64/24 à 112/64 et `.contact-panel` de
-  24/24 à 57.6/57.6. Le cycle 016 a fixé délibérément le rythme interne de ces
-  cartes, donc ce n'est pas une régression ; c'est simplement le seul bloc sans
-  échelle mobile. **P2.**
+  24/24 à 57.6/57.6. **Fermé par la mesure au cycle 020, sans une ligne de
+  code** : c'est la *largeur de carte* qu'il fallait mesurer, pas son padding.
+  Elle vaut 358 / 352 / **232** / 336 / 388 px à 390 / 768 / 1024 / 1440 / 1920 —
+  la carte ne s'élargit pas avec la fenêtre, elle oscille au gré des passages de
+  1 à 2 puis 4 colonnes. Un padding qui grandirait avec la fenêtre mangerait la
+  carte au lieu de l'aérer : 24px constant est le comportement **juste**.
 
-- [ ] **`#contact` et `.site-footer` ont un padding de section figé** (48/56 et
+- [x] **`#contact` et `.site-footer` ont un padding de section figé** (48/56 et
   32/40 à tous les viewports), là où `#about` va de 80 à 112 et `#capabilities`
-  de 80 à 96 (rotation E, cycle 019). Sur 1440 la descente de page donne donc
-  112 / 96 / 48 / 32 : la dernière section respire à 43 % de sa voisine du
-  dessus. Partiellement compensé par le padding propre de `.contact-panel`
-  (57.6px à partir de 1024). À trancher dans un cycle de rotation B, avec une
-  mesure avant/après des écarts perçus, pas au jugé. **P2.**
+  de 80 à 96 (rotation E, cycle 019). Sur 1440 la descente de page donnait 112 /
+  96 / 48 / 32 : la page se fermait sur **29 %** du souffle avec lequel elle
+  s'ouvrait, et l'écart contact→footer valait **89px à 390 comme à 1920** alors
+  que tous les écarts au-dessus suivaient la largeur. Tranché au cycle 020
+  (commit `4ace013`) comme demandé, sur mesure : deux tokens
+  (`--zone-pad-contact`, `--zone-pad-footer`) qui marchent sur le même
+  breakpoint que les deux sections du dessus. Après : descente 160/136/105 à
+  390 et 208/176/137 dès 768 — **la même proportion 1 : 0,85 : 0,66 à toutes les
+  largeurs**.
+
+- [ ] **La colonne d'une `.capability-card` ne fait que 184px de texte vif à
+  1024** (232px de carte moins 2 × 24 de padding) — la plus étroite mesure de
+  lecture du site, alors qu'elle en fait 310 à 390px. Cause : la grille passe à
+  4 colonnes dès `min-width: 1024px`, où la fenêtre n'a pas encore la largeur
+  pour quatre colonnes lisibles ; à 1024 chaque titre de carte casse en deux
+  lignes et chaque item de liste passe à la ligne. C'est la cause racine de la
+  troncature corrigée au cycle 020 (`3dc9597`), qui est traitée à la source et
+  ne dépend plus de la grille. Arbitrage de grille (repousser le passage à 4
+  colonnes vers 1280, ou passer par un palier à 3), à mesurer avant/après.
+  **P2.**
 
 - [ ] **`#about` est le seul bloc de la zone sans aucune ancre de preuve**
   (rotation D, cycle 018). Le bloc « Analytical profile » est 100 % assertif :
@@ -235,6 +253,23 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   silencieux.
 
 ## Terminé
+
+- [x] Cycle 020 — Zone prioritaire, rotation B (rythme & espace), 3 chantiers.
+  Nouvel outil `scripts/ui-rhythm-probe.mjs` : il mesure le **blanc de queue**
+  de chaque section (l'écart entre sa dernière encre et son propre bas) en plus
+  des paddings déclarés, ce qui est la seule façon de distinguer un blanc voulu
+  d'un blanc subi. Trois constats, tous chiffrés : un lien de carte **tronqué en
+  plein mot** de 1024 à 1279px (`3dc9597`, **P0**, contenu invisible — défaut
+  présent depuis le cycle 003, jamais vu parce qu'aucun cycle n'avait audité la
+  bande 1024-1280) ; une règle unique de sous-titre produisant **58, 95 et 102
+  caractères par ligne** selon le bloc (`d8ec9cc`) ; et **306px de blanc de
+  queue pour 96 déclarés** sous la grille Capabilities à 1920, avec 108px
+  d'écart entre EN et FR du même écran (`4ace013`). Après : chaque écart
+  encre-à-encre de la zone **égale exactement son écart CSS déclaré**, aux 4
+  viewports et dans les 2 langues. Leçon d'outillage : **les quatre viewports de
+  référence de la mission laissent un angle mort entre 1024 et 1440** — c'est
+  précisément là que vivait le P0. Tout audit de grille doit désormais
+  échantillonner la bande, pas seulement ses bornes.
 
 - [x] Cycle 019 — Zone prioritaire, rotation E (mobile-first réel), 2 chantiers.
   Les deux questions historiques de la rotation E sont closes et le sont restées :

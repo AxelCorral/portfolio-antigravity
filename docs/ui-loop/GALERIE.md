@@ -2,9 +2,42 @@
 
 > Ordre antéchronologique : le chantier le plus récent est en haut.
 > Chaque paire est capturée sur les révisions git réelles (voir MISSION-UI.md §7bis).
-> Captures : viewports 390 et 1440, `.webp` qualité 80, largeur max 1200 px.
+> Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 020 — 2026-09-12 · Descente du bas de page
+
+> Le blanc sous la grille Capabilities valait 306 px à 1920 pour 96 déclarés, et `#contact` et le footer étaient figés à toutes les largeurs : la fin de page est désormais décidée, et tout le parcours de conversion tient dans un écran.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **1440** | ![avant 1440](shots/cycle-020/descente-du-bas-de-page-1440-avant.webp) | ![après 1440](shots/cycle-020/descente-du-bas-de-page-1440-apres.webp) |
+| **1920** | ![avant 1920](shots/cycle-020/descente-du-bas-de-page-1920-avant.webp) | ![après 1920](shots/cycle-020/descente-du-bas-de-page-1920-apres.webp) |
+
+`4ace013`
+
+## Cycle 020 — 2026-09-12 · Mesure de lecture des sous-titres de section
+
+> Une seule règle en `max-width: 42rem` produisait 58, 95 et 102 caractères par ligne selon le bloc ; les sous-titres passent au token `--measure-lede` et tiennent tous sous le plafond de 75.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-020/mesure-des-sous-titres-390-avant.webp) | ![après 390](shots/cycle-020/mesure-des-sous-titres-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-020/mesure-des-sous-titres-1440-avant.webp) | ![après 1440](shots/cycle-020/mesure-des-sous-titres-1440-apres.webp) |
+
+`d8ec9cc`
+
+## Cycle 020 — 2026-09-12 · Lien de carte tronqué au bord de la carte
+
+> De 1024 à 1279 px le libellé le plus long sortait de sa carte et `overflow: hidden` le coupait en plein mot — 247 px de texte dans une carte de 232 px en FR, sans flèche ni ellipse. Il passe désormais à la ligne.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **1024** | ![avant 1024](shots/cycle-020/lien-de-carte-tronque-1024-avant.webp) | ![après 1024](shots/cycle-020/lien-de-carte-tronque-1024-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-020/lien-de-carte-tronque-1440-avant.webp) | ![après 1440](shots/cycle-020/lien-de-carte-tronque-1440-apres.webp) |
+
+`3dc9597`
+
 ## Cycle 019 — 2026-09-12 · Sélecteur de langue escamoté au scroll descendant
 
 > Contrôle fixed sans stratégie d'évitement : du texte de page passait dessous sur 24 des 49 positions de scroll de la zone à 390px — ici le mot « with » du titre Analytical profile, coupé en deux.

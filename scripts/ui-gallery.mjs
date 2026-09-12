@@ -66,10 +66,24 @@ const WHY = args.why ?? "";
 const PRESCROLL = args.prescroll !== "no";
 const SETTLE = Number(args.settle ?? 500);
 
-const VIEWPORTS = [
+/* 390 and 1440 are the pair MISSION-UI.md §7bis mandates, and the default.
+   `--viewports=1024x800,1440` overrides it for the rare chantier whose proof
+   lives at a width the mandated pair does not cover — the cycle 020 link
+   truncation existed only between 1024 and 1279px, so a 390/1440 pair would
+   have shown two identical images and claimed a fix nobody could see. The
+   override widens the evidence; it never replaces it with something narrower. */
+const DEFAULT_VIEWPORTS = [
   { name: "390", width: 390, height: 844 },
   { name: "1440", width: 1440, height: 900 },
 ];
+const VIEWPORTS = args.viewports
+  ? String(args.viewports)
+      .split(",")
+      .map((spec) => {
+        const [w, h] = spec.trim().split("x");
+        return { name: w, width: Number(w), height: Number(h ?? 900) };
+      })
+  : DEFAULT_VIEWPORTS;
 
 const WEBP_QUALITY = 80;
 const WEBP_MAX_WIDTH = 1200;
@@ -368,7 +382,7 @@ async function main() {
     ``,
     `> Ordre antéchronologique : le chantier le plus récent est en haut.`,
     `> Chaque paire est capturée sur les révisions git réelles (voir MISSION-UI.md §7bis).`,
-    `> Captures : viewports 390 et 1440, \`.webp\` qualité ${WEBP_QUALITY}, largeur max ${WEBP_MAX_WIDTH} px.`,
+    `> Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. \`.webp\` qualité ${WEBP_QUALITY}, largeur max ${WEBP_MAX_WIDTH} px.`,
     ``,
     `---`,
     ``,

@@ -6,6 +6,216 @@
 
 ---
 
+## Cycle 020 — 2026-09-12 05:20
+
+**Zone travaillée** : zone prioritaire (§3) uniquement — `#capabilities`
+(`.card-link`), les sous-titres de section partagés, `#capabilities` /
+`#contact` / `.site-footer` (rythme vertical). Conformément à la consigne de
+run, les trois chantiers sont dans la zone ; aucun chantier §4/§5 n'a été
+ouvert.
+**Rotation de questions** : **B — Rythme & espace** (précédentes : D, E, D, A,
+B, C, D, E → B). B avait servi au cycle 016, avant la remise à niveau des
+cycles 017-019 : ses trois questions sont reposées sur un état de la zone
+entièrement différent, et les deux items que la rotation E du cycle 019 avait
+explicitement renvoyés à « un cycle de rotation B » sont tranchés ici.
+
+### Outillage ajouté
+
+`scripts/ui-rhythm-probe.mjs`. Il mesure, aux 4 viewports × 2 langues : le
+padding déclaré de chaque section de la zone, l'écart **encre-à-encre** entre
+sections voisines (de la dernière encre de l'une à la première encre de la
+suivante, pas de bord de section à bord de section), le nombre de caractères
+réellement composés par ligne pour chaque bloc de texte, et surtout le **blanc
+de queue** — l'écart entre le bas de la dernière encre d'une section et le bas
+de la section elle-même. C'est cette dernière mesure qui distingue un blanc
+voulu (déclaré dans le CSS) d'un blanc subi (produit par une `min-height` ou une
+grille étirée), et c'est elle qui a sorti le constat B-2.
+
+### Constats d'audit
+
+Audit complet dans `docs/ui-loop/AUDIT-2026-09-12-cycle-020.md`. Résumé :
+
+- **B-1 / P0 — le lien de la carte « Projets analytiques » était tronqué en
+  plein mot.** `.card-link` portait `width: max-content` sans plafond et
+  `.capability-card` porte `overflow: hidden`. La grille passe à 4 colonnes dès
+  `min-width: 1024px`, où chaque colonne ne fait que **232 px** :
+
+  | viewport | colonne | lien 03 EN | lien 03 FR | débordement |
+  | --- | --- | --- | --- | --- |
+  | **1024** | **232** | 211 | **247** | **EN +28 · FR +64** |
+  | 1100 | 251 | 211 | 247 | EN +9 · FR +45 |
+  | 1180 | 271 | 211 | 247 | — · FR +25 |
+  | 1280 / 1440 / 1920 | 296 / 336 / 388 | 211 | 247 | aucun |
+
+  En FR à 1024 le lien mesurait **247 px dans une carte de 232 px** : il ne
+  débordait pas du padding, il traversait la bordure. La carte affichait
+  **« Voir le Modèle de soutenabilité des retra »** — coupé net, sans flèche,
+  sans ellipse, sans aucun signe qu'il manquait quelque chose. C'est du
+  **contenu invisible** (§4), pas un défaut d'espacement. Défaut présent depuis
+  le cycle 003, qui a introduit les libellés de lien différenciés.
+- **B-2 / P1 — le blanc sous la grille Capabilities était un accident de hauteur
+  de fenêtre.** `.work-section` portait `min-height: 100vh` ; depuis le cycle
+  016 les cartes se dimensionnent à leur contenu, donc la section était
+  **étirée** et tout l'étirement tombait sous la grille. Blanc de queue mesuré,
+  pour un `padding-bottom` déclaré de 80 / 96 / 96 / 96 :
+
+  | viewport | déclaré | EN | FR | écart EN/FR |
+  | --- | --- | --- | --- | --- |
+  | 390 | 80 | 80 | 80 | 0 |
+  | 768 | 96 | 96 | 96 | 0 |
+  | 1440 | 96 | **124** | 105 | 19 |
+  | 1920 | 96 | **306** | **198** | **108** |
+
+  À 1920 la section respirait à **3,2× ce que son CSS annonçait**, et 108 px
+  séparaient la version anglaise de la française du **même écran**. Un blanc que
+  personne n'a décidé : la soustraction `100vh − contenu`.
+- **B-3 / P2 — la page se fermait sur 29 % du souffle avec lequel elle
+  s'ouvrait.** `#about` va de 80 à 112 et `#capabilities` de 80 à 96 ; `#contact`
+  (48/56) et `.site-footer` (32/40) étaient **figés à toutes les largeurs**.
+  Descente à 1440 : 112 → 96 → 48 → 32, et écart contact→footer de **89 px à
+  390 comme à 1920** quand l'écart about→cap passe de 160 à 208. C'est l'item
+  que la rotation E du cycle 019 avait renvoyé à un cycle B.
+- **B-5 / P1 — une seule règle produisait 58, 95 et 102 caractères par ligne.**
+  `.home-section-heading > span, .contact-panel p:not(.contact-kicker)` portait
+  `max-width: 42rem`, une estimation en pixels et non une mesure de lecture.
+  Caractères composés sur la ligne la plus longue (768 / 1440 / 1920, identique
+  aux trois) : sous-titre `#selected-work` **102** EN / 94 FR, sous-titre
+  `#contact` **95** / 92, sous-titre `#capabilities` 58 / 58 — ce dernier
+  n'étant pas une réussite de la règle mais une chaîne courte qui tient sur une
+  ligne. Deux blocs à **+36 %** et **+23 %** au-dessus du plafond de 75.
+- **B-4 — constat mesuré qui ne demandait aucun changement.** Le backlog portait
+  depuis le cycle 019 un P2 « `.capability-card` n'a pas d'échelle mobile :
+  24 px de padding partout ». La mesure de la **largeur de carte** le referme :
+  358 / 352 / **232** / 336 / 388 px à 390 / 768 / 1024 / 1440 / 1920. La carte
+  **ne s'élargit pas avec la fenêtre** — un padding qui grandirait avec elle la
+  mangerait au lieu de l'aérer. 24 px constant est le comportement juste, pas
+  une omission. **Item fermé par la mesure, sans une ligne de code.**
+
+### Changements livrés
+
+- `3dc9597` — ui(capabilities): empêcher le libellé de lien de sortir de sa
+  carte. `max-width: 100%` plafonne la largeur shrink-to-fit à celle du
+  conteneur : le libellé passe à la ligne au lieu de s'échapper, la flèche garde
+  sa taille via `flex-shrink: 0`. Correction **à la source**, valable à toutes
+  les largeurs, dans les deux langues, et pour n'importe quel libellé futur —
+  pas un calage sur les chaînes d'aujourd'hui.
+- `d8ec9cc` — ui(sections): donner aux sous-titres de section la mesure de
+  lecture du projet. `max-width: 42rem` → `var(--measure-lede)`. Le token
+  existait depuis le cycle 019, calibré sur les deux langues pour le paragraphe
+  de `#about` — même nature de copie, même corps ; il n'avait simplement jamais
+  été appliqué aux autres blocs de soutien.
+- `4ace013` — ui(zone): rendre décidée la descente du bas de page. Suppression
+  de `min-height: 100vh` sur `.work-section`, et deux tokens nouveaux
+  (`--zone-pad-contact`, `--zone-pad-footer`) qui font marcher `#contact` et le
+  footer sur le même breakpoint que les deux sections du dessus.
+
+### Vérification
+
+- Build : ✅ (`npm run build` vert avant chacun des trois commits ; CSS 94.61 →
+  **94.86 kB**, JS **644.73 kB inchangé**). `tsc --noEmit` : ✅ sans sortie.
+- Viewports vérifiés : 390 / 768 / 1440 / 1920 (run `zone-c020-after`, 10
+  combinaisons, **0 erreur console**, **0 overflow horizontal**), **plus 1024,
+  1100, 1180 et 1280** pour les chantiers de grille.
+- Langues : FR ✅ EN ✅ (aucun texte ajouté ni modifié ; chaque mesure prise
+  séparément dans les deux langues).
+- reduced-motion : ✅ — run `laptop-1440_*_reduced`, aucune erreur ; aucun des
+  trois chantiers n'introduit d'animation, ce sont des corrections de géométrie.
+- Nav clavier : ✅ — parcours **Tab pur** à 1024 FR, 1440 EN sous `reduce` et
+  390 FR : **11 arrêts dans la zone, tous ≥ 44 × 44 px**, aucun piège, aucune
+  cible sous le seuil. Le lien de carte passé sur deux lignes reste un seul
+  arrêt.
+- Cibles tactiles : **11 sur 11 conformes** à **5** viewports (390 / 768 /
+  **1024** / 1440 / 1920) × 2 langues. 1024 n'avait jamais été mesuré.
+- **Mesures avant/après** :
+
+  | | AVANT | APRÈS |
+  | --- | --- | --- |
+  | débordement du lien de carte (4 cartes × 6 largeurs × 2 langues) | **6 combinaisons, jusqu'à +64 px** | **0** |
+  | caractères/ligne, sous-titre `#selected-work` | **102 / 94** | 71 / 67 |
+  | caractères/ligne, sous-titre `#contact` | **95 / 92** | 72 / 65 |
+  | caractères/ligne, sous-titre `#capabilities` | 58 / 58 | 58 / 58 (inchangé, 1 ligne) |
+  | blanc de queue `#capabilities`, 1920 EN / FR | **306 / 198** | **96 / 96** |
+  | blanc de queue `#capabilities`, 1440 EN / FR | 124 / 105 | **96 / 96** |
+  | descente encre-à-encre, 390 | 160 / 128 / 89 | 160 / 136 / 105 |
+  | descente encre-à-encre, 768 et 1440 | 208 / 144-172 / 89 | 208 / 176 / 137 |
+  | descente encre-à-encre, 1920 EN | 208 / **354** / 89 | 208 / 176 / 137 |
+  | écarts encre-à-encre ≠ écart CSS déclaré | **6 des 24 mesures** | **0 des 24** |
+
+  La ligne qui compte est la dernière : après, **chaque écart perçu dans la zone
+  égale exactement l'écart que le CSS annonce**, aux 4 viewports et dans les 2
+  langues. Il n'y a plus un pixel de blanc que personne n'a décidé. Et la
+  descente tient la même proportion partout — **1 : 0,85 : 0,66** — au lieu de
+  1 : 0,69 : 0,42 à 1440 et d'une descente non monotone à 1920.
+- Effet de bord voulu, hors zone : le sous-titre de `#selected-work` (P2)
+  partage la règle corrigée par `d8ec9cc` et passe de 102 à 71 caractères. Ce
+  n'est pas un élargissement de périmètre, c'est la portée naturelle du
+  sélecteur ; vérifié visuellement dans les deux langues, deux lignes, aucun mot
+  orphelin en dernière ligne.
+- Non-régression : les trois sélecteurs touchés (`.card-link`,
+  `.home-section-heading > span` / `.contact-panel p`, `.work-section`) ne sont
+  utilisés que par `OnePage.tsx` — vérifié par grep sur tout `src/**/*.tsx`.
+  Aucune autre page du site n'est concernée.
+- axe-core : **3 violations, strictement identiques aux cycles 001 à 019**
+  (`aria-prohibited-attr` sur `.city-heading`, `landmark-unique` sur `.pc-nav`,
+  `region` sur `.language-toggle`), toutes hors zone prioritaire. Aucune
+  nouvelle, aucune résolue.
+- Régression détectée : non.
+
+### Reverté
+- Aucun.
+
+### Leçon d'outillage du cycle (la quatrième de la série 017-020)
+- **Les quatre viewports de référence de la mission laissent un angle mort entre
+  1024 et 1440**, et c'est exactement là que vivait le P0 de ce cycle : la
+  grille Capabilities passe à 4 colonnes à 1024, la bande 1024-1279 est la seule
+  où les colonnes sont trop étroites pour leur contenu, et ni 768 ni 1440 ne la
+  traversent. Dix-neuf cycles d'audit ne l'ont pas vue. Corollaire : **un
+  changement de grille doit être échantillonné dans sa bande, pas seulement à
+  ses bornes.** `scripts/ui-gallery.mjs` accepte désormais `--viewports=` pour
+  que la galerie puisse montrer un chantier dont la preuve vit à une largeur que
+  la paire 390/1440 ne couvre pas — sans quoi elle aurait affiché deux images
+  identiques et revendiqué une correction invisible.
+- Rappel des trois précédentes : 017 « une mesure prise pendant un `transform`
+  ne mesure pas le CSS », 018 « une capture prise avant un reveal ne mesure pas
+  le rendu », 019 « un élément `fixed` dans une capture d'élément haute n'est
+  pas là où le visiteur le voit ».
+
+### État des chantiers structurels
+- Vers l'Élysée : non commencé (iframe vérifiée réalisable cycle 003)
+- Ombrair : non commencé (iframe vérifiée réalisable cycle 003)
+- Analyse vidéo football : non commencé
+- Démos projets existants : 3/3 conformes (inchangé depuis cycle 003)
+
+### Prochain cycle — point de reprise exact
+- La zone prioritaire n'a de nouveau **aucun écart mesuré ouvert** : rythme
+  vertical, mesures de lecture, cibles tactiles, contrastes et débordements sont
+  tous fermés par une mesure. Les deux arbitrages non mesurables restent ouverts
+  au backlog — `#about` sans ancre de preuve (éditorial, cycle 018) et la
+  colonne de carte à 184 px de texte vif à 1024 (arbitrage de grille, ouvert ce
+  cycle).
+- **Ouvrir « Vers l'Élysée » (§4.1)** en chantier principal — premier P1 de
+  l'ordre imposé, reporté depuis le cycle 017 puis le cycle 019. Lire d'abord
+  les conventions de carte projet dans `OnePage.tsx` (liste `.home-project-*`,
+  `ProjectShowcaseCard`, `ProjectDetailModal`) pour s'y intégrer sans créer un
+  pattern parallèle, puis carte projet + vue détail + démo iframe vers
+  `political-destiny.vercel.app` (en-têtes vérifiés cycle 003 : `200 OK`, aucun
+  `X-Frame-Options` ni `frame-ancestors`). Ton neutre imposé, angle « démarche de
+  modélisation », titre affiché « Vers l'Élysée » (jamais « political
+  destiny »), pas de lien repo tant que Q2 n'est pas tranchée.
+- Deux notes d'outillage pour ce chantier. (1) Toute nouvelle démo en iframe
+  passe sous le sélecteur de langue escamotable : vérifier que le
+  `pointer-events: none` de l'état escamoté ne mange pas un clic destiné à
+  l'iframe — ça se teste, ça ne se raisonne pas. (2) **Échantillonner la bande
+  1024-1280**, pas seulement 768 et 1440 : c'est là que ce cycle a trouvé son
+  P0, et une carte projet neuve y est exactement aussi exposée.
+
+### Questions bloquantes ouvertes
+- Q1, Q2, Q3, Q4 — voir `docs/ui-loop/QUESTIONS.md` (inchangées). Aucune
+  nouvelle question ce cycle : les trois chantiers sont des corrections appuyées
+  sur des mesures, pas des arbitrages factuels.
+
+---
+
 ## Cycle 019 — 2026-09-12 03:40
 
 **Zone travaillée** : zone prioritaire (§3) uniquement — `#about` (paragraphe de
