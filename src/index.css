@@ -396,7 +396,7 @@ a {
   position: relative;
   z-index: 1;
   display: grid;
-  min-height: 36px;
+  min-height: 44px;
   place-items: center;
   border-radius: 999px;
   background: #e1e0cc;
@@ -3824,8 +3824,8 @@ a {
 
 .pc-arrow {
   display: grid;
-  width: 30px;
-  height: 30px;
+  width: 44px;
+  height: 44px;
   place-items: center;
   border: 1px solid rgba(241, 234, 222, 0.14);
   border-radius: 50%;
