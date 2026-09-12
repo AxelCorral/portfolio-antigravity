@@ -2465,7 +2465,7 @@ a {
 .project-key-takeaway span {
   display: block;
   margin-bottom: 0.55rem;
-  color: rgba(215, 226, 234, 0.5);
+  color: rgba(215, 226, 234, 0.58);
   font-size: 0.625rem;
   letter-spacing: 0.13em;
   text-transform: uppercase;
@@ -2554,7 +2554,7 @@ a {
 
 .project-overview-grid aside > span {
   margin-top: 0.75rem;
-  color: rgba(215, 226, 234, 0.48);
+  color: rgba(215, 226, 234, 0.58);
   font-size: 0.625rem;
   letter-spacing: 0.13em;
   text-transform: uppercase;
