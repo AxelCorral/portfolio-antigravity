@@ -23,7 +23,11 @@
  *                      (`about`), un sélecteur CSS (`.site-footer`), ou
  *                      `viewport:<cible>[@<y>]` pour capturer le viewport entier
  *                      avec la cible calée à <y> px du haut — seule façon de
- *                      montrer un chantier portant sur un overlay `fixed`.
+ *                      montrer un chantier portant sur un overlay `fixed`. Ou
+ *                      `openmodal:<boutonSelecteur>|<cibleSelecteur>` pour un
+ *                      chantier vivant dans une modale ouverte par un
+ *                      `<button>` (pas un lien) : clique le bouton, attend
+ *                      `--settle`, capture la cible.
  *   --label="..."      intitulé du chantier (défaut : dérivé du sujet du dernier commit)
  *   --why="..."        légende d'une ligne (obligatoire)
  *   --slug=...         nom de fichier (défaut : dérivé du label)
@@ -192,6 +196,36 @@ async function captureState(baseUrl) {
         // on clique le vrai lien, on attend que le scroll se stabilise, puis on
         // capture le viewport — honnête aux deux révisions, buggé à l'ancienne,
         // corrigé à la nouvelle, sans aucune retouche.
+        // "openmodal:<boutonSelecteur>|<cibleSelecteur>" rejoue le geste qui
+        // révèle un chantier vivant *dans* une modale ouverte au clic (pas une
+        // ancre `<a href>`, donc hors du mode "click:" ci-dessous) : on clique
+        // le déclencheur, on attend la transition d'ouverture, puis on capture
+        // l'élément cible à l'intérieur du panneau. Nécessaire pour
+        // `ProjectDetailModal`, dont les six instances s'ouvrent toutes via un
+        // `<button>` (pas un lien), jamais couvert par les modes existants.
+        if (id.startsWith("openmodal:")) {
+          const [btnSel, targetSel] = id.slice("openmodal:".length).split("|");
+          const btn = page.locator(btnSel).first();
+          if ((await btn.count()) === 0) {
+            out[key] = null;
+            continue;
+          }
+          await btn.scrollIntoViewIfNeeded();
+          await btn.click();
+          await page.waitForTimeout(SETTLE);
+          const target = page.locator(targetSel).first();
+          if ((await target.count()) === 0) {
+            out[key] = null;
+            continue;
+          }
+          try {
+            out[key] = await target.screenshot();
+          } catch {
+            out[key] = null;
+          }
+          continue;
+        }
+
         if (id.startsWith("click:")) {
           const href = id.slice("click:".length);
           const height = await page.evaluate(() => document.body.scrollHeight);
