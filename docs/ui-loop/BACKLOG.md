@@ -201,6 +201,25 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   colonnes vers 1280, ou passer par un palier à 3), à mesurer avant/après.
   **P2.**
 
+- [ ] **Les 16 coches des cartes Capabilities sont plus claires que l'information
+  qu'elles marquent** (rotation A, cycle 021). `<Check className="text-primary">`
+  est peint a pleine luminance (0,7036) alors que l'item de liste qu'il precede
+  est a 0,3535 : le marqueur decoratif est **deux fois plus clair que le texte**.
+  Arbitrage d'icones, pas de texte — hors du cadre mesure de la rotation A, qui
+  ne compte que les niveaux typographiques. A trancher dans un cycle de rotation
+  A ou D. **P2.**
+
+- [ ] **axe-core ne juge pas le contraste de cette page** (cycle 021) : **0
+  violation `color-contrast` et 494 noeuds `incomplete`**, motif dominant
+  « background color could not be determined due to a pseudo element » (les halos
+  `::before` de `.capability-card` et `.about-card`) et « overlapped by another
+  element ». Vingt journaux ont relu « 3 violations, aucune de contraste » comme
+  un feu vert ; ce n'en etait pas un, et c'est ainsi qu'un texte a 3,47:1 a
+  survecu vingt cycles. Piste : mesurer le contraste dans le probe maison plutot
+  que d'attendre d'axe qu'il le fasse — c'est deja le cas depuis ce cycle, mais
+  le probe ne couvre que les 4 sections de la zone prioritaire. **P2 — etendre
+  la couverture du probe au reste de la page.**
+
 - [ ] **`#about` est le seul bloc de la zone sans aucune ancre de preuve**
   (rotation D, cycle 018). Le bloc « Analytical profile » est 100 % assertif :
   phrase-titre + paragraphe énumérant « business intelligence, Power BI, SQL,
@@ -253,6 +272,28 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   silencieux.
 
 ## Terminé
+
+- [x] Cycle 021 — Zone prioritaire, rotation A (hierarchie), 3 chantiers.
+  Nouvel outil `scripts/ui-hierarchy-probe.mjs` : salience du premier ecran,
+  comptage des niveaux typographiques par fenetre, detection des quasi-doublons.
+  **Son premier run etait faux et ne l'a pas dit** — son `parseColor` ne
+  connaissait que `rgb()` et sautait en silence tout noeud en `oklch()`, soit,
+  sous Tailwind v4, **20 des 35 noeuds de texte de `#capabilities`**, dont les
+  deux niveaux les plus bas. Corrige (conversion `oklch()`/`oklab()` → sRGB,
+  etalonnee sur deux valeurs connues) avant tout diagnostic. Trois constats, tous
+  chiffres : les numeros de carte `01`-`04` peints a **3,47:1** mesures sur les
+  pixels reellement peints (`d6eb2d1`, **P0**, plancher §6 a 4,5:1 pour du 12px,
+  defaut present depuis l'origine du composant) ; le lien « retour en haut »
+  **premier au classement de salience du footer** a 16,76:1 et seul objet portant
+  la pilule d'action de la zone, devant trois liens de conversion a 7,65:1
+  (`0466c87`) ; et le kicker de `#about` peint **exactement a la luminance de son
+  propre corps de texte** quand les deux autres kickers de la zone tiennent
+  l'eyebrow a 5,4:1 (`b704c84`). Apres : **plus aucun texte de la zone sous
+  4,5:1**, le lien de sortie passe du rang 1 au rang 5, et les trois kickers de
+  la zone sont a l'identique au pixel et au point de contraste pres. Lecon
+  d'outillage : **un instrument qui ne sait pas lire une valeur ne le dit pas, il
+  rend un resultat plus propre** — compter les noeuds mesures avant de croire les
+  chiffres qu'ils portent.
 
 - [x] Cycle 020 — Zone prioritaire, rotation B (rythme & espace), 3 chantiers.
   Nouvel outil `scripts/ui-rhythm-probe.mjs` : il mesure le **blanc de queue**

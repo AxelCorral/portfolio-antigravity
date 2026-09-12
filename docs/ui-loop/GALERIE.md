@@ -5,6 +5,39 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 021 — 2026-09-12 · Le kicker de la zone rentre dans sa regle partagee
+
+> Trois sections, un seul role editorial, deux definitions typographiques : le kicker de #about etait peint exactement a la luminance de son propre corps de texte (13,66:1) quand les deux autres tiennent l'eyebrow a 5,4:1.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-021/kicker-about-390-avant.webp) | ![après 390](shots/cycle-021/kicker-about-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-021/kicker-about-1440-avant.webp) | ![après 1440](shots/cycle-021/kicker-about-1440-apres.webp) |
+
+`b704c84` · `0466c87` · `d6eb2d1`
+
+## Cycle 021 — 2026-09-12 · Le numero de carte repasse au-dessus du plancher de contraste
+
+> Les numeros 01-04 etaient peints a 3,47:1 mesures sur les pixels reellement peints, sous le plancher de 4,5:1 que la mission impose a 12px — et axe-core ne pouvait pas le voir.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-021/numero-de-carte-390-avant.webp) | ![après 390](shots/cycle-021/numero-de-carte-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-021/numero-de-carte-1440-avant.webp) | ![après 1440](shots/cycle-021/numero-de-carte-1440-apres.webp) |
+
+`b704c84` · `0466c87` · `d6eb2d1`
+
+## Cycle 021 — 2026-09-12 · Le parcours de conversion reprend le poids que portait la sortie
+
+> Le lien « retour en haut » etait le texte le plus clair de toute la zone (16,76:1) et le seul objet dessine comme un bouton ; les trois liens de conversion etaient les plus sourds de leur propre bloc (7,65:1). L'ordre tonal est inverse.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-021/footer-conversion-390-avant.webp) | ![après 390](shots/cycle-021/footer-conversion-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-021/footer-conversion-1440-avant.webp) | ![après 1440](shots/cycle-021/footer-conversion-1440-apres.webp) |
+
+`b704c84` · `0466c87` · `d6eb2d1`
+
 ## Cycle 020 — 2026-09-12 · Descente du bas de page
 
 > Le blanc sous la grille Capabilities valait 306 px à 1920 pour 96 déclarés, et `#contact` et le footer étaient figés à toutes les largeurs : la fin de page est désormais décidée, et tout le parcours de conversion tient dans un écran.

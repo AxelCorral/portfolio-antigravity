@@ -6,6 +6,253 @@
 
 ---
 
+## Cycle 021 — 2026-09-12 07:10
+
+**Zone travaillée** : zone prioritaire (§3) uniquement — `#about` (kicker),
+`#capabilities` (numéro de carte), `.site-footer` (ordre tonal). Conformément à
+la consigne de run, les trois chantiers sont dans la zone ; aucun chantier §4/§5
+n'a été ouvert.
+**Rotation de questions** : **A — Hiérarchie** (précédentes : D, E, D, A, B, C,
+D, E, B → **A**). A avait servi au cycle 015, c'est-à-dire **avant** toute la
+remise à niveau des cycles 016-020 : rythme vertical, mesures de lecture, cibles
+tactiles et contrastes des kickers ont tous été repris depuis, donc ses trois
+questions se reposent sur un état entièrement différent.
+
+### Outillage ajouté — et l'instrument qui mentait
+
+`scripts/ui-hierarchy-probe.mjs`. Il répond aux trois questions de la rotation A
+avec des nombres : classement de **salience** du premier écran (encre × contraste
+× taille relative — ce que la vision pré-attentive trie réellement), comptage des
+**niveaux typographiques distincts** visibles dans une même fenêtre (signature =
+famille / corps / graisse / style / interlettrage / casse / **couleur
+compositée**), et détection des **quasi-doublons** (deux niveaux à moins d'1 px
+et 0,06 de luminance : un humain les lit comme un seul niveau, ils coûtent une
+règle de plus).
+
+**Son premier run était faux et ne l'a pas dit.** Son `parseColor` ne connaissait
+que `rgb()`/`rgba()` ; sur toute autre notation il renvoyait `null` et le nœud
+était **silencieusement sauté**. Or Tailwind v4 émet chaque couleur utilitaire en
+`oklch()`, que `getComputedStyle` rend telle quelle. Le probe voyait **15 des 35
+nœuds de texte** de `#capabilities` — il avait écarté les **16 items de carte**
+(`text-gray-400`) et les **4 numéros** (`text-primary/45`), c'est-à-dire
+exactement les deux niveaux les plus bas, ceux où vit un défaut de contraste. Il
+rendait un verdict « 5 niveaux, propre » sur 43 % du texte.
+
+Corrigé avant tout diagnostic : conversion `oklch()` **et** `oklab()` → sRGB
+(oklab → LMS → sRGB linéaire → encodage gamma), étalonnée sur deux valeurs
+connues — `oklch(0.707 0.022 261.325)` (gray-400) → `(153,161,175)` pour
+`(156,163,175)` attendus, et `oklab(0.888647 -0.00422654 0.0253462)` →
+`(222,219,200)`, soit **exactement** ce que le navigateur résout lui-même pour
+`text-primary`. Après correction, `#capabilities` passe de 5 à **7 niveaux**.
+
+### Constats d'audit
+
+Audit complet dans `docs/ui-loop/AUDIT-2026-09-12-cycle-021.md`. Résumé :
+
+- **A-1 / P0 — les numéros de carte `01`–`04` étaient peints à 3,47:1.**
+  `text-primary/45` compositée sur le fond réel de la carte. Mesuré deux fois
+  par deux chemins indépendants qui tombent à 0,01 l'un de l'autre : calcul sur
+  la couleur compositée (**3,46**) et **lecture des pixels réellement peints**
+  (**3,47** — capture `deviceScaleFactor: 3` de l'élément, luminance du pixel de
+  glyphe le plus clair contre le 5ᵉ centile du fond). La même double mesure donne
+  **11,56 des deux côtés** sur `.card-link` : l'instrument est étalonné. À 12 px
+  le seuil applicable de §6 est **4,5:1** — un numéro de carte n'est pas un grand
+  titre. Défaut présent depuis l'origine du composant.
+
+  **Pourquoi vingt cycles ne l'ont pas vu** : axe-core rend sur cette page
+  **0 violation `color-contrast`** et **494 nœuds `incomplete`**. Le numéro en
+  fait partie, avec le motif exact *« Element's background color could not be
+  determined due to a pseudo element »* (le halo `::before` de la carte). axe n'a
+  jamais déclaré la page conforme, **il a refusé de juger**, sur la quasi-totalité
+  de son texte. Chaque journal depuis le cycle 001 relit « 3 violations, aucune de
+  contraste » comme un feu vert ; ce n'en a jamais été un.
+
+- **A-2 / P1 — dans le footer, l'œil allait d'abord vers la sortie.** Classement
+  de salience, identique aux 4 viewports et dans les 2 langues :
+
+  | rang | élément | corps | contraste | salience (1440 EN) |
+  | --- | --- | --- | --- | --- |
+  | **1** | **« Back to top »** | 12 px | **16,76:1** | **40 151** |
+  | 2 | « Axel Corral » | 15 px | 15,74:1 | 30 122 |
+  | 3 | ligne © | 12 px | 8,27:1 | 22 261 |
+  | 4 | **GitHub** | 13 px | **7,65:1** | 11 730 |
+  | 5 | **Email** | 13 px | **7,65:1** | 9 775 |
+
+  `#f1efdf` faisait du lien de sortie **le texte le plus clair de toute la zone
+  prioritaire** — plus clair que les titres de 86 px (14,26 et 15,74), plus clair
+  que l'ivoire de la marque. Et pas seulement par la teinte : bordure
+  `rgba(225,224,204,.18)` + fond `.06` + rayon 999px, c'est **exactement la
+  pilule de `.contact-links a`**. Sur le dernier écran de la page, le seul objet
+  dessiné comme un bouton était celui qui renvoie le visiteur en haut, pendant que
+  les trois liens de conversion étaient les textes les plus sourds de leur propre
+  bloc. §3 demande précisément si le parcours de conversion est évident une fois
+  arrivé en bas.
+
+- **A-3 / P1 — la zone avait deux définitions typographiques pour un seul rôle.**
+  Trois sections à kicker, même fonction éditoriale :
+
+  | section | corps | interlettrage | couleur | contraste | luminance |
+  | --- | --- | --- | --- | --- | --- |
+  | `#about` | **10 → 12 px** | **0,2em** | **`text-primary` plein** | **13,66:1** | **0,7036** |
+  | `#capabilities` | 11 px | 0,16em | ivoire 58 % | 5,41:1 | 0,2205 |
+  | `#contact` | 11 px | 0,16em | ivoire 58 % | 5,37:1 | 0,2461 |
+
+  Le cycle 018 (`1cb67ee`) a porté « les trois kickers de section » au seuil de
+  contraste — mais ces trois-là étaient `#selected-work`, `#capabilities` et
+  `#contact`. Celui de `#about` n'était pas dans la règle : un jeu d'utilitaires
+  posé en ligne dans le JSX, antérieur à elle. Conséquence mesurable : le kicker
+  de la **première** section de la zone était peint **exactement à la luminance de
+  son propre corps de texte** (0,7036 contre 0,7036) et à 4 % de celle de son
+  titre de 72 px. Pas un niveau sourd : un niveau inexistant, que seule sa taille
+  distinguait du paragraphe.
+
+- **A-4 — observation mesurée, aucun changement.** Le sous-titre de section
+  (16 px, lum 0,3636) et les items de carte (14 px, lum 0,3535) sont séparés par
+  2 px et **0,0101 de luminance** : même famille, même graisse, même casse. Le
+  détecteur de quasi-doublons ne les attrape pas (seuil 1 px) mais l'œil les lit
+  comme une seule voix. Rôles et emplacements distincts : rien à corriger — c'est
+  la raison pour laquelle « 7 niveaux » se lit moins mal que le chiffre ne le
+  laisse craindre. Aucun quasi-doublon strict dans aucune des 4 sections, aux 8
+  combinaisons viewport × langue.
+
+### Changements livrés
+
+- `d6eb2d1` — ui(capabilities): porter le numéro de carte au-dessus du plancher
+  de contraste. `.capability-number` à `rgba(225,224,204,0.58)` — la valeur déjà
+  tranchée deux fois par le projet pour ce cas exact (cycle 002
+  `.language-toggle-btn`, cycle 018 les kickers). Après : **4,94:1 mesurés sur
+  les pixels peints**, et le numéro reste le niveau le plus sourd de la carte —
+  le contraste monte, la hiérarchie ne bouge pas.
+- `0466c87` — ui(footer): rendre au parcours de conversion le poids que portait
+  la sortie. Ordre tonal inversé, structure inchangée : les trois liens passent à
+  pleine ivoire (**15,74:1**), le lien utilitaire descend à 0,58 d'ivoire
+  (**5,41:1**) et quitte la pilule pour l'idiome **texte + flèche** que
+  `.card-link` établit déjà dans la zone. Le repos ayant pris la couleur qui
+  servait de survol, l'affordance des trois liens passe au **soulignement**, au
+  pointeur comme au clavier.
+- `b704c84` — ui(about): ramener le kicker de la zone dans sa règle partagée.
+  Ce qui est supprimé n'est pas le kicker mais **la seconde définition du
+  kicker**. Seule la respiration avant le titre reste propre à `#about`
+  (2,25rem au lieu de 1rem) : valeur de composition pour un titre de 72 px, pas
+  un second système.
+
+### Vérification
+
+- Build : ✅ (`npm run build` vert avant chacun des trois commits ; CSS 94,86 →
+  **94,80 kB**, JS 644,73 → **644,68 kB** — les trois chantiers *retirent* du
+  code). `tsc --noEmit` : ✅ sans sortie.
+- Viewports vérifiés : 390 / 768 / **1024** / 1440 / 1920 × 2 langues ×
+  reduced-motion = **12 combinaisons**. **0 overflow horizontal**, **0 erreur
+  console ou page** sur les 12. Les cinq valeurs calculées (kicker `#about`,
+  kicker `#contact`, numéro de carte, lien de footer, lien de sortie) sont
+  **identiques aux 12 combinaisons** — aucun des trois chantiers ne dépend d'un
+  breakpoint.
+- Langues : FR ✅ EN ✅ (aucun texte ajouté ni modifié ; chaque mesure prise
+  séparément dans les deux langues).
+- reduced-motion : ✅ — runs `1440_en_reduced` et `1440_fr_reduced`, mêmes
+  valeurs, aucune erreur. Aucun des trois chantiers n'introduit d'animation : ce
+  sont des corrections de ton et de casse typographique.
+- Nav clavier : ✅ — parcours **Tab pur** à 1440 EN, 390 FR et 1440 EN sous
+  `reduce` : **11 arrêts dans la zone, tous ≥ 44 × 44 px**, `outline` visible sur
+  les 11, aucun piège. Le soulignement de focus des liens de footer est
+  effectivement peint (`text-decoration-color: rgba(225,224,204,0.55)`,
+  `:focus-visible` confirmé `true`).
+- Cibles tactiles : **11 sur 11 conformes** aux 4 viewports × 2 langues.
+  `.site-footer-top` tient ses 44 px au `min-height` et au padding maintenant que
+  la pilule a disparu — vérifié, pas supposé.
+- axe-core : **3 violations, strictement identiques aux cycles 001 à 020**
+  (`aria-prohibited-attr`, `landmark-unique`, `region`), toutes hors zone. 494
+  `incomplete` avant comme après — voir A-1 : ce chiffre est le vrai état de
+  l'outil, pas un effet de ce cycle.
+- Non-régression : `.about-kicker`, `.capability-number`, `.site-footer-*` ne
+  sont utilisés que par `OnePage.tsx` — vérifié par grep sur tout
+  `src/**/*.tsx`. La règle partagée des kickers a gagné un sélecteur, elle n'a
+  rien perdu : `#selected-work` et `#contact` sont intacts.
+- **Mesures avant/après** :
+
+  | | AVANT | APRÈS |
+  | --- | --- | --- |
+  | contraste du numéro de carte (calcul / pixels peints) | **3,46 / 3,47** | **4,99 / 4,94** |
+  | contraste des 3 liens de conversion du footer | 7,65 | **15,74** |
+  | contraste du lien « retour en haut » | 16,76 | 5,41 |
+  | rang de salience de « retour en haut », 1440 EN | **1 sur 5** | **5 sur 5** |
+  | rang de salience de « retour en haut », 390 FR | **1 sur 5** | **5 sur 5** |
+  | kicker `#about` — corps / interlettrage / contraste | 10-12 px / 0,2em / **13,66** | 11 px / 0,16em / **5,37** |
+  | écart kicker `#about` ↔ kicker `#contact` | 1-2 px, 0,04em, **8,3 points de contraste** | **0 / 0 / 0,00** |
+  | texte de la zone sous 4,5:1 | **4 nœuds** (`01`–`04`) | **0** |
+  | nœuds de texte réellement mesurés dans `#capabilities` | **15 sur 35** | **35 sur 35** |
+
+  Réserve d'honnêteté sur la salience : à 390 FR la ligne de copyright passe
+  désormais au rang 1 (30 217) devant « Axel Corral » (30 122) et devant les
+  liens. C'est un artefact de la métrique, qui pondère par l'aire d'encre : une
+  longue ligne sourde peut dépasser un mot court et clair. À l'œil — captures de
+  galerie à l'appui — Email / GitHub / CV lisent sans ambiguïté comme les
+  éléments les plus clairs du bloc après la marque. La ligne © n'a pas bougé en
+  valeur absolue ; ce sont les autres qui se sont réordonnés autour.
+
+### Reverté
+- Aucun.
+
+### Leçon d'outillage du cycle (la cinquième de la série 017-021)
+- **Un instrument qui ne sait pas lire une valeur ne le dit pas : il rend un
+  résultat plus propre.** Le probe de ce cycle sautait en silence tout nœud dont
+  la couleur n'était pas en `rgb()` — soit, sous Tailwind v4, la majorité de la
+  page — et le symptôme n'était pas une erreur mais **un verdict de hiérarchie
+  plus flatteur que la réalité**. Corollaire opérationnel : avant de croire une
+  mesure, **compter les nœuds mesurés et les comparer au DOM**. 15 sur 35 aurait
+  dû sauter aux yeux avant les chiffres qu'ils portaient.
+- Le même cycle en donne la version externe : **axe-core rend 494 `incomplete`
+  et 0 violation de contraste sur cette page.** Un outil peut refuser de juger
+  sans que son silence ressemble à un refus. « 0 violation » n'est une bonne
+  nouvelle que si l'on a regardé la colonne d'à côté.
+- Rappel des quatre précédentes : 017 « une mesure prise pendant un `transform`
+  ne mesure pas le CSS » — *qui a resservi ce cycle* : la première lecture du
+  soulignement de focus renvoyait `rgba(0,0,0,0)` parce qu'elle tombait au milieu
+  de la transition de 180 ms ; 018 « une capture prise avant un reveal ne mesure
+  pas le rendu » ; 019 « un élément `fixed` dans une capture d'élément haute n'est
+  pas là où le visiteur le voit » ; 020 « les quatre viewports de référence
+  laissent un angle mort entre 1024 et 1440 ».
+
+### État des chantiers structurels
+- Vers l'Élysée : non commencé (iframe vérifiée réalisable cycle 003)
+- Ombrair : non commencé (iframe vérifiée réalisable cycle 003)
+- Analyse vidéo football : non commencé
+- Démos projets existants : 3/3 conformes (inchangé depuis cycle 003)
+
+### Prochain cycle — point de reprise exact
+- La zone n'a plus **aucun texte sous 4,5:1** et plus aucun écart mesuré ouvert
+  sur la hiérarchie, le rythme, les mesures de lecture ou les cibles tactiles.
+- **Premier réflexe du prochain cycle** : relancer
+  `node scripts/ui-hierarchy-probe.mjs` et **vérifier d'abord le nombre de nœuds
+  mesurés par section** (`textNodes`) avant de lire un seul chiffre de contraste.
+  Références de ce cycle : `#about` 352, `#capabilities` **35**, `#contact` 9,
+  `.site-footer` 6. Un chiffre qui baisse sans changement de contenu = un
+  instrument qui a recommencé à sauter des nœuds.
+- **Ouvrir « Vers l'Élysée » (§4.1)** en chantier principal — premier P1 de
+  l'ordre imposé, reporté depuis les cycles 017, 019, 020 et 021 au profit de la
+  zone prioritaire. Lire d'abord les conventions de carte projet dans
+  `OnePage.tsx` (liste `.home-project-*`, `ProjectShowcaseCard`,
+  `ProjectDetailModal`) pour s'y intégrer sans créer un pattern parallèle, puis
+  carte projet + vue détail + démo iframe vers `political-destiny.vercel.app`
+  (en-têtes vérifiés cycle 003 : `200 OK`, aucun `X-Frame-Options` ni
+  `frame-ancestors`). Ton neutre imposé, angle « démarche de modélisation »,
+  titre affiché « Vers l'Élysée » (jamais « political destiny »), pas de lien
+  repo tant que Q2 n'est pas tranchée.
+- Trois notes d'outillage pour ce chantier. (1) Toute nouvelle démo en iframe
+  passe sous le sélecteur de langue escamotable : vérifier que le
+  `pointer-events: none` de l'état escamoté ne mange pas un clic destiné à
+  l'iframe — ça se teste, ça ne se raisonne pas. (2) **Échantillonner la bande
+  1024-1280**, pas seulement 768 et 1440 (leçon du cycle 020). (3) Toute couleur
+  posée en utilitaire Tailwind sur la nouvelle carte sort en `oklch()` : elle est
+  désormais mesurable par le probe, mais **pas** par axe-core.
+
+### Questions bloquantes ouvertes
+- Q1, Q2, Q3, Q4 — voir `docs/ui-loop/QUESTIONS.md` (inchangées). Aucune
+  nouvelle question ce cycle : les trois chantiers sont des corrections appuyées
+  sur des mesures, pas des arbitrages factuels.
+
+---
+
 ## Cycle 020 — 2026-09-12 05:20
 
 **Zone travaillée** : zone prioritaire (§3) uniquement — `#capabilities`
