@@ -24,7 +24,6 @@ export const footballVideoAnalysisSlidesEn: readonly Slide[] = [
     thesis:
       "A research pipeline, published as work in progress — not a finished product.",
     thesisAccent: "work in progress",
-    sub: "Detection, tracking and tactical analysis from football video, built and tested under a hard CPU-only constraint.",
   },
   {
     kind: "step",
@@ -85,7 +84,6 @@ export const footballVideoAnalysisSlidesFr: readonly Slide[] = [
     thesis:
       "Un pipeline de recherche, publié comme un travail en cours — pas un produit fini.",
     thesisAccent: "travail en cours",
-    sub: "Détection, tracking et analyse tactique à partir de vidéo de football, construits et testés sous une contrainte stricte : CPU uniquement.",
   },
   {
     kind: "step",

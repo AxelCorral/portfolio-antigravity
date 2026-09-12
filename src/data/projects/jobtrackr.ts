@@ -9,7 +9,6 @@ export const jobtrackrSlidesEn: readonly Slide[] = [
     label: "Project 02 · Data Pipeline",
     thesis: "The pipeline that runs my own job search.",
     thesisAccent: "my own",
-    sub: "Aggregates job offers, scores them against my CV, and tracks every application.",
     file: "jobtrackr/",
   },
   {
@@ -89,7 +88,6 @@ export const jobtrackrSlidesFr: readonly Slide[] = [
     label: "Projet 02 · Pipeline de données",
     thesis: "Le pipeline qui alimente ma propre recherche d'emploi.",
     thesisAccent: "ma propre",
-    sub: "Agrège les offres d'emploi, les score face à mon CV, et suit chaque candidature.",
     file: "jobtrackr/",
   },
   {
