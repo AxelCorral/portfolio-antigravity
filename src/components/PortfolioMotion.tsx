@@ -137,7 +137,22 @@ export function WordsPullUpMultiStyle({
       className={`inline-flex flex-wrap ${align === "center" ? "justify-center" : "justify-start"}`}
     >
       {words.map(({ word, className }, index) => (
-        <span className={`overflow-hidden pr-[0.25em] ${className ?? ""}`} key={`${word}-${index}`}>
+        // `overflow-visible`, like its twin `WordsPullUp` above — not
+        // `overflow-hidden`. The mask was there to hide a 20px rise inside a
+        // box 71 to 79px tall, where a word displaced by 20px stays three
+        // quarters visible: it never curtained anything. What it did do was cut
+        // the type. These word boxes are flex items, so they are blockified and
+        // `overflow` applies for real, and their height is the line box —
+        // `line-height: 0.98` on `.about-title`, `0.92` on the section headings,
+        // both shorter than the ink they hold (75px roman, *81px* serif italic,
+        // 87px at 86.4px). Measured at 1440 and 390, EN and FR: 31 to 36 clipped
+        // boxes, i.e. every word of both headlines, and a masked/unmasked pixel
+        // diff of 2424px at delta 207/255 landing exactly on the descenders of
+        // *profile*, *shaped*, *by*, *experience*, *pipelines*, *reporting*,
+        // *clarity*. Permanent, not transient — and identical under
+        // `prefers-reduced-motion: reduce`, where no rise ever happens (cycle
+        // 022 audit C-1).
+        <span className={`overflow-visible pr-[0.25em] ${className ?? ""}`} key={`${word}-${index}`}>
           <motion.span
             className="inline-block"
             initial={reduceMotion ? false : { opacity: 0, y: 20 }}
