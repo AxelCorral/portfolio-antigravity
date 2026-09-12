@@ -1093,14 +1093,28 @@ a {
   color: #dedbc8;
 }
 
+/* `width: max-content` keeps the hit area to the label rather than the whole
+   card — but with no ceiling it also let the longest label grow past the card.
+   `.capability-card` is `overflow: hidden`, so from 1024 to 1279px (where the
+   grid switches to 4 columns of 232-296px) the "Retirement Sustainability
+   Model" link was sliced at the card border: 247px of label in a 232px card in
+   FR, cut mid-word, no arrow, no ellipsis — invisible content, not a spacing
+   defect (cycle 020 audit B-1). `max-width: 100%` caps the shrink-to-fit width
+   at the container so the label wraps instead of escaping; the arrow keeps its
+   size because a flex item with an intrinsic width shrinks before a text run. */
 .card-link {
   display: inline-flex;
   min-height: 44px;
   width: max-content;
+  max-width: 100%;
   align-items: center;
   gap: 0.45rem;
   color: #dedbc8;
   font-size: 0.75rem;
+}
+
+.card-link > svg {
+  flex-shrink: 0;
 }
 
 .build-mode {
