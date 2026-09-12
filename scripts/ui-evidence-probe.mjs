@@ -68,6 +68,9 @@ const LANGS = args.langs ? String(args.langs).split(",") : ["en", "fr"];
 // The showcase (worked part of the page) is measured alongside the zone so the
 // "finish gap" of D-Q3 is a difference between two inventories, not a feeling.
 const BLOCKS = [
+  { sel: ".city-nav", key: "nav", role: "reste" },
+  { sel: ".city-content", key: "hero-intro", role: "reste" },
+  { sel: "#profile", key: "hero-profile", role: "reste" },
   { sel: "#selected-work", key: "selected-work", role: "showcase" },
   { sel: "#about", key: "about", role: "zone" },
   { sel: "#capabilities", key: "capabilities", role: "zone" },
@@ -305,7 +308,7 @@ async function main() {
 
         const zoneHrefs = new Set();
         for (const [key, data] of Object.entries(inv)) {
-          if (data.missing || data.role !== "zone") continue;
+          if (data.missing || data.role === "showcase") continue;
           for (const a of data.anchors || []) {
             if (a.kind === "in-page") zoneHrefs.add(a.href);
           }
