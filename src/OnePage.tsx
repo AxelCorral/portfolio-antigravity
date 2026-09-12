@@ -417,7 +417,18 @@ function CapabilityCard({
       // deforming anything it contains.
       initial={reduceMotion ? false : { opacity: 0, y: 16 }}
       animate={inView ? { opacity: 1, y: 0 } : undefined}
-      transition={{ duration: 0.65, delay: staggerStep * 0.15, ease: [0.22, 1, 0.36, 1] }}
+      // 0.45s over 0.08s steps, not 0.65s over 0.15s. The four cards of a row
+      // enter the viewport *together*, so the stagger is not ordering a reading
+      // path — it is making the visitor wait. At 1440 the old numbers left card
+      // `04` starting 450ms after card `01` and finishing 1100ms after it, and
+      // the measurement says what that costs: 27 of the 28 text nodes of the
+      // grid sat under 4.5:1 while already on screen, the `04` number itself at
+      // 1.81:1 for 786ms, its title, four items and link for 566 to 617ms, and
+      // the last node reached full paint 1764ms after the grid entered the
+      // reading band (cycle 022 audit C-3). Cycle 021 raised that same number
+      // from 3.47:1 to 4.94:1 as a P0 — the floor has to hold in motion too, not
+      // only at rest. A 16px translate does not need 650ms.
+      transition={{ duration: 0.45, delay: staggerStep * 0.08, ease: [0.22, 1, 0.36, 1] }}
     >
       <div className="flex items-start justify-between">
         <span className="icon-frame" aria-hidden="true">
