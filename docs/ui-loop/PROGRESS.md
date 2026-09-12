@@ -6,6 +6,193 @@
 
 ---
 
+## Cycle 028 — 2026-09-12 20:10
+
+**Zone travaillée** : hors zone prioritaire (§3, gelée) et hors §4
+(intégralement traité, reconfirmé ce cycle) — hero (`.city-heading`,
+`CinematicOpening.tsx`), navigation des carousels projet (`.pc-nav`,
+`ProjectCarousel.tsx`/`CarouselModal.tsx`), sélecteur de langue
+(`.language-toggle`, `LanguageToggle.tsx`). Outillage : bug Windows corrigé
+dans `scripts/ui-gallery.mjs`.
+**Rotation de questions** : non applicable — ce cycle ferme trois
+violations axe-core déjà chiffrées et localisées au backlog (issues
+d'audits rotation antérieurs, pas d'une rotation A-E nouvelle).
+
+### Note de continuité — §4 revérifié sur le code, pas sur le seul journal
+
+Consigne de run reçue : « ne te fie pas aux cycles passés ». Avant tout
+chantier, revérifié indépendamment que les trois projets §4 sont bien
+intégrés dans le code réel (pas seulement déclarés dans PROGRESS.md) :
+`grep 'id: "0[456]"' src/data/projects.ts` → les trois entrées existent ;
+`grep 'project.id ===' src/OnePage.tsx` → `01`/`02`/`03`/`06` ont leur
+branche carousel dédiée, `04`/`05` tombent dans la branche générique
+`demoLink ? <LiveDemoEmbed>` (lue en détail, `OnePage.tsx` L306-359) — ce
+qui est le comportement voulu pour ces deux projets (démo iframe live, pas
+de carousel). `npm run build` vert avant tout changement. Le §4 est donc
+confirmé intégralement traité pour la troisième fois consécutive (cycles
+026, 027, 028) sur la base du code, pas du journal. Conformément à l'ordre
+de priorité §2 phase 4, aucun P0 réel trouvé (build vert, `tsc --noEmit`
+propre) et §3 reste P2 gelée sans fait nouveau → cycle retombé sur « P2 —
+reste du site ».
+
+### Constats d'audit
+
+- **Trois violations axe-core identiques à chaque run complet depuis le
+  cycle 001** (`aria-prohibited-attr`, `landmark-unique`, `region` —
+  mentionnées comme "3 violations, strictement identiques aux cycles
+  001-0NN" dans une dizaine d'entrées de journal successives, jamais
+  creusées jusqu'à leur cause). Choisi comme chantier de ce cycle parce que
+  chacune était déjà précisément localisée dans `BACKLOG.md` (sélecteur,
+  élément), qu'aucune ne touche la zone prioritaire gelée, et que des
+  violations d'accessibilité mesurées répondent explicitement au garde-fou
+  §6 (« toujours : contraste mesuré », esprit étendu ici aux landmarks/rôles
+  ARIA, eux aussi mesurés par un outil automatisé plutôt que par une
+  préférence).
+  - **`aria-prohibited-attr` sur `.city-heading`** : `<p
+    aria-label={t.hero.cityAria}>` — un `<p>` porte le rôle ARIA implicite
+    « paragraph », qui n'admet pas `aria-label` selon ARIA-in-HTML. Les
+    lignes visibles rendues par `CharacterLines` (découpage caractère par
+    caractère pour l'animation d'entrée) étaient déjà `aria-hidden="true"`
+    chacune — l'intention (fournir le texte réel en une fois à un lecteur
+    d'écran, cacher le découpage visuel) était correcte, seul le support
+    (l'attribut sur un rôle qui ne l'admet pas) était fautif.
+  - **`landmark-unique` sur `.pc-nav`** : cause trouvée en lisant le
+    composant, pas seulement le sélecteur incriminé — `ProjectCarousel`
+    et `CarouselModal` acceptent un prop `label`, mais **aucun des 4 sites
+    d'appel** (`OnePage.tsx`, projets 01/02/03/06) ne le passait ; les 4
+    `<nav aria-label={t.carousel.slideNavigation}>` de la page portaient
+    donc toutes le même nom traduit (« Slide navigation » / « Navigation
+    des slides »), indiscernables en navigation par landmarks.
+  - **`region` sur `.language-toggle`** : le composant est monté comme
+    frère direct de `<Routes>` dans `App.tsx` (`role="group"`), donc hors
+    de tout landmark — alors que c'est structurellement un contrôle de
+    navigation interlangue (le même patron que les liens inter-langues de
+    Wikipédia, qui sont conventionnellement un landmark `nav`).
+
+### Changements livrés
+
+- `db4cc52` — fix(a11y): `.city-heading` — `aria-label` remplacé par un
+  `<span className="sr-only">` portant le même texte. Rendu visuel
+  inchangé (le texte masqué ne l'était déjà pas visuellement avant : c'est
+  un attribut ARIA qui a changé de support, pas un style).
+- `64dde59` — fix(a11y): chaque `ProjectCarousel`/`CarouselModal` reçoit
+  désormais `label={project.title}` (4 sites d'appel dans `OnePage.tsx`),
+  et le `<nav className="pc-nav">` des deux composants construit son
+  `aria-label` à partir de ce label (`"Slide navigation: <titre>"`) au
+  lieu du seul texte générique. Effet secondaire bénéfique : le
+  `role="group"` racine du carousel (déjà `aria-label={label}`) devient
+  lui aussi nommé par projet au lieu du placeholder « Project walkthrough »
+  partagé par les 4 instances.
+- `77904d9` — fix(a11y): `.language-toggle` — `role="group"` →
+  `role="navigation"`. Troisième et dernière passe de retouche autorisée
+  sur cette section (compteur §6, désormais gelée).
+- `0f49a4c` — chore(ui-gallery): correctif d'outillage trouvé en
+  documentant ce chantier. `--sections=viewport:.language-toggle@40`
+  produisait un `:` dans le chemin de sortie
+  (`...--viewport:.language-toggle@40-390-avant.webp`) — NTFS refuse `:`
+  dans un nom de fichier, `toWebp()` échouait silencieusement sur un
+  chemin tronqué et la capture réelle était perdue (fichier 0 octet sans
+  erreur visible dans la sortie du script). `id` passe maintenant par le
+  `slugify()` déjà présent dans le script avant de servir de nom de
+  fichier ; le reste du pipeline (résolution de l'élément, légende
+  Markdown) continue d'utiliser l'`id` brut.
+- `51bedf8` — ui-loop: galerie régénérée pour ce cycle (voir Vérification).
+- `9d775c0` — journalisation : compteur de retouche §6 et `BACKLOG.md` mis
+  à jour (les trois violations cochées terminées avec le détail cause/
+  correctif de chacune).
+
+### Vérification
+
+- Build : ✅ (`npm run build` vert après chaque commit — CSS 96,75 →
+  **96,89 kB**, JS 693,79 → **693,91 kB**, deltas cohérents avec les
+  quelques attributs ajoutés). `tsc --noEmit` : ✅ sans sortie, revérifié
+  après le fix d'outillage `ui-gallery.mjs` également.
+- **axe-core pleine page après scroll complet, 3 combinaisons (script ad
+  hoc supprimé après usage, résultat consigné ici) : 1440 EN, 1440 FR, 390
+  EN → 0 violation dans les trois cas.** C'est la première fois depuis le
+  cycle 001 qu'un run axe-core pleine page revient à 0 — les trois
+  violations historiques ont disparu, aucune nouvelle n'est apparue.
+- Vérifications ciblées (même script) : les 6 `<nav>` de la page (nav
+  principale, 4× `.pc-nav`, `#contact`) portent désormais 6 noms distincts
+  dans les deux langues (ex. EN : « Slide navigation: Football Data
+  Pipeline », « Slide navigation: JobTrackr », « Slide navigation:
+  Retirement Sustainability Model », « Slide navigation: Football Video
+  Analysis » — FR : traductions correctes, y compris pour les titres
+  français des projets 03/06). `.language-toggle` porte `role="navigation"`
+  aux trois combinaisons. `.city-heading` n'a plus d'`aria-label` et son
+  `.sr-only` porte le texte attendu dans les deux langues (« Shaping data
+  with clarity and action. » / « Structurer la donnée avec clarté et
+  impact. »).
+- Galerie régénérée (`node scripts/ui-gallery.mjs --cycle=028
+  --before=9759fa1 --sections=viewport:.language-toggle@40,.pc-nav`) :
+  paires 390/1440 pour le sélecteur de langue et la nav du carousel
+  01, capturées sur worktree détaché à `9759fa1` (avant les 3 commits
+  a11y) contre l'arbre de travail courant. **Les deux paires sont
+  identiques au pixel près** — attendu et vérifié visuellement (lecture
+  des 4 images) : les trois correctifs touchent `aria-label`/`role`/un
+  texte `sr-only`, jamais une règle CSS ni un attribut visuel. C'est une
+  preuve honnête d'absence de régression visuelle, pas un chantier sans
+  preuve — la preuve réelle du chantier est le passage axe-core ci-dessus,
+  pas la capture.
+- Viewports vérifiés : 390 et 1440 (galerie) + 1440/390 dans le passage
+  axe-core. 768/1920 non re-testés séparément (aucun changement
+  dimensionnel dans ce chantier, seulement des attributs ARIA/un rôle/un
+  texte masqué visuellement).
+- Langues : FR ✅ EN ✅ — voir noms de landmarks et texte `sr-only` ci-dessus.
+- reduced-motion : ✅ — aucune animation touchée par ce chantier (3
+  attributs ARIA/rôle, un texte masqué visuellement par une classe
+  utilitaire, pas de transition).
+- Régression détectée : non — build vert, `tsc --noEmit` propre, 0
+  violation axe-core (au lieu de 3), captures avant/après pixel-identiques
+  sur les deux sections concernées, aucun autre sélecteur partagé modifié.
+
+### Reverté
+
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024,
+  reconfirmé par lecture du code ce cycle.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025, reconfirmé de
+  même.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026,
+  reconfirmé de même.
+- **Le §4 de MISSION-UI.md reste intégralement traité, revérifié sur le
+  code réel pour la troisième fois consécutive (cycles 026, 027, 028).**
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Prochain cycle — point de reprise exact
+- **§4 reste clos : ne pas le rouvrir sans fait nouveau.** Relire
+  MISSION-UI.md en entier (§0) puis reprendre l'ordre de priorité §2
+  phase 4 normal : (1) tout P0 réel détecté en phase 1 ; (2) §3 reste P2
+  gelée sauf régression/bug bloquant/violation d'accessibilité mesurée/
+  raccord imposé — ne pas y ouvrir de chantier de sa propre initiative ;
+  (3) « reste du site » (hero, slides projets, nav) — **aucune rotation
+  A-E formelle n'a jamais été conduite explicitement sur le reste du site
+  seul** (les rotations 016-023 portaient sur la zone prioritaire, 027
+  portait sur « le reste du site » mais en mode ad hoc plutôt qu'avec les
+  trois questions écrites de la rotation E). Un candidat naturel : rotation
+  D (crédibilité) ou A (hiérarchie) sur hero + carousels + nav, les deux
+  seules jamais posées par écrit hors zone prioritaire.
+- Candidats P2 déjà chiffrés au backlog, non traités ce cycle (aucun ne
+  touche la zone gelée) : bundle JS 693,91 kB (215 kB gzip, warning Vite
+  « chunk > 500kB », toujours pas de garde-fou chiffré mais à surveiller) ;
+  couverture du probe de contraste maison limitée aux 4 sections de la
+  zone prioritaire (`scripts/lib/probe-color.js`, backlog ligne ~220) ; mode
+  `--freeze-at=<ms>` pour `ui-gallery.mjs` (backlog ligne ~260, toujours pas
+  implémenté).
+- Note d'outillage : `scripts/ui-gallery.mjs` échouait silencieusement sur
+  Windows dès que `--sections=` contenait un `:` (mode `viewport:<id>`) —
+  corrigé ce cycle (commit `0f49a4c`). Si un futur run de la galerie produit
+  des fichiers de 0 octet sans message d'erreur, vérifier d'abord si l'`id`
+  de section contient un caractère interdit sur le système de fichiers
+  courant avant de suspecter Playwright/sharp.
+
+### Questions bloquantes ouvertes
+- Aucune (Q1-Q4 résolues le 2026-09-12, voir `QUESTIONS.md`).
+
+---
+
 ## Cycle 027 — 2026-09-12 19:35
 
 **Zone travaillée** : hors zone prioritaire (§3, gelée sauf régression) et
