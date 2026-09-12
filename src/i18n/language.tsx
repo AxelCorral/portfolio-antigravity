@@ -73,6 +73,7 @@ export const translations = {
       ],
       body:
         "I am currently building my path toward data analysis and data engineering, with experience across business intelligence, Power BI, SQL, Python, reporting automation and open data projects. My work combines technical execution with a practical understanding of business needs, from production dashboards to portfolio projects designed to demonstrate method, rigor and autonomy.",
+      evidenceLabel: "See the field experience",
     },
     contact: {
       kicker: "Contact / next step",
@@ -402,6 +403,7 @@ export const translations = {
       ],
       body:
         "Je construis actuellement mon parcours vers l’analyse de données et la data engineering, avec une expérience en business intelligence, Power BI, SQL, Python, automatisation du reporting et projets open data. Mon travail combine exécution technique et compréhension concrète des besoins métier, des dashboards en production aux projets portfolio conçus pour démontrer méthode, rigueur et autonomie.",
+      evidenceLabel: "Voir l’expérience terrain",
     },
     contact: {
       kicker: "Contact / prochaine étape",

@@ -704,6 +704,28 @@ function OnePage() {
                 />
               ))}
             </p>
+
+            {/* The zone's opening block was the only claim-bearing block of the
+                whole page with nothing to click: 537 characters, 3 assertion
+                blocks, 0 proof links, 0 media, against 8 proof links and 4 media
+                on the showcase above (cycle 023 audit, D-2). Its central claim —
+                "a data profile shaped by field experience" — already has a
+                proof, online and verified: /cv#experience lands correctly and
+                carries the DRT apprenticeship. Nothing new is asserted here;
+                what was missing was the link between a claim and evidence the
+                site already holds. `.card-link` is the zone's established
+                idiom (text + arrow), reused as-is. */}
+            <div className="about-evidence">
+              <Link className="card-link group" to="/cv#experience">
+                {t.about.evidenceLabel}
+                <ArrowRight
+                  className="transition-transform duration-300 group-hover:translate-x-1"
+                  size={16}
+                  strokeWidth={1.7}
+                  aria-hidden="true"
+                />
+              </Link>
+            </div>
           </div>
         </section>
 

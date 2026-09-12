@@ -1075,6 +1075,18 @@ a {
   text-align: left;
 }
 
+/* Evidence anchor of the zone's opening block. It sits in the lede's own
+   measure column and shares its flush-left edge, so the claim and the thing
+   that backs it read as one column rather than as a paragraph with a button
+   underneath. No new token and no new link treatment: `.card-link` already
+   defines this idiom (text + arrow, 44px min-height) three sections lower. */
+.about-evidence {
+  max-width: var(--measure-lede);
+  margin-inline: auto;
+  margin-top: 0.75rem;
+  text-align: left;
+}
+
 .about-title {
   max-width: 60rem;
   margin: 0 auto;
