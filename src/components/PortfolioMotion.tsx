@@ -21,6 +21,29 @@ const pullEase = [0.16, 1, 0.3, 1] as const;
  */
 export const REVEAL_FLOOR_OPACITY = 0.58;
 
+/**
+ * Longest a word cascade may take to hand over its last word, in seconds.
+ *
+ * Both reveals below used to delay word `i` by `i * 0.045s` with no ceiling, so
+ * the duration of a headline was a function of how long its sentence was. The
+ * `#about` title is 26 words: its last words reached full paint 2194ms (1440)
+ * to 2325ms (390) after the block entered the reading band, and spent 365ms to
+ * 622ms *on screen at 1:1* — not dimmed, absent, while already occupying their
+ * place. The `#capabilities` title, 5 words through the same component, the
+ * same easing and the same taste: 1263ms and 56ms. Only the word count differed
+ * (cycle 022 audit C-2).
+ *
+ * With a window, the cascade reads the same on a short headline — 5 words still
+ * step at the full 0.045s — and stops growing on a long one.
+ */
+const CASCADE_WINDOW = 0.45;
+const CASCADE_STEP = 0.045;
+
+/** Per-word delay step for a cascade of `count` words. */
+export function cascadeStep(count: number) {
+  return Math.min(CASCADE_STEP, CASCADE_WINDOW / Math.max(1, count - 1));
+}
+
 export function CharacterLines({ lines }: { lines: string[] }) {
   const reduceMotion = useReducedMotion();
   let characterIndex = 0;
@@ -85,6 +108,7 @@ export function WordsPullUp({
   const inView = useInView(ref, { once: true, margin: "0px 0px 240px 0px" });
   const reduceMotion = useReducedMotion();
   const words = text.split(" ");
+  const step = cascadeStep(words.length);
 
   return (
     <span ref={ref} className="inline-flex flex-wrap">
@@ -94,7 +118,7 @@ export function WordsPullUp({
             className="relative inline-block"
             initial={reduceMotion ? false : { opacity: 0, y: 20 }}
             animate={inView ? { opacity: 1, y: 0 } : undefined}
-            transition={{ duration: 0.55, delay: index * 0.045, ease: pullEase }}
+            transition={{ duration: 0.55, delay: index * step, ease: pullEase }}
           >
             {word}
             {showAsterisk && index === words.length - 1 ? (
@@ -130,6 +154,7 @@ export function WordsPullUpMultiStyle({
   const words = segments.flatMap((segment) =>
     segment.text.split(" ").map((word) => ({ word, className: segment.className })),
   );
+  const step = cascadeStep(words.length);
 
   return (
     <span
@@ -157,7 +182,7 @@ export function WordsPullUpMultiStyle({
             className="inline-block"
             initial={reduceMotion ? false : { opacity: 0, y: 20 }}
             animate={inView ? { opacity: 1, y: 0 } : undefined}
-            transition={{ duration: 0.55, delay: index * 0.045, ease: pullEase }}
+            transition={{ duration: 0.55, delay: index * step, ease: pullEase }}
           >
             {word}
           </motion.span>
