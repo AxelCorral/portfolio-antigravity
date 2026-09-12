@@ -5,6 +5,39 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 022 — 2026-09-12 · L'entree des cartes Capabilities, resserree
+
+> Grille calee a 560 px du haut et figee sans delai : les quatre cartes entrent ensemble, le decalage ne donnait donc aucun ordre de lecture — il laissait la carte 04 sous le plancher de contraste pendant 727 ms.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-022/cascade-cartes-capabilities-390-avant.webp) | ![après 390](shots/cycle-022/cascade-cartes-capabilities-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-022/cascade-cartes-capabilities-1440-avant.webp) | ![après 1440](shots/cycle-022/cascade-cartes-capabilities-1440-apres.webp) |
+
+`3727306` · `493805a` · `abc9949`
+
+## Cycle 022 — 2026-09-12 · La cascade du titre, plafonnee
+
+> Fige 900 ms apres l'entree du bloc : avant, la fin de la phrase n'est pas encore peinte — la duree du titre suivait le nombre de mots (26 mots = 2,2 a 2,4 s).
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-022/cascade-titre-about-390-avant.webp) | ![après 390](shots/cycle-022/cascade-titre-about-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-022/cascade-titre-about-1440-avant.webp) | ![après 1440](shots/cycle-022/cascade-titre-about-1440-apres.webp) |
+
+`3727306` · `493805a` · `abc9949`
+
+## Cycle 022 — 2026-09-12 · Les jambages des titres de la zone, rendus
+
+> Le masque de revelation coupait l'encre de tous les mots des deux titres d'affichage — 2424 pixels de difference a delta 207/255, exactement sous les descendantes du segment serif italique.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-022/jambages-titres-zone-390-avant.webp) | ![après 390](shots/cycle-022/jambages-titres-zone-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-022/jambages-titres-zone-1440-avant.webp) | ![après 1440](shots/cycle-022/jambages-titres-zone-1440-apres.webp) |
+
+`3727306` · `493805a` · `abc9949`
+
 ## Cycle 021 — 2026-09-12 · Le kicker de la zone rentre dans sa regle partagee
 
 > Trois sections, un seul role editorial, deux definitions typographiques : le kicker de #about etait peint exactement a la luminance de son propre corps de texte (13,66:1) quand les deux autres tiennent l'eyebrow a 5,4:1.

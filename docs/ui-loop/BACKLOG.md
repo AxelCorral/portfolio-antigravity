@@ -249,6 +249,43 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   12 combinaisons. Variante `prefers-reduced-motion` : escamotage sans
   translation ni transition — l'évitement est une correction de lisibilité, pas
   une décoration, il ne se désactive donc pas.
+- [ ] **`ui-gallery.mjs` ne sait pas figer une revelation d'une demi-seconde**
+  (cycle 022). Avec `--prescroll=no`, le script appelle `scrollIntoViewIfNeeded()`
+  **avant** de caler la cible a son `@y`, si bien que l'observateur declenche
+  pendant ce premier scroll : le `--settle` demande ne compte pas a partir du
+  debut de l'animation mais d'un instant inconnu, plus tard. Concretement, il a
+  fallu quatre essais (`600`, `180`, `420`, puis `0` ms avec `@560`) pour obtenir
+  une paire AVANT/APRES ou la cascade des cartes est encore visible — les trois
+  premiers montraient deux images identiques, donc une preuve nulle. Piste :
+  un mode `--freeze-at=<ms>` qui arme un `IntersectionObserver` temoin sur la
+  cible, cale la page, **puis** compte le delai a partir du declenchement reel.
+  **P2 — outillage.**
+
+- [ ] **Tout fondu d'entree traverse le bas du plancher de contraste** (rotation C,
+  cycle 022). Le cycle 022 a ramene le pire temps passe sous 4,5:1 par une carte
+  Capabilities de 727 a ~400ms, mais pas a zero, et c'est structurel : une carte
+  qui part de `opacity: 0` passe par tous les contrastes entre 1:1 et son
+  contraste de repos. Le projet a deja la regle qui interdit cela —
+  `REVEAL_FLOOR_OPACITY = 0.58` dans `PortfolioMotion.tsx`, documente « a reveal
+  may dim text, never hide it » — mais elle n'a ete appliquee qu'a
+  `AnimatedLetter`. L'appliquer aux cartes demande d'abord de la recalibrer : 0.58
+  a ete calcule pour `text-primary` (222,219,200) a 16px ; le texte le plus sourd
+  d'une carte est `text-gray-400` a 14px, mesure a 6,17:1 au repos, et il faudrait
+  un plancher d'environ **0.84** pour qu'il tienne 4,5:1 — c'est-a-dire renoncer
+  au fondu et ne garder que la translation. Arbitrage de direction artistique, a
+  trancher avec une mesure de cout par image (`long tasks`) et une capture, pas
+  avec un avis. **P2.**
+
+- [ ] **352 `<span>` animes pour un paragraphe** (rotation C, cycle 022).
+  `AnimatedLetter` decoupe le paragraphe d'`#about` en 352 noeuds, chacun abonne
+  a `scrollYProgress` ; 411 des 634 noeuds de la zone portent un style inline
+  d'animation. Aucun defaut de lisibilite ne s'y rattache — les 325 caracteres
+  qui n'atteignent jamais l'opacite 1 reposent sur le plancher de 0.58, soit
+  5,2:1, au-dessus du seuil. Le coût est donc uniquement un coût de rendu, et il
+  n'a **pas** ete mesure : le probe de mouvement compte les noeuds animes, pas
+  les images longues. A rouvrir avec une mesure `PerformanceObserver` de
+  `longtask` pendant un scroll scripte, pas avec un avis. **P2.**
+
 - [ ] `aria-prohibited-attr` sur `.city-heading` (hero) — attribut ARIA non
   permis, à corriger.
 - [ ] `landmark-unique` — `.pc-nav` du carrousel projet 01 dupliqué sans nom
@@ -272,6 +309,30 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   silencieux.
 
 ## Terminé
+
+- [x] Cycle 022 — Zone prioritaire, rotation C (mouvement), 3 chantiers. Nouvel
+  outil `scripts/ui-motion-probe.mjs` (+ `scripts/lib/probe-color.js`, les
+  helpers couleur du cycle 021 sortis en un seul exemplaire etalonne) : il mesure
+  une animation comme un **intervalle** — `msToFull` (temps jusqu'a la peinture
+  pleine apres entree dans la bande de lecture, echantillonnage a 50ms),
+  `msUnderFloor` (temps passe **a l'ecran** sous 4,5:1), `deepJump` (saut
+  instantane en bas de page) et `clipping` (toute boite `overflow: hidden` dont
+  le contenu ne tient pas dedans). Trois constats, tous chiffres : **le masque de
+  revelation coupait les jambages des deux titres d'affichage de la zone**
+  (`abc9949` — 31 boites en EN, 36 en FR, 2424 pixels de difference a delta
+  207/255, defaut permanent et present a l'identique sous `reduce`) ; **la duree
+  d'un titre etait fonction du nombre de mots de sa phrase** (`493805a` — 26 mots
+  = 2194 a 2449ms, 5 mots = 1263ms, meme composant) ; **la 4e carte de la grille
+  restait sous le plancher de contraste pendant 727ms** alors que le cycle 021
+  avait porte ce meme numero a 4,94:1 au titre d'un P0 (`3727306`). Deux points
+  fermes par la mesure, sans une ligne de code : **aucun contenu invisible si une
+  animation ne se declenche pas** (`deepJump` = 0 noeud aux 16 combinaisons) et
+  **`reduced-motion` totalement propre** (0 noeud sous opacite 1, 0 style inline
+  d'animation). Lecon d'outillage : **deux instruments du meme cycle ne doivent
+  pas avoir deux definitions de « le lecteur le regarde »** — la premiere version
+  du probe comptait comme « a l'ecran » une carte depassant de 20px au bas du
+  pli, et facturait 1532ms de dwell a des noeuds dont la revelation n'avait
+  legitimement jamais demarre.
 
 - [x] Cycle 021 — Zone prioritaire, rotation A (hierarchie), 3 chantiers.
   Nouvel outil `scripts/ui-hierarchy-probe.mjs` : salience du premier ecran,

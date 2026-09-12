@@ -6,6 +6,255 @@
 
 ---
 
+## Cycle 022 — 2026-09-12 09:55
+
+**Zone travaillée** : zone prioritaire (§3) uniquement — `.about-title` et
+`#work-title` (masque de révélation), `#about` (cascade du titre),
+`.work-grid` / `.capability-card` (entrée des cartes). Conformément à la consigne
+de run, les trois chantiers sont dans la zone ; aucun chantier §4/§5 n'a été
+ouvert.
+**Rotation de questions** : **C — Mouvement** (précédentes : D, E, D, A, B, **C**,
+D, E, B, A → **C**). C n'avait pas resservi depuis le cycle 017, soit avant tout
+le travail des cycles 018-021 sur le contraste, le rythme et la hiérarchie de la
+zone : ses trois questions se reposent sur un état entièrement différent.
+
+### Outillage ajouté
+
+`scripts/ui-motion-probe.mjs`, plus `scripts/lib/probe-color.js` — les helpers
+couleur étalonnés au cycle 021 (conversion `oklch()`/`oklab()` → sRGB) sortis en
+**un seul exemplaire**, injecté par `addInitScript`, pour que deux probes ne
+puissent plus diverger sur la valeur d'un pixel.
+
+Le probe traite une animation comme ce qu'elle est — un **intervalle**, pas un
+état — et mesure donc des durées :
+
+- `msToFull` : temps, après l'entrée d'une section dans la bande de lecture,
+  jusqu'à ce qu'un nœud soit peint plein (échantillonnage à 50 ms).
+- `msUnderFloor` : temps passé **à l'écran** sous le plancher de 4,5:1 de §6.
+- `deepJump` : saut instantané en bas de page — le cas où un reveal accroché à un
+  `IntersectionObserver` peut légitimement ne jamais se déclencher.
+- `clipping` : toute boîte `overflow: hidden` de la zone dont le contenu ne tient
+  pas dedans. Un masque de révélation est invisible jusqu'à ce qu'il coupe une
+  lettre.
+
+L'opacité mesurée est l'**opacité effective** (produit de toute la chaîne
+d'ancêtres), et le contraste est recalculé sur la couleur réellement composée à
+cette opacité. Contrôle de couverture fait avant toute lecture de chiffre, comme
+le cycle 021 l'exigeait : `#about` **352**, `#capabilities` **35**, `#contact`
+**9**, `.site-footer` **6** — identiques aux références du cycle 021, aucun nœud
+sauté.
+
+### Ce que la rotation C ferme sans une ligne de code
+
+- **Aucun contenu invisible si une animation ne se déclenche pas.** `deepJump` =
+  **0 nœud** sur les 16 combinaisons (4 viewports × 2 langues × 2 modes de
+  mouvement), avant comme après. C'est la question la plus grave de la rotation,
+  et elle est close par la mesure.
+- **`reduced-motion` est intégralement propre** : 0 nœud sous opacité 1 à
+  n'importe quelle position de scroll, 0 nœud sous 4,5:1, **0 style inline
+  d'animation** (`0/634` contre `411/634` en mode normal). Le runtime ne touche
+  littéralement plus rien.
+- **`#contact` et `.site-footer` n'ont aucune animation d'entrée** (`maxToFull`
+  ≈ 60 ms, le temps d'un échantillon). Ce n'est pas un oubli à combler : §2
+  rotation C demande de supprimer l'animation qui n'apporte rien, pas d'en
+  ajouter. Rien à faire, et c'est écrit ici pour que le prochain cycle ne le
+  « corrige » pas.
+
+### Constats d'audit
+
+Audit complet dans `docs/ui-loop/AUDIT-2026-09-12-cycle-022.md`. Résumé :
+
+- **C-1 / P1 — le masque de révélation coupait les jambages des deux titres
+  d'affichage de la zone.** Les boîtes de mot de `WordsPullUpMultiStyle` sont des
+  items flex, donc blockifiées : `overflow: hidden` s'y applique réellement, et
+  leur hauteur est la boîte de ligne — `line-height: 0.98` sur `.about-title`,
+  **0,92** sur `.home-section-heading h2`, toutes deux plus courtes que l'encre
+  qu'elles portent.
+
+  | titre | corps | boîte de ligne | encre | coupé |
+  | --- | --- | --- | --- | --- |
+  | `.about-title` romain | 72 px | 70,56 | 75 | **4 px** |
+  | `.about-title` **serif italique** | 72 px | 70,56 | **81** | **10 px** |
+  | `#work-title` | 86,4 px | 79,49 | 87 | **8 px** |
+
+  **31 boîtes coupées en EN, 36 en FR**, aux 4 viewports — c'est-à-dire *tous*
+  les mots des deux titres. Vérifié non pas sur la boîte mais sur les **pixels
+  peints** : même capture de l'élément avec le seul `overflow` relevé à
+  `visible`, puis différence pixel à pixel — **2 424 px** sur `.about-title`
+  (delta max **207**/255) et **307 px** sur `#work-title` (delta **219**). Un
+  delta de 207 n'est pas un liseré d'antialiasing, c'est de l'encre pleine, et le
+  diff localise chaque marque exactement sous un jambage : *profile*, *shaped*,
+  *by*, *experience*, *pipelines*, *reporting*, *systems*, *quantitative*,
+  *analysis*, *strong*, *clarity*.
+
+  Trois choses en faisaient un défaut et pas une image d'animation : il est
+  **permanent** (le masque reste après la fin du mouvement) ; il **survivait à
+  `reduced-motion`** (31 boîtes coupées sous `reduce` aussi, où aucune
+  translation n'a jamais lieu — le lecteur qui coupe le mouvement payait tout le
+  prix du masque sans jamais en voir l'effet) ; et **le masque ne masquait rien**
+  (20 px de translation dans une boîte de 71 à 79 px laissent le mot visible aux
+  trois quarts). La zone avait, une fois de plus, **deux définitions d'un même
+  geste** : `WordsPullUp` en `overflow-visible`, son jumeau
+  `WordsPullUpMultiStyle` en `overflow-hidden`.
+
+- **C-2 / P1 — la durée d'un titre était fonction du nombre de mots de sa
+  phrase.** Délai `index × 0,045 s` sans plafond ; le titre d'`#about` fait
+  **26 mots**. Ses derniers mots — la charge utile de la proposition, « with a
+  strong focus on clarity. » — atteignaient la peinture pleine **2 177 à
+  2 449 ms** après l'entrée du bloc dans la bande de lecture, et passaient jusqu'à
+  **247 ms à l'écran à 1,00:1** : pas atténués, absents, alors qu'ils occupaient
+  déjà leur place. Le titre de `#capabilities`, 5 mots dans le même composant
+  avec la même easing : 1 279 ms. Seule la longueur de la phrase changeait le
+  résultat.
+
+- **C-3 / P1 — la quatrième carte restait sous le plancher de contraste 727 ms.**
+  À 1440 la grille fait 4 colonnes : les quatre cartes entrent **ensemble**, le
+  décalage n'ordonne donc aucun parcours de lecture, il fait attendre. Avec
+  0,15 s de décalage et 0,65 s de durée, la carte `04` démarrait 450 ms après la
+  `01` et finissait 1 100 ms après elle. Mesure : **22 des 28 nœuds de texte de
+  la grille sous 4,5:1 pendant qu'ils sont déjà à l'écran**, pire dwell **727 ms**
+  (1440 EN) et **717 ms** (1920 EN), dernier nœud peint plein à **1 801 ms**. Le
+  cycle 021 a porté ce même numéro de carte de 3,47:1 à 4,94:1 au titre d'un
+  **P0** : le plancher de §6 doit tenir en mouvement aussi, pas seulement au
+  repos.
+
+### Changements livrés
+
+- `abc9949` — ui(zone): rendre aux deux titres de la zone leurs jambages.
+  `overflow-hidden` → `overflow-visible` dans `WordsPullUpMultiStyle`, soit la
+  définition de révélation **déjà en place dans le projet** (`WordsPullUp`) au
+  lieu d'en maintenir deux. Après : **0 boîte coupée** aux 16 combinaisons,
+  **0 pixel** de différence masqué/démasqué sur les deux titres, hauteur
+  d'élément inchangée au pixel (1920 × 848 avant et après).
+- `493805a` — ui(zone): plafonner la cascade des titres au lieu de la laisser
+  suivre la phrase. `cascadeStep(count)` borne la fenêtre de cascade à **0,45 s**.
+  Un titre court garde son pas plein de 0,045 s : le hero (« Axel Corral », 2
+  mots) et `#capabilities` (5 mots) sont inchangés au millième.
+- `3727306` — ui(capabilities): tenir le plancher de contraste pendant l'entrée
+  des cartes. 0,45 s de durée et 0,08 s de pas au lieu de 0,65 et 0,15.
+
+### Vérification
+
+- Build : ✅ (`npm run build` vert avant chacun des trois commits). `tsc --noEmit`
+  : ✅ sans sortie. CSS **94,80 kB** inchangé ; JS 644,68 → **644,77 kB** (+90 o :
+  la fonction `cascadeStep` et ses gardes).
+- **Instrument recalibré en cours de cycle, et les mesures refaites en entier.**
+  La première version du probe déclarait « à l'écran » tout nœud tel que
+  `rect.top < innerHeight && rect.bottom > 0`, là où son propre échantillonneur
+  de balayage utilisait la bande de lecture (10 %-90 %). Conséquence : une carte
+  dépassant de 20 px au bas du pli comptait comme lue, alors que son reveal
+  n'avait **légitimement** pas démarré (`margin: "-100px"`), et le probe lui
+  facturait toute la fenêtre de mesure — 1 374 ms à 768 et 1 532 ms à 1 920, sur
+  des nœuds dont le `msToFull` était `null`. Prédicat unifié, puis **AVANT et
+  APRÈS intégralement remesurés** sur les 16 combinaisons, l'état AVANT
+  reconstruit en restaurant les deux fichiers à `fc0e89c` et en rebâtissant.
+  Aucun chiffre de ce journal ne vient de la version fautive.
+- Viewports vérifiés : **390 / 768 / 1440 / 1920** × 2 langues × 2 modes de
+  mouvement = **16 combinaisons** pour le probe de mouvement, 10 pour l'audit de
+  zone. **0 overflow horizontal**, **0 erreur console ou page**.
+- Langues : FR ✅ EN ✅ (aucun texte ajouté ni modifié ; chaque mesure prise
+  séparément dans les deux langues).
+- reduced-motion : ✅ — 8 runs sous `reduce`, 0 nœud sous opacité 1, 0 style
+  inline d'animation, **0 boîte coupée** (contre 31/36 avant : le chantier C-1
+  profite d'abord aux lecteurs qui ont coupé le mouvement).
+- Nav clavier : ✅ — parcours **Tab pur** à 1440 EN, 390 FR et 1440 EN sous
+  `reduce` : **11 arrêts dans la zone, tous ≥ 44 × 44 px, anneau de focus peint
+  et `:focus-visible` confirmé sur les 11**. Identique au cycle 021.
+- axe-core : **3 violations, strictement identiques aux cycles 001 à 021**
+  (`aria-prohibited-attr`, `landmark-unique`, `region`), toutes hors zone.
+- Hiérarchie (non-régression du cycle 021) : niveaux typographiques **4 / 7 / 5 /
+  4** et **0 nœud statique sous 4,5:1**, aux 8 combinaisons — inchangés. Le
+  passage à `overflow-visible` ne déplace ni une ligne ni un ton.
+- **Mesures avant/après** (probe recalibré, `worst` = pire temps passé à l'écran
+  sous 4,5:1 ; `maxToFull` = dernier nœud peint plein) :
+
+  | | AVANT | APRÈS |
+  | --- | --- | --- |
+  | boîtes coupées par un masque (EN / FR, tous viewports) | **31 / 36** | **0 / 0** |
+  | pixels d'encre retirés par le masque (`.about-title` / `#work-title`) | **2 424 / 307** | **0 / 0** |
+  | `.about-title` — nœuds sous 4,5:1 à l'écran (390/768/1440/1920, EN) | 8 / 5 / 0 / 6 | **0 / 0 / 0 / 0** |
+  | `.about-title` — pire dwell sous plancher (EN) | 247 / 184 / 0 / 236 ms | **0 ms partout** |
+  | `.about-title` — dernier mot peint plein (EN) | 2 312 / 2 219 / 2 177 / 2 221 ms | **1 631 / 1 540 / 1 499 / 1 551 ms** |
+  | `.about-title` — dernier mot peint plein (FR) | 2 449 / 2 341 / 2 339 / 2 315 ms | **1 670 / 1 536 / 1 475 / 1 545 ms** |
+  | `.work-grid` — nœuds sous 4,5:1 à l'écran (1440 / 1920, EN) | **22 / 25** | **18 / 21** |
+  | `.work-grid` — pire dwell, numéro de carte `04` (1440 / 1920, EN) | **727 / 717 ms** | **449 / 436 ms** |
+  | `.work-grid` — dernier nœud peint plein (1440 / 1920, EN) | 1 801 / 1 798 ms | **1 480 / 1 438 ms** |
+  | `#capabilities` — pire dwell à 768 (EN / FR) | 386 / 384 ms | **230 / 172 ms** |
+  | `#contact` et `.site-footer` | aucune animation | inchangés |
+  | contenu invisible au saut direct en bas de page | 0 nœud | 0 nœud |
+
+  **Réserve d'honnêteté sur C-3** : le résidu n'est pas nul et il est structurel.
+  Tout fondu qui part de `opacity: 0` traverse forcément tous les contrastes
+  entre 1:1 et son contraste de repos ; 18 nœuds de la grille restent brièvement
+  sous le plancher. Le porter à zéro demanderait un plancher d'opacité d'environ
+  **0,84** sur `text-gray-400` (14 px, 6,17:1 au repos) — c'est-à-dire renoncer au
+  fondu et ne garder que la translation. C'est un arbitrage de direction
+  artistique, pas une correction de mesure : il est consigné au backlog en P2 avec
+  son calcul, pour être tranché par un cycle qui aura aussi la mesure de coût par
+  image.
+
+### Reverté
+- Aucun.
+
+### Leçon d'outillage du cycle (la sixième de la série 017-022)
+- **Deux instruments du même cycle ne doivent pas avoir deux définitions de « le
+  lecteur le regarde ».** Le probe de mouvement embarquait deux prédicats de
+  visibilité — la bande de lecture 10 %-90 % dans l'échantillonneur de balayage,
+  le simple chevauchement dans le chronomètre. Le second facturait 1 532 ms de
+  texte « illisible » à des cartes dont la révélation n'avait pas encore le droit
+  de démarrer. Le symptôme n'était pas une erreur : c'était **un chiffre plus
+  grave que la réalité**, dans le sens opposé au biais du cycle 021 (un chiffre
+  plus flatteur), ce qui montre qu'un instrument mal calibré ne penche pas
+  toujours du même côté. Corollaire opérationnel : quand deux mesures d'un même
+  probe ne concordent pas, c'est d'abord le probe qu'il faut lire, pas la page.
+- Corollaire de recette, appris sur la galerie : `ui-gallery.mjs` appelle
+  `scrollIntoViewIfNeeded()` **avant** de caler la cible, donc le `--settle`
+  demandé ne compte pas à partir du début de l'animation. Quatre essais ont été
+  nécessaires pour obtenir une paire AVANT/APRÈS où la cascade des cartes est
+  encore visible ; les trois premières paires montraient deux images identiques,
+  c'est-à-dire une preuve nulle. Consigné au backlog (mode `--freeze-at`).
+- Rappel des cinq précédentes : 017 « une mesure prise pendant un `transform` ne
+  mesure pas le CSS » ; 018 « une capture prise avant un reveal ne mesure pas le
+  rendu » ; 019 « un élément `fixed` dans une capture d'élément haute n'est pas
+  là où le visiteur le voit » ; 020 « les quatre viewports de référence laissent
+  un angle mort entre 1024 et 1440 » ; 021 « un instrument qui ne sait pas lire
+  une valeur ne le dit pas : il rend un résultat plus propre ».
+
+### État des chantiers structurels
+- Vers l'Élysée : non commencé (iframe vérifiée réalisable cycle 003)
+- Ombrair : non commencé (iframe vérifiée réalisable cycle 003)
+- Analyse vidéo football : non commencé
+- Démos projets existants : 3/3 conformes (inchangé depuis cycle 003)
+
+### Prochain cycle — point de reprise exact
+- **Premier réflexe** : relancer `node scripts/ui-motion-probe.mjs --tag=check` et
+  vérifier **d'abord** le nombre de nœuds mesurés par section (`#about` 352 EN /
+  373 FR, `#capabilities` 35 / 37, `.work-grid` 28, `#contact` 9), puis que
+  `clipping` et `deepJumpDim` valent toujours **0** aux 16 combinaisons. Un
+  `clipping` qui remonte = un masque réintroduit quelque part.
+- **Ouvrir « Vers l'Élysée » (§4.1)** en chantier principal — premier P1 de
+  l'ordre imposé, reporté depuis les cycles 017, 019, 020, 021 et 022 au profit
+  de la zone prioritaire, laquelle n'a plus d'écart mesuré ouvert sur la
+  hiérarchie, le rythme, les mesures de lecture, les cibles tactiles, le
+  contraste **ni le mouvement**. Lire d'abord les conventions de carte projet
+  dans `OnePage.tsx` (liste `.home-project-*`, `ProjectShowcaseCard`,
+  `ProjectDetailModal`) pour s'y intégrer sans créer un pattern parallèle, puis
+  carte projet + vue détail + démo iframe vers `political-destiny.vercel.app`
+  (en-têtes vérifiés cycle 003 : `200 OK`, aucun `X-Frame-Options` ni
+  `frame-ancestors`). Ton neutre imposé, angle « démarche de modélisation »,
+  titre affiché « Vers l'Élysée » (jamais « political destiny »), pas de lien
+  repo tant que Q2 n'est pas tranchée.
+- Si un chantier de zone est encore exigé par la consigne de run, le prochain
+  candidat chiffré est l'arbitrage de plancher d'opacité des cartes (backlog P2,
+  calcul déjà posé), qui demande d'abord une mesure `longtask` par image.
+
+### Questions bloquantes ouvertes
+- Aucune nouvelle. Q1 (URL LinkedIn), Q2 et Q3 (repos GitHub Vers l'Élysée /
+  Ombrair), Q4 (assets du projet vidéo football) restent ouvertes — voir
+  `QUESTIONS.md`. Aucune n'a bloqué ce cycle.
+
+---
+
 ## Cycle 021 — 2026-09-12 07:10
 
 **Zone travaillée** : zone prioritaire (§3) uniquement — `#about` (kicker),
