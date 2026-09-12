@@ -1111,6 +1111,24 @@ a {
   margin-top: auto;
 }
 
+/* Le numero de carte etait `text-primary/45`, soit l'ivoire du projet a 45%
+   d'alpha : compositee sur le fond reel de la carte, la couleur mesure
+   **3,47:1** — verifie deux fois, par calcul sur la couleur compositee et sur
+   les pixels reellement peints (capture x3, glyphe le plus clair contre le 5e
+   centile du fond). A 12px le seuil applicable de MISSION-UI.md §6 est 4,5:1,
+   pas 3:1 : un numero de carte n'est pas un grand titre.
+   axe-core ne l'a jamais signale et ne pouvait pas le signaler — il rend
+   0 violation `color-contrast` et 494 noeuds `incomplete` sur cette page, dont
+   celui-ci, au motif que le halo `::before` de la carte l'empeche de determiner
+   le fond. Vingt cycles ont lu ce zero comme un feu vert.
+   0.58 est la valeur que le projet a deja tranchee deux fois pour exactement ce
+   cas de figure (cycle 002 `.language-toggle-btn`, cycle 018 les kickers de
+   section) : elle donne 4,82:1 ici, et laisse le numero rester le niveau le
+   plus sourd de la carte (items 6,19:1, kicker 5,41:1). */
+.capability-number {
+  color: rgba(225, 224, 204, 0.58);
+}
+
 .icon-frame {
   display: grid;
   width: 2.75rem;

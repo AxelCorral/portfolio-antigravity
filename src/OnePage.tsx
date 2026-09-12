@@ -423,7 +423,7 @@ function CapabilityCard({
         <span className="icon-frame" aria-hidden="true">
           <Icon size={21} strokeWidth={1.6} />
         </span>
-        <span className="text-xs text-primary/45">{capability.number}</span>
+        <span className="capability-number text-xs">{capability.number}</span>
       </div>
 
       <div>
