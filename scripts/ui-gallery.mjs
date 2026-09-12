@@ -349,7 +349,11 @@ async function main() {
   const perSection = [];
   const regeneratedBases = [];
   for (const id of SECTIONS) {
-    const base = SECTIONS.length > 1 ? `${slug}-${id}` : slug;
+    // `id` peut être `viewport:.selecteur@40` — `:`, `.` et `@` sont interdits ou
+    // ambigus dans un nom de fichier Windows (NTFS refuse `:` net). `slugify()`
+    // neutralise ça pour le nom de fichier ; `id` lui-même reste intact pour la
+    // résolution de l'élément (captureState) et la légende Markdown.
+    const base = SECTIONS.length > 1 ? `${slug}-${slugify(id)}` : slug;
     regeneratedBases.push(base);
     const rows = [];
 
