@@ -48,14 +48,13 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
 
 ## P1 — Intégration des nouveaux projets (MISSION-UI.md §4)
 
-- [ ] **Vers l'Élysée** — carte projet + page détail + section démo (iframe
-  live vers `political-destiny.vercel.app` en priorité, format §5.1). Angle :
-  démarche de modélisation, ton neutre (sujet politique). Aucun repo GitHub
-  mentionné dans MISSION-UI.md : à confirmer avant d'ajouter un lien "View
-  repository" (voir QUESTIONS.md). Vérifié cycle 003 : `curl -I
-  https://political-destiny.vercel.app` → `200 OK`, aucun `X-Frame-Options`
-  ni `Content-Security-Policy: frame-ancestors` — iframe live confirmée
-  réalisable (format 1).
+- [x] **Vers l'Élysée** — carte projet + page détail + section démo (iframe
+  live vers `political-destiny.vercel.app`). Livré cycle 024 (commit
+  `6e66d36`) : carte `04` dans `.home-project-*`, case study complet dans
+  `ProjectDetailModal`, démo via le nouveau composant `LiveDemoEmbed`
+  (montage au clic uniquement, poster + repli lien externe). Aucun lien
+  repo (Q2 tranchée). En-têtes revérifiés au cycle 024, toujours `200 OK`
+  sans `X-Frame-Options` ni `frame-ancestors`.
 - [ ] **Ombrair** — carte projet + page détail + section démo (iframe live vers
   `ombrair.vercel.app`, avec mise en avant de l'affichage 3D produit). Angle :
   vitesse d'exécution, pilotage agentique. Statut fictif de l'entreprise à

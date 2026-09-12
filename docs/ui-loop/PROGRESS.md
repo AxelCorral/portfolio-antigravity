@@ -6,6 +6,169 @@
 
 ---
 
+## Cycle 024 — 2026-09-12 18:26
+
+**Zone travaillée** : §4 — intégration de **Vers l'Élysée** (carte, page, démo).
+Aucun chantier de la zone prioritaire (§3, désormais P2) n'a été ouvert,
+conformément à la consigne de run reçue pour cette exécution.
+**Rotation de questions** : non applicable — la rotation A-E porte sur la zone
+prioritaire (§3) ; ce cycle est un chantier §4.
+
+### Note de continuité — reprise d'un travail non journalisé
+
+À l'ouverture du cycle, `git status` montrait 5 fichiers modifiés et 2 fichiers
+non suivis (`src/data/projects.ts`, `src/OnePage.tsx`,
+`src/components/build-mode/ProjectDetailModal.tsx`, `src/i18n/language.tsx`,
+`src/index.css`, `src/components/LiveDemoEmbed.tsx`,
+`public/projects/political-destiny/hero-preview.webp`) — un chantier Vers
+l'Élysée quasi complet mais **jamais committé ni journalisé**, manifestement
+issu d'une session précédente interrompue avant la phase 5/6. Conformément à
+§0 (« un cycle non journalisé est un cycle perdu »), ce travail n'a jamais été
+considéré comme acquis : il a été intégralement relu, vérifié à neuf (voir
+Vérification ci-dessous) plutôt que recommencé, un vrai bug y a été trouvé et
+corrigé, puis committé et journalisé dans ce cycle.
+
+### Constats de vérification (tenant lieu d'audit pour ce chantier)
+
+- Le travail repris respectait déjà les arbitrages tranchés le 2026-09-12
+  (`QUESTIONS.md` Q2) : aucun lien repo, titre affiché « Vers l'Élysée »
+  (jamais « political destiny »), ton neutre sur le contenu éditorial.
+- **En-têtes HTTP revérifiés avant d'aller plus loin** (la note du cycle 023
+  demandait explicitement de ne pas se fier à la vérification du cycle 003) :
+  `curl -I https://political-destiny.vercel.app` → `200 OK`, aucun
+  `X-Frame-Options` ni `Content-Security-Policy: frame-ancestors`. L'iframe
+  live reste réalisable.
+- **P1 trouvé pendant la vérification — contraste de la légende de démo sous
+  le plancher.** axe-core relevait 1 violation `color-contrast` (serious) sur
+  `.demo-embed-caption > span` une fois l'iframe chargée. Cause : la règle
+  générique `.home-project-proof:not(.home-project-proof--carousel) span`
+  (pensée pour l'étiquette d'aperçu du fallback `previewImage`, ligne ~1007
+  d'`index.css`) matchait aussi le span de légende du nouvel embed — un `span`
+  nu suffit — et écrasait sa couleur déclarée (`rgba(225,224,204,0.68)`,
+  7,11:1 calculé) par la sienne (`0.48`, **4,00:1 mesuré** — sous 4,5:1 à
+  10 px). Exactement le cas que §6 phase 6.5 nomme : « le CSS global mord
+  souvent ». Corrigé par exclusion ciblée (`:not(.home-project-proof--embed)`
+  sur la règle générique) plutôt que par `!important` ou une nouvelle guerre
+  de spécificité ; la légende porte en plus sa propre classe
+  (`.demo-embed-caption-text`) pour qu'une collision future soit moins facile.
+- Bug additionnel trouvé et corrigé dans le code repris : `ProjectShowcaseCard`
+  ne lisait que `links?.[0]` et l'étiquetait toujours « View repository ».
+  JobTrackr (projet `02`), dont le premier lien est sa démo, affichait donc un
+  bouton « View repository » pointant en réalité vers
+  `jobtrackr-lake.vercel.app`, et son vrai lien GitHub n'était jamais montré —
+  un défaut préexistant à ce cycle, révélé par la nécessité de distinguer
+  `repoLink`/`demoLink` pour Vers l'Élysée (qui n'a que l'un des deux).
+  Vérifié par capture : les deux boutons s'affichent maintenant correctement
+  sur `#project-02`, avant/après aucune régression sur `#project-01`/`03`.
+
+### Changements livrés
+
+- `6e66d36` — ui(projects): intégrer Vers l'Élysée — carte, page et démo live.
+  Un seul commit couvrant les trois livrables (le détail du chantier repris
+  ne se découpait pas proprement en tranches indépendamment buildables — voir
+  le message de commit pour le détail complet) :
+  - **Carte** : entrée `id: "04"` dans `src/data/projects.ts` (EN+FR complet),
+    rendue par le même `ProjectShowcaseCard`/`.home-project-*` que les trois
+    projets existants — aucun composant parallèle.
+  - **Page** : case study 4 sections (contexte, pipeline, preuve, ce que ça
+    démontre) exploitée par `ProjectDetailModal` sans modification de sa
+    structure, seulement l'ajout du masquage conditionnel de la ligne
+    « source folder » quand `sourcePath` est absent (nouveau champ optionnel).
+  - **Démo** : nouveau composant `LiveDemoEmbed` — iframe montée au clic
+    uniquement (jamais au chargement, budget LCP/CLS préservé), poster
+    (`hero-preview.webp`, capturé pour ce chantier) + légende avec repli
+    « ouvrir dans un nouvel onglet » si l'iframe ne charge jamais.
+  - Le fix `repoLink`/`demoLink` et le fix de contraste ci-dessus.
+
+### Vérification
+
+- Build : ✅ (`npm run build` vert après le fix de contraste — CSS 96,60 →
+  **96,75 kB**, JS **658,53 kB**). `tsc --noEmit` : ✅ sans sortie.
+- axe-core sur `#project-04` avec l'iframe chargée : **0 violation** après le
+  fix (1 `color-contrast` serious avant). axe-core pleine page après scroll
+  complet : **3 violations, strictement identiques aux cycles 001-023**
+  (`aria-prohibited-attr`, `landmark-unique`, `region`), aucune nouvelle.
+- Viewports vérifiés : **390 / 768 / 1024 / 1920** (overflow horizontal +
+  taille du bouton de lancement) et **390/1440** en détail (captures,
+  clic clavier/souris). **0 overflow horizontal**, bouton de lancement
+  **190 × 44 px** aux 4 largeurs.
+- Langues : FR ✅ EN ✅ — carte, case study, légende de démo et libellés de
+  lien capturés et lus dans les deux langues, aucun texte orphelin.
+- reduced-motion : ✅ — 0 erreur, l'embed n'anime rien (montage au clic est un
+  changement d'état, pas une transition).
+- Nav clavier : ✅ — bouton de lancement focusable, anneau `:focus-visible`
+  peint, activation au clavier (`Enter`) monte bien l'iframe ; le lien
+  « ouvrir dans un nouvel onglet » de la légende est atteignable au tabulateur.
+- Régression détectée : non, après le fix repoLink/demoLink — vérifié par
+  capture sur `#project-01`/`#project-02`/`#project-03` qu'aucun lien
+  n'a disparu ou changé d'étiquette par erreur (le seul changement visible est
+  la correction sur `#project-02`, décrite ci-dessus).
+
+### Reverté
+
+- Aucun.
+
+### Leçon d'outillage du cycle (la huitième de la série 017-024)
+- **Un travail repris sans son auteur d'origine ne doit jamais être committé
+  sur la seule confiance qu'il "a l'air fini".** Le code trouvé au démarrage
+  du cycle était visuellement complet et bien écrit, mais n'avait jamais
+  traversé la phase 6 : le rejouer intégralement (axe-core, contraste mesuré,
+  clavier, 4 viewports, régression sur les projets existants) a trouvé un vrai
+  P1 (contraste sous plancher) et un vrai bug préexistant sur un projet
+  distinct (JobTrackr). Corollaire : un `git status` sale en ouverture de
+  cycle n'est pas une anomalie à ignorer ni un chantier à écraser — c'est un
+  travail en attente de vérification, à traiter avec la même rigueur qu'un
+  travail qu'on vient d'écrire soi-même.
+- Rappel des sept précédentes : 017 « une mesure prise pendant un `transform`
+  ne mesure pas le CSS » ; 018 « une capture prise avant un reveal ne mesure
+  pas le rendu » ; 019 « un élément `fixed` dans une capture d'élément haute
+  n'est pas là où le visiteur le voit » ; 020 « les quatre viewports de
+  référence laissent un angle mort entre 1024 et 1440 » ; 021 « un instrument
+  qui ne sait pas lire une valeur ne le dit pas : il rend un résultat plus
+  propre » ; 022 « deux instruments du même cycle ne doivent pas avoir deux
+  définitions de "le lecteur le regarde" » ; 023 « un chantier dont la preuve
+  est un comportement ne peut pas être documenté par une capture statique ».
+
+### État des chantiers structurels
+- **Vers l'Élysée : terminé** (carte ✅ page ✅ démo ✅) — premier des trois
+  chantiers §4, livré ce cycle.
+- Ombrair : non commencé (iframe vérifiée réalisable cycle 003, en-têtes à
+  revérifier avant implémentation — la leçon de ce cycle s'applique aussi :
+  ne pas se fier à une vérification de cycle 003 sans la rejouer).
+- Analyse vidéo football : non commencé.
+- Démos projets existants : 3/3 conformes, **et un vrai bug corrigé au
+  passage** (libellé de lien JobTrackr, voir ci-dessus).
+
+### Prochain cycle — point de reprise exact
+- **Ouvrir « Ombrair » (§4.2) en chantier unique.** Deuxième des trois
+  chantiers §4, dans l'ordre imposé — ne pas toucher à la zone basse ni à
+  l'analyse vidéo football tant qu'Ombrair n'a pas ses trois livrables.
+  1. Revérifier d'abord les en-têtes : `curl -I https://ombrair.vercel.app`
+     (vérifié `200 OK` sans en-tête bloquant au cycle 003, à rejouer avant
+     d'implémenter — ne pas supposer que l'en-tête n'a pas changé).
+  2. Lire les conventions déjà en place dans `src/data/projects.ts` (entrée
+     `id: "04"`, ce cycle) et `src/OnePage.tsx` (`ProjectShowcaseCard`,
+     `LiveDemoEmbed`) pour intégrer Ombrair au même système — carte `id: "05"`,
+     même composant de démo si l'iframe est réalisable.
+  3. Angle éditorial imposé (§4.2) : vitesse d'exécution et pilotage
+     agentique, caractère fictif de l'entreprise explicite, la 3D comme hook
+     visuel **montré** (poster/capture le mettant en avant), pas seulement
+     décrit. Aucun lien repo (Q3 tranchée).
+  4. Le poster de démo doit être une vraie capture du site déployé (comme
+     `hero-preview.webp` pour Vers l'Élysée) — à produire par capture
+     Playwright du site déployé, jamais une image inventée.
+- Note d'outillage : `.home-project-proof:not(.home-project-proof--carousel)
+  span` (index.css ~ligne 1007) est une règle générique qui matche tout `span`
+  nu descendant d'un `.home-project-proof` autre que carousel/embed. Toute
+  nouvelle variante de `.home-project-proof--*` qui rendrait un `span` avec sa
+  propre couleur devra soit l'exclure dans le `:not()`, soit lui donner une
+  classe dédiée — sinon la collision de ce cycle se reproduit silencieusement.
+
+### Questions bloquantes ouvertes
+- Aucune. Q1-Q4 restent résolues (voir `QUESTIONS.md`).
+
+---
+
 ## Cycle 023 — 2026-09-12 15:10
 
 **Zone travaillée** : zone prioritaire (§3) — `#capabilities` (`.card-link` vers

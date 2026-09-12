@@ -5,6 +5,17 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 024 — 2026-09-12 · Integration de Vers l'Elysee (carte, page, demo live)
+
+> Premier des trois chantiers §4 livre : carte projet, case study complet et demo iframe embarquee vers political-destiny.vercel.app.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | — (section nouvelle, pas d'état antérieur) | ![après 390](shots/cycle-024/integration-de-vers-l-elysee-carte-page-demo-live-390-apres.webp) |
+| **1440** | — (section nouvelle, pas d'état antérieur) | ![après 1440](shots/cycle-024/integration-de-vers-l-elysee-carte-page-demo-live-1440-apres.webp) |
+
+`6e66d36`
+
 ## Cycle 023 — 2026-09-12 · Le chapo d'Analytical profile, relie a sa preuve
 
 > Analytical profile affirmait 537 caracteres sans un seul geste de verification, le seul bloc de toute la page dans ce cas ; l'affirmation d'ouverture pointe desormais vers /cv#experience, deja utilisee par la carte 01 de Capabilities.
