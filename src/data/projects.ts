@@ -1036,6 +1036,193 @@ export const projects: Project[] = [
       },
     },
   },
+  {
+    id: "06",
+    title: "Football Video Analysis",
+    category: "Computer Vision Research",
+    status: "Research in progress",
+    hook: "A detection-and-tracking pipeline for football video, published as work in progress under a CPU-only constraint.",
+    description:
+      "A research pipeline that detects and tracks players from football video (YOLOv8 + ByteTrack), calibrates a homography to project their positions onto real pitch coordinates, and surfaces the result through a 5-page Streamlit interface — run end to end on two real matches, entirely on CPU.",
+    whyItMatters:
+      "It shows Axel can carry a computer-vision research pipeline through real engineering constraints — CPU-only, no GPU — instead of only prototyping under ideal conditions, and can state plainly what is finished, what is being tested, and what does not exist yet.",
+    longDescription:
+      "This pipeline detects and tracks players and the ball across football broadcast footage using YOLOv8 for detection and ByteTrack for frame-to-frame tracking, then calibrates a per-sequence homography to project those tracked positions onto real-world pitch coordinates. Team clustering, play-phase classification and key-event detection turn the raw tracking data into a structure a coach could read, surfaced through a 5-page Streamlit interface (Home, Segments, Minimap, Player, Teams). The pipeline was run end to end on two real matches — Real Madrid–Dortmund (UEFA Champions League) and Swansea–Man City (Carabao Cup) — under a hard constraint: CPU only, no GPU. A track currently under study aims at persistent player IDs across segment boundaries, re-identifying a player by jersey color, position and role. The project is not public: no repository, no live demo. This section is an introduction to a piece of research in progress, illustrated with reconstructed abstract diagrams rather than real pipeline exports, which are not available yet.",
+    keyTakeaway:
+      "The project is presented for what it is: research in progress, not a finished deliverable — with a CPU-only constraint treated as an engineering condition to design around, not a caveat to excuse the result.",
+    caseStudy: [
+      {
+        eyebrow: "Context / problem",
+        title: "Extracting a coaching-relevant signal from broadcast video, on CPU only.",
+        body:
+          "Turning football broadcast footage into something a coach can act on requires detecting every player reliably, keeping track of who is who across the sequence, and doing it without the GPU budget most video pipelines assume.",
+        points: [
+          "Detection and tracking: YOLOv8 + ByteTrack.",
+          "Hard constraint, assumed by design: CPU only, no GPU.",
+        ],
+      },
+      {
+        eyebrow: "Pipeline / method",
+        title: "From tracked pixels to pitch coordinates to a readable interface.",
+        body:
+          "A homography calibrated per sequence projects tracked player positions from the broadcast camera view onto real-world pitch coordinates. Team clustering, play-phase classification and key-event detection structure that data, surfaced through a 5-page Streamlit interface: Home, Segments, Minimap, Player, Teams.",
+        points: [
+          "Homography calibration projects tracking data onto real pitch coordinates.",
+          "5-page Streamlit interface: Home, Segments, Minimap, Player, Teams.",
+        ],
+      },
+      {
+        eyebrow: "Evidence / result",
+        title: "Run end to end on two real matches, not a synthetic clip.",
+        body:
+          "The pipeline was applied to full broadcast footage from two real matches under the CPU-only constraint throughout — not a curated demo clip. A track under active study extends tracking across segment boundaries, re-identifying a player by jersey color, position and role.",
+        points: [
+          "Applied to Real Madrid–Dortmund (UEFA Champions League) and Swansea–Man City (Carabao Cup).",
+          "Track in progress: persistent player IDs across segments, via jersey color + position + role.",
+        ],
+      },
+      {
+        eyebrow: "What it demonstrates",
+        title: "A research pipeline stated honestly, ambition and constraint both included.",
+        body:
+          "The end goal is to compare a situation extracted from video against thousands of situations from real matches, to infer and visualize the decision it suggests — tactical feedback a coach or player could use. That goal is not yet reached; what is shown here is the pipeline built toward it, under a constraint that will not go away.",
+        points: [
+          "No repository or live demo: this section introduces work in progress, not a finished product.",
+          "Visuals here are reconstructed abstract diagrams, never a broadcast capture or a club/competition logo.",
+        ],
+      },
+    ],
+    technologies: ["YOLOv8", "ByteTrack", "OpenCV", "Streamlit", "Python"],
+    highlights: [
+      "Detection and tracking pipeline: YOLOv8 for detection, ByteTrack for frame-to-frame tracking.",
+      "Homography calibration projects player positions onto real pitch coordinates.",
+      "5-page Streamlit interface: Home, Segments, Minimap, Player, Teams.",
+      "Run end to end on two real matches — Real Madrid–Dortmund (UEFA Champions League), Swansea–Man City (Carabao Cup) — entirely on CPU.",
+      "Research track in progress: persistent player IDs across segments via jersey color, position and role.",
+    ],
+    results: [
+      {
+        label: "Detection & tracking",
+        description:
+          "YOLOv8 detects players and the ball per frame; ByteTrack links detections into continuous tracks across the sequence.",
+      },
+      {
+        label: "Real-world calibration",
+        description:
+          "A per-sequence homography projects tracked positions from the camera view onto real pitch coordinates.",
+      },
+      {
+        label: "Engineering constraint",
+        description:
+          "The full pipeline runs on CPU only, with no GPU — a constraint that shaped every design choice upstream.",
+      },
+      {
+        label: "Applied to real matches",
+        description:
+          "Run end to end on two real matches: Real Madrid–Dortmund (UEFA Champions League) and Swansea–Man City (Carabao Cup).",
+      },
+    ],
+    evidence: [
+      "YOLOv8 + ByteTrack",
+      "Homography-calibrated pitch coordinates",
+      "5-page Streamlit interface",
+      "2 real matches, CPU only",
+    ],
+    translations: {
+      fr: {
+        title: "Analyse vidéo football",
+        category: "Recherche en vision par ordinateur",
+        status: "Recherche en cours",
+        hook:
+          "Un pipeline de détection et de tracking pour la vidéo de football, publié comme un travail en cours sous contrainte CPU uniquement.",
+        description:
+          "Un pipeline de recherche qui détecte et tracke les joueurs à partir de vidéo de football (YOLOv8 + ByteTrack), calibre une homographie pour projeter leurs positions en coordonnées terrain réelles, et restitue le résultat via une interface Streamlit à 5 pages — exécuté de bout en bout sur deux vrais matchs, entièrement en CPU.",
+        whyItMatters:
+          "Cela montre qu'Axel sait porter un pipeline de recherche en vision par ordinateur à travers de vraies contraintes d'ingénierie — CPU uniquement, sans GPU — plutôt que de seulement prototyper en conditions idéales, et sait énoncer clairement ce qui est fini, ce qui est en cours de test, et ce qui n'existe pas encore.",
+        longDescription:
+          "Ce pipeline détecte et tracke les joueurs et le ballon sur des extraits de diffusion de football, avec YOLOv8 pour la détection et ByteTrack pour le suivi image par image, puis calibre une homographie par séquence pour projeter ces positions trackées en coordonnées terrain réelles. Clustering d'équipes, classification des phases de jeu et détection d'événements clés transforment les données brutes de tracking en une structure lisible par un entraîneur, restituée via une interface Streamlit à 5 pages (Accueil, Segments, Minimap, Joueur, Équipes). Le pipeline a été exécuté de bout en bout sur deux vrais matchs — Real Madrid–Dortmund (Ligue des champions UEFA) et Swansea–Man City (Carabao Cup) — sous une contrainte stricte : CPU uniquement, sans GPU. Une piste actuellement à l'étude vise des identifiants de joueurs persistants d'un segment à l'autre, par ré-identification via la couleur de maillot, la position et le rôle. Le projet n'est pas public : aucun dépôt, aucune démo en ligne. Cette section est une introduction à un travail de recherche en cours, illustrée par des schémas abstraits reconstruits plutôt que par des exports réels du pipeline, qui ne sont pas encore disponibles.",
+        keyTakeaway:
+          "Le projet est présenté pour ce qu'il est : une recherche en cours, pas un livrable fini — avec la contrainte CPU uniquement traitée comme une condition d'ingénierie à concevoir, pas comme une excuse pour le résultat.",
+        caseStudy: [
+          {
+            eyebrow: "Contexte / problème",
+            title: "Extraire un signal utile à un entraîneur depuis de la vidéo de diffusion, en CPU uniquement.",
+            body:
+              "Transformer un extrait de diffusion de football en quelque chose d'exploitable par un entraîneur suppose de détecter chaque joueur de façon fiable, de garder la trace de qui est qui sur toute la séquence, et de le faire sans le budget GPU que suppose la plupart des pipelines vidéo.",
+            points: [
+              "Détection et tracking : YOLOv8 + ByteTrack.",
+              "Contrainte stricte, assumée dès la conception : CPU uniquement, sans GPU.",
+            ],
+          },
+          {
+            eyebrow: "Pipeline / méthode",
+            title: "Des pixels trackés aux coordonnées terrain, jusqu'à une interface lisible.",
+            body:
+              "Une homographie calibrée par séquence projette les positions trackées depuis la vue caméra vers des coordonnées terrain réelles. Clustering d'équipes, classification des phases de jeu et détection d'événements clés structurent ces données, restituées via une interface Streamlit à 5 pages : Accueil, Segments, Minimap, Joueur, Équipes.",
+            points: [
+              "La calibration par homographie projette les données de tracking en coordonnées terrain réelles.",
+              "Interface Streamlit à 5 pages : Accueil, Segments, Minimap, Joueur, Équipes.",
+            ],
+          },
+          {
+            eyebrow: "Preuve / résultat",
+            title: "Exécuté de bout en bout sur deux vrais matchs, pas un clip synthétique.",
+            body:
+              "Le pipeline a été appliqué à de véritables extraits de diffusion de deux vrais matchs, sous la contrainte CPU uniquement de bout en bout — pas un clip de démonstration choisi pour l'occasion. Une piste activement étudiée étend le tracking au-delà des segments, par ré-identification via la couleur de maillot, la position et le rôle.",
+            points: [
+              "Appliqué à Real Madrid–Dortmund (Ligue des champions UEFA) et Swansea–Man City (Carabao Cup).",
+              "Piste en cours : identifiants de joueurs persistants entre segments, via couleur de maillot + position + rôle.",
+            ],
+          },
+          {
+            eyebrow: "Ce que ça démontre",
+            title: "Un pipeline de recherche présenté honnêtement, ambition et contrainte comprises.",
+            body:
+              "L'objectif final est de comparer une situation extraite d'une vidéo à des milliers de situations issues de vrais matchs, pour en déduire et visualiser la décision qu'elle suggère — un retour tactique qu'un entraîneur ou un joueur pourrait utiliser. Cet objectif n'est pas encore atteint : ce qui est montré ici est le pipeline construit pour y parvenir, sous une contrainte qui ne disparaîtra pas.",
+            points: [
+              "Aucun dépôt ni démo en ligne : cette section introduit un travail en cours, pas un produit fini.",
+              "Les visuels sont des schémas abstraits reconstruits, jamais une capture de diffusion ni un logo de club ou de compétition.",
+            ],
+          },
+        ],
+        highlights: [
+          "Pipeline de détection et de tracking : YOLOv8 pour la détection, ByteTrack pour le suivi image par image.",
+          "Calibration par homographie projetant les positions des joueurs en coordonnées terrain réelles.",
+          "Interface Streamlit à 5 pages : Accueil, Segments, Minimap, Joueur, Équipes.",
+          "Exécuté de bout en bout sur deux vrais matchs — Real Madrid–Dortmund (Ligue des champions UEFA), Swansea–Man City (Carabao Cup) — entièrement en CPU.",
+          "Piste de recherche en cours : identifiants de joueurs persistants entre segments via couleur de maillot, position et rôle.",
+        ],
+        results: [
+          {
+            label: "Détection & tracking",
+            description:
+              "YOLOv8 détecte joueurs et ballon par frame ; ByteTrack relie les détections en trajectoires continues sur la séquence.",
+          },
+          {
+            label: "Calibration terrain réel",
+            description:
+              "Une homographie par séquence projette les positions trackées depuis la vue caméra en coordonnées terrain réelles.",
+          },
+          {
+            label: "Contrainte d'ingénierie",
+            description:
+              "Le pipeline complet tourne en CPU uniquement, sans GPU — une contrainte qui a façonné chaque choix de conception en amont.",
+          },
+          {
+            label: "Appliqué à de vrais matchs",
+            description:
+              "Exécuté de bout en bout sur deux vrais matchs : Real Madrid–Dortmund (Ligue des champions UEFA) et Swansea–Man City (Carabao Cup).",
+          },
+        ],
+        evidence: [
+          "YOLOv8 + ByteTrack",
+          "Coordonnées terrain calibrées par homographie",
+          "Interface Streamlit à 5 pages",
+          "2 vrais matchs, CPU uniquement",
+        ],
+      },
+    },
+  },
 ];
 
 export const projectSkills = Array.from(

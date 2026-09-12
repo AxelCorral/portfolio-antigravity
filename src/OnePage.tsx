@@ -28,6 +28,10 @@ import {
   retirementAnalysisSlidesEn,
   retirementAnalysisSlidesFr,
 } from "@/data/projects/retirement-analysis";
+import {
+  footballVideoAnalysisSlidesEn,
+  footballVideoAnalysisSlidesFr,
+} from "@/data/projects/video-analysis";
 import { motion, useInView, useReducedMotion, useScroll } from "framer-motion";
 import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 import { BuildMode } from "@/components/BuildMode";
@@ -318,6 +322,13 @@ function ProjectShowcaseCard({
             <ProjectCarousel
               projectId={project.id}
               slides={language === "fr" ? retirementAnalysisSlidesFr : retirementAnalysisSlidesEn}
+            />
+          </div>
+        ) : project.id === "06" ? (
+          <div className="home-project-proof home-project-proof--carousel">
+            <ProjectCarousel
+              projectId={project.id}
+              slides={language === "fr" ? footballVideoAnalysisSlidesFr : footballVideoAnalysisSlidesEn}
             />
           </div>
         ) : demoLink ? (

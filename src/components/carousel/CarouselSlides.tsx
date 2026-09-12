@@ -4,9 +4,12 @@ import { BarsVisual } from "./visuals/BarsVisual";
 import { DemoVisual } from "./visuals/DemoVisual";
 import { FlowVisual } from "./visuals/FlowVisual";
 import { IngestVisual } from "./visuals/IngestVisual";
+import { PitchSchemaVisual } from "./visuals/PitchSchemaVisual";
+import { ReidVisual } from "./visuals/ReidVisual";
 import { SqlVisual } from "./visuals/SqlVisual";
 import { SplitVisual } from "./visuals/SplitVisual";
 import { StagesVisual } from "./visuals/StagesVisual";
+import { TrackingFlowVisual } from "./visuals/TrackingFlowVisual";
 import { TreeVisual } from "./visuals/TreeVisual";
 
 export const VISUALS: Record<VisualKind, ComponentType> = {
@@ -14,9 +17,12 @@ export const VISUALS: Record<VisualKind, ComponentType> = {
   demo: DemoVisual,
   flow: FlowVisual,
   ingest: IngestVisual,
+  pitchSchema: PitchSchemaVisual,
+  reid: ReidVisual,
   sql: SqlVisual,
   split: SplitVisual,
   stages: StagesVisual,
+  trackingFlow: TrackingFlowVisual,
   tree: TreeVisual,
 };
 

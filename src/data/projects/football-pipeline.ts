@@ -6,7 +6,10 @@ export type VisualKind =
   | "bars"
   | "stages"
   | "demo"
-  | "ingest";
+  | "ingest"
+  | "trackingFlow"
+  | "pitchSchema"
+  | "reid";
 
 export interface SlideLink {
   label: string;
