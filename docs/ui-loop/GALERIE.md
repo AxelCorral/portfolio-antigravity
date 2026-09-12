@@ -5,6 +5,28 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 027 — 2026-09-12 · Fleches Previous/Next des carousels projet portees a 44px
+
+> Seul controle bouton pour naviguer un carousel sans le clavier, .pc-arrow mesurait 30x30px sur les 6 carousels projet (01 a 06).
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-027/pc-arrow-size-390-avant.webp) | ![après 390](shots/cycle-027/pc-arrow-size-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-027/pc-arrow-size-1440-avant.webp) | ![après 1440](shots/cycle-027/pc-arrow-size-1440-apres.webp) |
+
+`cba1747`
+
+## Cycle 027 — 2026-09-12 · CTA Contact du header porte a 44px
+
+> Le bouton Contact du nav mesurait 70x36px (min-height fixe a 36px), sous le plancher tactile de 44px sur le controle le plus visible de la page.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-027/nav-contact-cta-390-avant.webp) | ![après 390](shots/cycle-027/nav-contact-cta-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-027/nav-contact-cta-1440-avant.webp) | ![après 1440](shots/cycle-027/nav-contact-cta-1440-apres.webp) |
+
+`cba1747`
+
 ## Cycle 026 — 2026-09-12 · Integration d'Analyse video football (carte, page, demo)
 
 > Troisieme et dernier chantier §4 livre : carte projet, case study en 4 sections et carousel de trois schemas abstraits reconstruits (pipeline, homographie, ré-identification), aucune capture reelle ni lien repo/demo (projet non public).

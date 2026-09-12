@@ -411,7 +411,8 @@ tu passes au chantier suivant.
 Compteur au 2026-09-12 (passes déjà consommées) :
 `#capabilities` **9/3 — gelée** · `#about` **6/3 — gelée** · `footer` **5/3 — gelée** ·
 `zone`/`sections` **5/3 — gelées** · `language-toggle` **2/3** · `#contact` **1/3** ·
-`nav` **1/3**
+`nav` **2/3** (cycle 027 : cibles tactiles `.city-contact`/`.pc-arrow` à 44px) ·
+`carousel-nav` (`.pc-*`, hors zone) **1/3**
 
 Les sections gelées ne rouvrent que par dérogation écrite. Ce plafond existe parce
 que la boucle a produit 26 commits sur la zone basse pendant que les trois projets

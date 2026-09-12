@@ -64,12 +64,18 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   et caractère fictif explicite, ce dernier confirmé par le texte du site
   déployé lui-même (page `/a-propos`). Aucun lien repo (Q3 tranchée).
   En-têtes revérifiés au cycle 025, toujours `200 OK` sans en-tête bloquant.
-- [ ] **Analyse vidéo football (introduction)** — section d'introduction
-  uniquement, sans lien code/démo live (projet non public). Démo en format 2
-  (vidéo/capture animée) ou 3 (carrousel), à produire à partir de rendus du
-  pipeline (minimap, heatmaps) — jamais de captures TV ni logos de club/compét.
-  Média à produire ou besoin à consigner dans QUESTIONS.md si aucun asset
-  n'est disponible dans le repo.
+- [x] **Analyse vidéo football (introduction)** — section d'introduction
+  uniquement, sans lien code/démo live (projet non public). Livré cycle 026
+  (commit `7119fcf`) : carte `06` dans `.home-project-*`, case study 4
+  sections, carousel dédié à 7 slides avec 3 composants de schémas abstraits
+  reconstruits (flux du pipeline, calibration terrain, piste de
+  ré-identification). Emplacement documenté (commentaire « RESERVED SLOT »
+  dans `src/data/projects/video-analysis.ts`) pour brancher les vrais exports
+  du pipeline plus tard. **Le §4 de MISSION-UI.md est intégralement traité**
+  (Vers l'Élysée cycle 024, Ombrair cycle 025, Analyse vidéo football cycle
+  026) — cette case n'avait pas été cochée au moment du cycle 026 ; corrigé
+  cycle 027 en revérifiant le code réel (`src/data/projects.ts` id `06`,
+  branchement `OnePage.tsx`) plutôt qu'en faisant confiance au seul journal.
 
 ## P1 — Démos des projets existants (MISSION-UI.md §5)
 
@@ -298,20 +304,35 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   Pas urgent (pas de garde-fou performance chiffré dans la mission), mais à
   garder à l'œil si de nouvelles démos iframe/vidéo alourdissent encore le
   bundle initial.
-- [ ] **`scripts/ui-audit.mjs` semble se bloquer sur un run complet** :
-  observé cycle 015, le run s'est arrêté sans erreur ni progression pendant
-  14+ minutes au milieu du scroll progressif du viewport `desktop-1920_en`
-  (dernier fichier écrit : `scroll-01-y400.png`), alors qu'un script minimal
-  équivalent (1440 + 390, FR/EN, scroll + captures ciblées) s'exécute en
-  moins de 2 minutes sans problème. Cause non identifiée (candidats :
-  `page.screenshot({fullPage:true})` qui attend un événement réseau/police
-  qui ne se résout jamais sur ce viewport précis, ou le scan axe-core qui
-  bloque). À investiguer avant de compter dessus pour un audit complet —
-  ajouter un timeout explicite par étape pour fail-fast plutôt qu'un blocage
-  silencieux.
+- [x] **`scripts/ui-audit.mjs` se bloquait/crashait sur un run complet**.
+  Observé cycle 015 (blocage silencieux 14+ min) puis cycle 027 (`Target
+  crashed` Chromium, reproductible à deux reprises à des points différents du
+  run). Cause identifiée cycle 027 : un seul `browser` Chromium partagé
+  accumulait de la mémoire sur ~10 sessions de captures intensives (scroll
+  pleine page, GSAP) et finissait par crasher, perdant tout run non terminé
+  faute de sortie incrémentale. Corrigé cycle 027 (commit `e6f49c2`) : un
+  navigateur frais par capture, écriture incrémentale de `report.json`, et
+  tolérance à l'échec d'une seule combinaison (log + continue) au lieu
+  d'interrompre tout le run. Un run complet (8 combinaisons + 2 passes
+  reduced-motion) termine désormais sans perte de données même si une
+  capture individuelle échoue encore occasionnellement.
 
 ## Terminé
 
+- [x] Cycle 027 — Le §4 étant intégralement traité (cycles 024-026, revérifié
+  par le code plutôt que le seul journal), audit rotation E (mobile-first) sur
+  le reste du site (hors zone prioritaire, gelée en §3). Deux cibles tactiles
+  mesurées sous 44px : le CTA « Contact » du header (`.city-contact`,
+  70×36px, `min-height` fixe à 36px) et les flèches Previous/Next des 6
+  carousels projet (`.pc-arrow`, 30×30px, seul contrôle bouton pour naviguer
+  sans clavier). Corrigé commit `cba1747` : les deux portées à 44px, style
+  visuel inchangé. `.pc-dot` (points de pagination, 4-18px) délibérément non
+  touché : chaque point a un aria-label nommant sa diapositive, et une
+  alternative de même fonction (flèches + clavier, vérifié cycle 026) existe
+  déjà — l'exception de contrôle équivalent de WCAG 2.5.8 s'applique ; forcer
+  44px sur une rangée dense de 7-8 points aurait exigé une refonte du nav de
+  carousel. Outillage : `scripts/ui-audit.mjs` durci contre les crashs
+  Chromium (voir P2 ci-dessus, commit `e6f49c2`).
 - [x] Cycle 022 — Zone prioritaire, rotation C (mouvement), 3 chantiers. Nouvel
   outil `scripts/ui-motion-probe.mjs` (+ `scripts/lib/probe-color.js`, les
   helpers couleur du cycle 021 sortis en un seul exemplaire etalonne) : il mesure
