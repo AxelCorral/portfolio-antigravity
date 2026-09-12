@@ -826,6 +826,216 @@ export const projects: Project[] = [
       },
     },
   },
+  {
+    id: "05",
+    title: "Ombrair",
+    category: "Rapid Product Delivery",
+    status: "Deployed project",
+    hook: "A fictitious smart-shutter company, built end to end in a few days with Claude Code.",
+    description:
+      "A fictitious smart-home company created for a university venture-creation exercise: a full product site around sensors, motorized shutters and windows that anticipate heatwaves, with a 3D product viewer, per-product pricing and a quote-request flow — built almost entirely with Claude Code.",
+    whyItMatters:
+      "It shows Axel can direct an AI coding agent to ship a complete, coherent product site — catalog, pricing, an interactive 3D product viewer, a quote flow — in the timeframe of a short academic exercise, not just a single static page.",
+    longDescription:
+      "Ombrair was built for a venture-creation exercise in the Master MIASHS at Université Toulouse Jean Jaurès, framed around heatwaves and thermal comfort at home. The fictitious product is a single automation system sold as three objects — a sensor, motorized shutters and motorized windows — that closes shutters before a room overheats and reopens them once outside air turns cooler. The live site carries a full catalog with per-product pricing, an interactive 3D viewer per product (drag to rotate, scroll or pinch to zoom, an exploded view), a quote-request flow, an app section, a simulator and a resources/FAQ area, deployed on Vercel. The fictional status is stated directly on the site itself, not left ambiguous, and the build was carried out almost end to end with Claude Code.",
+    keyTakeaway:
+      "The signal here is not the product concept: it is the speed and completeness of the execution — a coherent multi-page site with a working 3D product viewer, delivered in the time span of a short academic exercise under agentic direction.",
+    caseStudy: [
+      {
+        eyebrow: "Context / problem",
+        title: "A household problem turned into a venture-creation exercise.",
+        body:
+          "Ombrair answers a simple household pattern: closing shutters before the heat arrives and reopening them once the air outside cools down is already the right habit, but few households do it every day at the right moment. The exercise imagines a product that automates only that one gesture.",
+        points: [
+          "University venture-creation exercise: Master MIASHS, Université Toulouse Jean Jaurès.",
+          "Explicitly fictional: the site states directly that no real sales are associated with it.",
+        ],
+      },
+      {
+        eyebrow: "Pipeline / method",
+        title: "A full product site, built almost end to end with Claude Code.",
+        body:
+          "The three products — sensor, shutter, window — are presented as one system rather than three disconnected pages: a shared catalog, consistent pricing format, and a quote-request flow instead of a checkout cart. Each product page carries an interactive 3D viewer built for the exercise: drag to rotate, scroll or pinch to zoom, and an exploded view of the parts.",
+        points: [
+          "Deployed live: ombrair.vercel.app.",
+          "Interactive 3D viewer on every product page: rotate, zoom, exploded view.",
+          "Built almost end to end with Claude Code.",
+        ],
+      },
+      {
+        eyebrow: "Evidence / result",
+        title: "The 3D viewer is a real interaction, not a static render.",
+        body:
+          "What the demo below shows is the actual deployed site: the same catalog, the same pricing, the same 3D viewer a visitor would use. Nothing here is a mockup standing in for the product.",
+        points: [
+          "Three products presented as one coherent system: sensor, shutter, window.",
+          "The 3D viewer responds to drag, scroll and pinch live in the embed below.",
+        ],
+      },
+      {
+        eyebrow: "What it demonstrates",
+        title: "Execution speed and agentic direction, with no ambiguity about what's real.",
+        body:
+          "The project pairs a fast, complete build with an explicit disclosure of its fictional status — the site itself states there are no real sales — so the speed of execution is the demonstrated skill, not a claim about a real product.",
+        points: [
+          "The fictional status is disclosed on the site itself, not left for a visitor to guess.",
+          "The 3D product view is demonstrated live, not just described in copy.",
+        ],
+      },
+    ],
+    technologies: ["Claude Code", "Vercel"],
+    highlights: [
+      "Fictitious smart-home company built for a university venture-creation exercise (Master MIASHS, Université Toulouse Jean Jaurès).",
+      "Full product site: catalog, per-product pricing, quote-request flow, deployed live on Vercel.",
+      "Interactive 3D product viewer on every product page: drag to rotate, zoom, exploded view.",
+      "Built almost end to end with Claude Code, in the timeframe of a short academic exercise.",
+      "Fictional status stated explicitly on the site: no real sales are associated with it.",
+    ],
+    results: [
+      {
+        label: "Execution speed",
+        description:
+          "A complete multi-page product site was delivered in the timeframe of a short university exercise, directed almost entirely through Claude Code.",
+      },
+      {
+        label: "Product scope",
+        description:
+          "Three products — sensor, shutter, window — presented as one coherent automation system, each with its own page, pricing and 3D viewer.",
+      },
+      {
+        label: "3D as proof, not claim",
+        description:
+          "Each product page includes an interactive 3D viewer (rotate, zoom, exploded view) instead of a static photo or render.",
+      },
+      {
+        label: "Explicit fictional framing",
+        description:
+          "The site states directly that it is a fictitious student project with no real sales, leaving no ambiguity for a visitor.",
+      },
+    ],
+    links: [
+      {
+        label: "Open the live site",
+        url: "https://ombrair.vercel.app",
+        type: "demo",
+      },
+    ],
+    evidence: [
+      "3 products, 1 system",
+      "Interactive 3D viewer",
+      "Built with Claude Code",
+      "Live on Vercel",
+    ],
+    previewImage: "/projects/ombrair/hero-preview.webp",
+    previewAlt: "Interactive 3D viewer on the Ombrair sensor product page",
+    demoCaption:
+      "You're looking at the live site, embedded directly from its Vercel deployment — try the 3D viewer on a product page.",
+    translations: {
+      fr: {
+        title: "Ombrair",
+        category: "Livraison produit rapide",
+        status: "Projet déployé",
+        hook:
+          "Une entreprise fictive de volets connectés, construite de bout en bout en quelques jours avec Claude Code.",
+        description:
+          "Une entreprise fictive de maison connectée créée pour un exercice universitaire de création d'entreprise : un site produit complet autour de capteurs, volets et fenêtres motorisés qui anticipent les canicules, avec un visualiseur 3D par produit, des tarifs et une demande de devis — construit presque entièrement avec Claude Code.",
+        whyItMatters:
+          "Cela montre qu'Axel sait piloter un agent de code IA pour livrer un site produit complet et cohérent — catalogue, tarifs, visualiseur 3D interactif, parcours de devis — dans le temps d'un exercice académique court, pas seulement une simple page statique.",
+        longDescription:
+          "Ombrair a été construit pour un exercice de création d'entreprise du Master MIASHS de l'Université Toulouse Jean Jaurès, sur la problématique des canicules et du confort thermique du logement. Le produit fictif est un système d'automatisation unique vendu comme trois objets — un capteur, des volets motorisés et des fenêtres motorisées — qui ferme les volets avant qu'une pièce ne surchauffe et les rouvre quand l'air extérieur redevient plus frais. Le site en ligne porte un catalogue complet avec un tarif par produit, un visualiseur 3D interactif par produit (glisser pour faire pivoter, molette ou pincement pour zoomer, vue éclatée), une demande de devis, une section application, un simulateur et un espace ressources/FAQ, déployé sur Vercel. Le caractère fictif est énoncé directement sur le site lui-même, sans ambiguïté, et la construction a été menée presque de bout en bout avec Claude Code.",
+        keyTakeaway:
+          "Le signal ici n'est pas le concept produit : c'est la vitesse et la complétude de l'exécution — un site multi-pages cohérent avec un visualiseur 3D fonctionnel, livré dans le temps d'un exercice académique court sous pilotage agentique.",
+        caseStudy: [
+          {
+            eyebrow: "Contexte / problème",
+            title: "Un problème domestique transformé en exercice de création d'entreprise.",
+            body:
+              "Ombrair répond à un schéma domestique simple : fermer les volets avant que la chaleur n'arrive et les rouvrir quand l'air extérieur redevient frais est déjà le bon réflexe, mais peu de foyers le font chaque jour au bon moment. L'exercice imagine un produit qui automatise seulement ce geste-là.",
+            points: [
+              "Exercice universitaire de création d'entreprise : Master MIASHS, Université Toulouse Jean Jaurès.",
+              "Explicitement fictif : le site indique directement qu'aucune vente réelle n'y est associée.",
+            ],
+          },
+          {
+            eyebrow: "Pipeline / méthode",
+            title: "Un site produit complet, construit presque de bout en bout avec Claude Code.",
+            body:
+              "Les trois produits — capteur, volet, fenêtre — sont présentés comme un seul système plutôt que trois pages disjointes : un catalogue commun, un format de prix cohérent, et une demande de devis plutôt qu'un panier d'achat. Chaque page produit porte un visualiseur 3D interactif construit pour l'exercice : glisser pour faire pivoter, molette ou pincement pour zoomer, et une vue éclatée des pièces.",
+            points: [
+              "Déployé en ligne : ombrair.vercel.app.",
+              "Visualiseur 3D interactif sur chaque page produit : rotation, zoom, vue éclatée.",
+              "Construit presque de bout en bout avec Claude Code.",
+            ],
+          },
+          {
+            eyebrow: "Preuve / résultat",
+            title: "Le visualiseur 3D est une vraie interaction, pas un rendu statique.",
+            body:
+              "Ce que montre la démo ci-dessous est le site réellement déployé : le même catalogue, les mêmes tarifs, le même visualiseur 3D qu'un visiteur utiliserait. Rien ici n'est une maquette qui tient lieu de produit.",
+            points: [
+              "Trois produits présentés comme un système cohérent : capteur, volet, fenêtre.",
+              "Le visualiseur 3D répond au glisser, à la molette et au pincement en direct dans l'intégration ci-dessous.",
+            ],
+          },
+          {
+            eyebrow: "Ce que ça démontre",
+            title: "Vitesse d'exécution et pilotage agentique, sans ambiguïté sur ce qui est réel.",
+            body:
+              "Le projet associe une construction rapide et complète à une déclaration explicite de son caractère fictif — le site lui-même indique qu'aucune vente réelle n'y est associée — de sorte que la compétence démontrée est la vitesse d'exécution, pas une affirmation sur un produit réel.",
+            points: [
+              "Le caractère fictif est déclaré sur le site lui-même, pas laissé à deviner par le visiteur.",
+              "La vue 3D du produit est démontrée en direct, pas seulement décrite dans le texte.",
+            ],
+          },
+        ],
+        highlights: [
+          "Entreprise fictive de maison connectée construite pour un exercice universitaire de création d'entreprise (Master MIASHS, Université Toulouse Jean Jaurès).",
+          "Site produit complet : catalogue, tarif par produit, demande de devis, déployé en ligne sur Vercel.",
+          "Visualiseur 3D interactif sur chaque page produit : glisser pour pivoter, zoomer, vue éclatée.",
+          "Construit presque de bout en bout avec Claude Code, dans le temps d'un exercice académique court.",
+          "Caractère fictif énoncé explicitement sur le site : aucune vente réelle n'y est associée.",
+        ],
+        results: [
+          {
+            label: "Vitesse d'exécution",
+            description:
+              "Un site produit complet à plusieurs pages a été livré dans le temps d'un exercice universitaire court, piloté presque entièrement via Claude Code.",
+          },
+          {
+            label: "Périmètre produit",
+            description:
+              "Trois produits — capteur, volet, fenêtre — présentés comme un seul système d'automatisation cohérent, chacun avec sa page, son tarif et son visualiseur 3D.",
+          },
+          {
+            label: "La 3D comme preuve, pas comme affirmation",
+            description:
+              "Chaque page produit inclut un visualiseur 3D interactif (rotation, zoom, vue éclatée) plutôt qu'une photo ou un rendu statique.",
+          },
+          {
+            label: "Cadrage fictif explicite",
+            description:
+              "Le site indique directement qu'il s'agit d'un projet étudiant fictif sans vente réelle, sans laisser d'ambiguïté au visiteur.",
+          },
+        ],
+        links: [
+          {
+            label: "Ouvrir le site en ligne",
+            url: "https://ombrair.vercel.app",
+            type: "demo",
+          },
+        ],
+        evidence: [
+          "3 produits, 1 système",
+          "Visualiseur 3D interactif",
+          "Construit avec Claude Code",
+          "En ligne sur Vercel",
+        ],
+        previewAlt: "Visualiseur 3D interactif sur la page du capteur Ombrair",
+        demoCaption:
+          "Vous regardez le site en direct, intégré depuis son déploiement Vercel — essayez le visualiseur 3D sur une page produit.",
+      },
+    },
+  },
 ];
 
 export const projectSkills = Array.from(
