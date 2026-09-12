@@ -5,6 +5,17 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 032 — 2026-09-12 · Modale de détail projet — cible tactile des onglets, mesure de lecture, scroll clavier
+
+> Onglets sous 44px, paragraphe à 81 caract/ligne et zone scrollable non focusable au clavier, mesures jamais faites sur ce composant.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-032/modale-de-detail-projet-cible-tactile-des-onglets-mesure-de--390-avant.webp) | ![après 390](shots/cycle-032/modale-de-detail-projet-cible-tactile-des-onglets-mesure-de--390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-032/modale-de-detail-projet-cible-tactile-des-onglets-mesure-de--1440-avant.webp) | ![après 1440](shots/cycle-032/modale-de-detail-projet-cible-tactile-des-onglets-mesure-de--1440-apres.webp) |
+
+`b444223` · `e6305ff`
+
 ## Cycle 031 — 2026-09-13 · Suppression de la page fantôme `/projet/:slug`
 
 > Pas de paire AVANT/APRÈS générée par `scripts/ui-gallery.mjs` : le chantier

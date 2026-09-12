@@ -210,7 +210,16 @@ async function captureState(baseUrl) {
             out[key] = null;
             continue;
           }
-          await btn.scrollIntoViewIfNeeded();
+          // Les cartes projet sont un empilement `position: sticky` : la carte
+          // suivante glisse par-dessus la précédente dès qu'on scrolle au-delà
+          // de son propre seuil. `scrollIntoViewIfNeeded()` scrolle le minimum
+          // nécessaire et atterrit souvent pile sous la carte suivante déjà
+          // empilée (bouton "visible" pour Playwright mais géométriquement
+          // recouvert). Un `scrollIntoView({block:"start"})` natif cale le haut
+          // de la carte en haut du viewport, avant que la carte suivante n'ait
+          // atteint son propre seuil de recouvrement.
+          await btn.evaluate((el) => el.closest(".home-project-step")?.scrollIntoView({ block: "start" }));
+          await page.waitForTimeout(200);
           await btn.click();
           await page.waitForTimeout(SETTLE);
           const target = page.locator(targetSel).first();
