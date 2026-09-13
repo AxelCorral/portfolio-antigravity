@@ -5,6 +5,23 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 037 — 2026-09-13 · Outillage `/cv` (ui-audit.mjs, ui-evidence-probe.mjs) + CLS diagnostiqué
+
+> Pas de paire AVANT/APRÈS : le chantier de ce cycle est un ajout d'outillage
+> (`--path=<route>` sur `ui-audit.mjs`/`ui-evidence-probe.mjs`, aucun fichier
+> `src/` touché) et un diagnostic, pas une correction visuelle — il n'y a donc
+> aucun état de page à comparer. Preuve mesurable, non une image : premier run
+> complet de `ui-audit.mjs` sur `/cv` (10 combinaisons) → 0 overflow, 0
+> violation axe-core, 0 erreur console, et une anomalie de CLS isolée et
+> confirmée reproductible (tablet-768 + FR : **0.1603**, contre ≤ 0.012 sur les
+> neuf autres combinaisons), tracée à un reflow de police web à froid via un
+> test cache-chaud (`page.reload()` → CLS 0). Correctif non livré ce cycle
+> (touche le chargement de police de tout le site, bloqué en pratique sur
+> `QUESTIONS.md` Q5) — voir `docs/ui-loop/AUDIT-2026-09-13-cycle-037.md` et
+> `BACKLOG.md` pour la reproduction complète.
+
+`a11a1dd`
+
 ## Cycle 036 — 2026-09-13 · Le lien /cv "View case study" ouvre enfin une etude de cas
 
 > Le lien promettait une etude de cas et se contentait de faire defiler jusqu'a la carte resume ; il ouvre desormais la modale de cas, comme le bouton homepage de meme libelle.
