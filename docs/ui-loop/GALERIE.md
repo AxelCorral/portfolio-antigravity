@@ -5,6 +5,17 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 039 — 2026-09-13 · Contraste du kicker 'Why it matters' des cartes projet (4.24:1 -> 5.4:1)
+
+> Balayage de contraste pleine page (nouvel outil ui-contrast-sweep.mjs) : le kicker etait sous 4.5:1 depuis l'origine du bloc, invisible a axe-core (meme angle mort que les cycles 002/018/033/034).
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-039/contraste-du-kicker-why-it-matters-des-cartes-projet-4-24-1--390-avant.webp) | ![après 390](shots/cycle-039/contraste-du-kicker-why-it-matters-des-cartes-projet-4-24-1--390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-039/contraste-du-kicker-why-it-matters-des-cartes-projet-4-24-1--1440-avant.webp) | ![après 1440](shots/cycle-039/contraste-du-kicker-why-it-matters-des-cartes-projet-4-24-1--1440-apres.webp) |
+
+`eaa8dff` · `e4cc8de`
+
 ## Cycle 038 — 2026-09-13 · Rythme vertical Education/Languages sur /cv (mobile)
 
 > Le gap vertical entre Education et Languages doublait (104px) le double margin-bottom + grid-gap au lieu du rythme de 56px du reste de la page, en dessous de 768px.
