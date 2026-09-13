@@ -27,7 +27,11 @@
  *                      `openmodal:<boutonSelecteur>|<cibleSelecteur>` pour un
  *                      chantier vivant dans une modale ouverte par un
  *                      `<button>` (pas un lien) : clique le bouton, attend
- *                      `--settle`, capture la cible.
+ *                      `--settle`, capture la cible. Ou
+ *                      `hover:<selecteurSurvol>[|<selecteurCapture>]` pour un
+ *                      chantier qui ne se voit qu'au survol (survol réel via
+ *                      Playwright, capture le second sélecteur si fourni,
+ *                      sinon le premier).
  *   --label="..."      intitulé du chantier (défaut : dérivé du sujet du dernier commit)
  *   --why="..."        légende d'une ligne (obligatoire)
  *   --slug=...         nom de fichier (défaut : dérivé du label)
@@ -262,6 +266,35 @@ async function captureState(baseUrl) {
             last = y;
           }
           out[key] = await page.screenshot();
+          continue;
+        }
+
+        // "hover:<hoverSelector>[|<captureSelector>]" rejoue un survol réel
+        // (`.hover()` de Playwright, pas de CDP : le vrai pseudo-état suffit
+        // pour une capture, contrairement au balayage de contraste qui doit
+        // forcer l'état sur des dizaines d'éléments sans reconstituer un vrai
+        // curseur). Nécessaire pour tout chantier dont le défaut ou le
+        // correctif ne se voit qu'au survol — un `:hover` est par nature
+        // invisible sur une capture au repos. `captureSelector` cadre plus
+        // large que l'élément survolé quand le contexte (ex. le reste de la
+        // barre de nav) fait partie de la preuve ; par défaut, identique au
+        // premier.
+        if (id.startsWith("hover:")) {
+          const [hoverSel, captureSel] = id.slice("hover:".length).split("|");
+          const target = page.locator(hoverSel).first();
+          if ((await target.count()) === 0) {
+            out[key] = null;
+            continue;
+          }
+          await target.scrollIntoViewIfNeeded();
+          await target.hover();
+          await page.waitForTimeout(SETTLE);
+          const shotLocator = captureSel ? page.locator(captureSel).first() : target;
+          try {
+            out[key] = await shotLocator.screenshot();
+          } catch {
+            out[key] = null;
+          }
           continue;
         }
 
