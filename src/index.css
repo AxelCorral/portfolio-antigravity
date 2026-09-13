@@ -4440,6 +4440,10 @@ a {
   margin-bottom: 3.5rem;
 }
 
+.cv-two-col > .cv-section {
+  margin-bottom: 0;
+}
+
 .cv-education,
 .cv-languages {
   display: grid;
