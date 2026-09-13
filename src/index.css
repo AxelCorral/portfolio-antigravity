@@ -2496,6 +2496,13 @@ a {
 
 .project-case-study p,
 .project-key-takeaway p {
+  /* Sibling of `.project-overview-grid > div > p` (the lede just above this
+     block, already capped cycle 032), but this rule never got the same
+     measure: at 1440/1920 both languages measured 99-108 characters per
+     line, 33-44% over the 75-char ceiling MISSION-UI.md §2 rotation B sets
+     (cycle 043 audit) — shared by all 6 project case studies, including the
+     three §4 priority projects. */
+  max-width: var(--measure-lede);
   margin: 0;
   color: #aeb4b7;
   font-size: 0.875rem;
