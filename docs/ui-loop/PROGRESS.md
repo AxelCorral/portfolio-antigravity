@@ -6,6 +6,142 @@
 
 ---
 
+## Cycle 035 — 2026-09-13 04:40
+
+**Zone travaillée** : hors zone prioritaire (§3, gelée sur toutes ses
+sous-sections) et hors §4 (reconfirmé intégralement traité) — page `/cv`
+(`src/pages/CVPage.tsx`, `.cv-kicker` dans `src/index.css`), 2e passe de
+retouche sur cette page (compteur §6 désormais `cv-page` 2/3). Outillage :
+`scripts/ui-hierarchy-probe.mjs` gagne `--path=<route>`.
+**Rotation de questions** : **A — Hiérarchie**, première rotation A-E
+complète posée par écrit sur `/cv` (point de reprise explicite du cycle 034 :
+« candidat naturel : rotation A ou D sur `/cv`, jamais posée par écrit »).
+
+### Note de continuité — §4 revérifié sur le code, pas sur le seul journal
+
+`grep 'id: "0[456]"' src/data/projects.ts` → les trois entrées existent ;
+`grep 'project.id ===' src/OnePage.tsx` → 01/02/03/06 ont leur carousel
+dédié, 04/05 tombent dans la branche générique `demoLink ? <LiveDemoEmbed>`
+(voulu, Q2/Q3 tranchées). `npm run build` vert avant tout changement (679,81
+kB JS / 87,25 kB CSS) et revérifié vert après (679,75 kB / 87,13 kB — delta
+cohérent avec le retrait d'un `<p>` et d'une règle CSS). **Le §4 reste
+intégralement traité, reconfirmé pour la 10e fois consécutive (cycles
+026-035).**
+
+### Constats d'audit
+
+Pas de fichier `AUDIT-*.md` séparé ce cycle (chantier unique, mesuré
+directement via l'outil étendu et une vérification axe-core ad hoc, toutes
+deux consignées ici et dans `BACKLOG.md`). Résumé :
+- **Outillage** : `scripts/ui-hierarchy-probe.mjs` ne savait auditer que la
+  page d'accueil, comme `ui-gallery.mjs` avant le cycle 034. Étendu avec
+  `--path=<route>` (bascule sur un jeu de sélecteurs propre à `/cv` :
+  `.cv-header`, `#experience`, `#projects`, `.cv-two-col`,
+  `.cv-skills-groups`). Premier essai silencieusement faux : Git Bash (MSYS)
+  réécrivait `--path=/cv` en chemin Windows absolu avant que Node ne le
+  voie, donnant `sections: []` sans erreur — `MSYS_NO_PATHCONV=1` corrige,
+  documenté dans `BACKLOG.md` pour tout futur script pris dans le même piège.
+- **P2, corrigé — `.cv-header` répétait le nom deux fois.** Mesuré à 6
+  niveaux typographiques avec un near-duplicate (lieu/disponibilité, faux
+  positif — deux faits réels distincts, pas une duplication de contenu). En
+  creusant visuellement (captures 390/1440), le vrai défaut était ailleurs :
+  un kicker `<p className="cv-kicker">Axel Corral</p>` en petites capitales
+  immédiatement suivi d'un `<h1>` qui redit exactement "Axel Corral" — la
+  toute première chose lue sur la page, lue deux fois. Tous les autres
+  kickers de `/cv` catégorisent le bloc suivant (Experience, Education,
+  Portfolio projects) ; celui-ci ne faisait que répéter le contenu du
+  titre juste en dessous. Test rotation A ("qu'est-ce qui est supprimable
+  sans perte d'information ?") appliqué : rien n'est perdu en le retirant,
+  le `<h1>` porte déjà l'information.
+- Reste de `/cv` passé en revue sous la même rotation, rien retenu : les
+  bullets d'expérience dominent la salience du titre de poste dans
+  `cv-experience` (attendu — c'est le contenu que lit un recruteur, la
+  hiérarchie de contenu prime sur la hiérarchie typographique brute) ;
+  `cv-two-col` (5 niveaux, dont "Top of cohort" en Instrument Serif italique,
+  cohérent avec le traitement déjà appliqué aux autres highlights de la
+  page) et `cv-skills` (3 niveaux) sous ou proches du seuil de 4, sans
+  near-duplicate réel.
+
+### Changements livrés
+
+- `0adcdd1` — chore(ui-hierarchy-probe): `--path=<route>` — audite `/cv`
+  avec son propre jeu de sélecteurs au lieu de ceux de la page d'accueil.
+- `e6ecf21` — fix(cv-page): kicker "Axel Corral" retiré de `.cv-header`
+  (redondant avec le `<h1>` juste en dessous) ; règle CSS `.cv-kicker` et sa
+  référence dans le media query d'impression nettoyées.
+- `93d7bd4` — ui-loop: galerie du cycle régénérée (voir Vérification).
+
+### Vérification
+
+- Build : ✅ avant (JS 679,81 kB / CSS 87,25 kB) et après (JS **679,75 kB** /
+  CSS **87,13 kB** — delta cohérent avec le retrait d'un `<p>` statique et
+  d'une règle CSS à trois déclarations plus une référence de sélecteur).
+  `tsc -b` (inclus) : ✅.
+- axe-core pleine page sur `/cv`, 4 combinaisons (390/1440 × EN/FR), script
+  ad hoc supprimé après usage : **0 violation** avant comme après.
+- Mesure avant/après (sonde étendue ce cycle) : `.cv-header` **6 → 5**
+  niveaux typographiques, aux 8 combinaisons (4 viewports × 2 langues,
+  identique partout — le texte "Axel Corral" du kicker n'était pas
+  localisé, donc aucune variation FR/EN à revérifier séparément au-delà de
+  la confirmation faite).
+- Captures avant/après (390 et 1440, EN) : confirmation visuelle directe —
+  le kicker disparaît proprement, aucun trou ni décalage de la ligne de
+  séparation ou du paragraphe hook qui suit.
+- Viewports vérifiés : 390 et 1440 (galerie + sonde). 768/1920 non
+  re-testés séparément : aucun changement dimensionnel de grille, seul un
+  `<p>` et une règle CSS statique retirés.
+- Langues : FR ✅ EN ✅ (texte du kicker hardcodé "Axel Corral", identique
+  dans les deux langues — aucune traduction à toucher, aucune dépendance).
+- reduced-motion : sans objet — aucune animation touchée.
+- Navigation clavier : sans objet — le kicker retiré n'était pas focusable.
+- Régression détectée : non.
+
+### Reverté
+
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024, reconfirmé
+  pour la 10e fois consécutive.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025, reconfirmé de
+  même.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026,
+  reconfirmé de même.
+- **Le §4 de MISSION-UI.md reste intégralement traité, revérifié sur le code
+  réel pour la 10e fois consécutive (cycles 026-035).**
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Prochain cycle — point de reprise exact
+- Relire MISSION-UI.md en entier (§0) puis reprendre l'ordre de priorité §2
+  phase 4 normal : (1) tout P0 réel détecté en phase 1 ; (2) §3 reste P2
+  gelée sauf régression/bug bloquant/violation d'accessibilité
+  mesurée/raccord imposé ; (3) « reste du site ». `/cv` a désormais consommé
+  2/3 passes (compteur §6) — la 3e et dernière n'est légitime que pour un
+  défaut mesuré neuf, pas pour « je peux faire mieux ». Rotation D
+  (crédibilité) reste la seule des cinq jamais posée par écrit sur `/cv` —
+  candidat naturel si un fait nouveau justifie une 3e passe : le lien "View
+  case study" de `.cv-project-card` pointe vers `/#project-XX` (simple
+  ancre de scroll sur la page d'accueil), jamais vérifié s'il ouvre
+  effectivement la modale de case study ou se contente de faire défiler
+  jusqu'à la carte — à vérifier avant de décider si le libellé promet plus
+  qu'il ne livre.
+- Candidats P2 déjà chiffrés au backlog, non traités ce cycle : bundle JS
+  679,75 kB (226 kB gzip, warning Vite « chunk > 500kB ») ; mode
+  `--freeze-at=<ms>` pour `ui-gallery.mjs` ; mode dédié qui verrouille
+  `scrollY` avant de positionner une cible `viewport:` ; tokens CSS orphelins
+  `--fictif-ink`/`--fictif-border` (`tokens.css`, `index.css`), sans coût ni
+  risque, toujours en place ; couverture du probe de contraste maison
+  (`scripts/lib/probe-color.js`) toujours limitée à des sondes ad hoc
+  ponctuelles plutôt qu'à un balayage systématique de tout le site ;
+  `scripts/ui-audit.mjs` (le run complet, pas `ui-gallery.mjs` ni
+  `ui-hierarchy-probe.mjs`) continue de ne charger que `BASE_URL` — les deux
+  autres outils savent désormais viser `/cv`, celui-là non.
+
+### Questions bloquantes ouvertes
+- Aucune (Q1-Q4 résolues le 2026-09-12, voir `QUESTIONS.md`).
+
+---
+
 ## Cycle 034 — 2026-09-13 03:20
 
 **Zone travaillée** : hors zone prioritaire (§3, gelée sur toutes ses

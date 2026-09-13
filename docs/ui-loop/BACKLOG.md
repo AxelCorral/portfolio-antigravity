@@ -422,6 +422,36 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   avant/après). Ajouté `--path=<route>` (commit `1f71bb3`) : ajoute la route
   à l'URL de base avant toute capture, même forme que les additions
   incrémentales précédentes (`openmodal:`, `--viewports`).
+- [x] **`scripts/ui-hierarchy-probe.mjs` ne savait auditer que la page
+  d'accueil** (cycle 035, même angle mort que `ui-gallery.mjs` au cycle 034 —
+  `/cv` n'avait jamais reçu de rotation A-E complète). Ajouté `--path=<route>`
+  (commit `0adcdd1`) : bascule sur un jeu de sélecteurs propre à `/cv`
+  (`.cv-header`, `#experience`, `#projects`, `.cv-two-col`,
+  `.cv-skills-groups`) au lieu des sections de la page d'accueil. Piège
+  d'outillage rencontré et documenté au passage : sous Git Bash (MSYS) sur
+  Windows, un argument `--path=/cv` est réécrit en chemin Windows absolu
+  (`--path=D:/.../cv`) avant que Node ne le voie — `MSYS_NO_PATHCONV=1` est
+  requis pour tout futur script Node invoqué avec un argument commençant par
+  `/` depuis ce shell.
+- [x] **En-tête de `/cv` répétait le nom deux fois** (cycle 035, rotation A,
+  première rotation complète posée par écrit sur `/cv`). Le probe étendu
+  ci-dessus a mesuré `.cv-header` à 6 niveaux typographiques avec un
+  near-duplicate ; en creusant, le vrai défaut était un kicker `<p>` lisant
+  "Axel Corral" en petites capitales immédiatement au-dessus d'un `<h1>` qui
+  redit exactement la même chose — la toute première chose lue sur la page,
+  lue deux fois. Tous les autres kickers de cette page catégorisent le bloc
+  suivant (Experience, Education, Portfolio projects) ; celui-ci ne faisait
+  que répéter. Corrigé commit `e6ecf21` : paragraphe retiré, règle CSS
+  `.cv-kicker` et sa référence dans le media query d'impression nettoyées
+  (plus aucune référence dans le repo). Niveaux : 6 → 5. axe-core : 0
+  violation avant comme après aux 4 combinaisons 390/1440 × EN/FR. Reste de
+  la page passé en revue sous rotation A dans le même cycle : bullets
+  d'expérience dominant la salience du titre de poste (attendu, c'est le
+  contenu que lit un recruteur, pas un défaut) ; libellés lieu/disponibilité
+  quasi identiques visuellement mais portant deux faits réels distincts (pas
+  de perte d'information à tester, rien à retirer) ; `cv-two-col` et
+  `cv-skills` sous le seuil de 4 niveaux ou proches sans near-duplicate — rien
+  retenu.
 - [ ] **`ui-gallery.mjs` : le mode `viewport:<cible>@<y>` suppose qu'un
   scroll ne change que la position de la cible dans le document** (cycle
   029). Faux pour toute section pilotée par la position de scroll absolue
