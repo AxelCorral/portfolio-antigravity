@@ -6,6 +6,154 @@
 
 ---
 
+## Cycle 037 — 2026-09-13 05:10
+
+**Zone travaillée** : hors zone prioritaire (§3, gelée sur toutes ses
+sous-sections) et hors §4 (reconfirmé intégralement traité) — outillage
+(`scripts/ui-audit.mjs`, `scripts/ui-evidence-probe.mjs`), puis premier audit
+complet de `/cv` avec le pipeline principal. Aucun fichier `src/` modifié ce
+cycle : le chantier est un diagnostic, pas une correction.
+**Rotation de questions** : **D — Crédibilité**, sur `/cv` (point de reprise
+explicite du cycle 036 : « le reste de la page (expérience, éducation,
+compétences) n'a jamais reçu cette rotation dans son ensemble »).
+
+### Note de continuité — §4 revérifié sur le code, pas sur le seul journal
+
+`grep 'id: "0[456]"' src/data/projects.ts` → les trois entrées existent ;
+`grep 'project.id ===' src/OnePage.tsx` → 01/02/03/06 ont leur carousel
+dédié, 04/05 tombent dans la branche générique `demoLink ? <LiveDemoEmbed>`
+(voulu, Q2/Q3 tranchées). `npm run build` vert avant tout changement (679,85
+kB JS / 87,13 kB CSS, identique à la fin du cycle 036) et revérifié vert après
+(build inchangé — seuls des fichiers `scripts/*.mjs` ont été modifiés). **Le
+§4 reste intégralement traité, reconfirmé pour la 12e fois consécutive
+(cycles 026-037).**
+
+### Constats d'audit
+
+Audit complet dans `docs/ui-loop/AUDIT-2026-09-13-cycle-037.md` (à purger
+après 24h). Résumé :
+- **Outillage** : `ui-evidence-probe.mjs` (rotation D) et `ui-audit.mjs` (le
+  run complet — pas seulement `ui-gallery.mjs`/`ui-hierarchy-probe.mjs`,
+  étendus aux cycles 034/035) ne savaient auditer que la page d'accueil.
+  Ajouté `--path=<route>` aux deux, même pattern déjà établi. `ui-audit.mjs`
+  avait un second angle mort propre : le seuil qui décide si un état de focus
+  clavier mérite sa capture référençait `#about` en dur, absent sur `/cv`, où
+  le repli `?? Infinity` rendait ce test silencieusement toujours faux (un
+  passage qui tourne à vide sans jamais le signaler) — corrigé avec un
+  `foldMarker` dérivé de la route.
+- **Rotation D sur `/cv` (`ui-evidence-probe.mjs --path=/cv`, 8
+  combinaisons)** : `cv-experience`/`cv-education-languages`/`cv-skills`
+  portent des blocs de réclamation (4-12 phrases chacun) sans aucun
+  `proofLink` ; seule `cv-projects` a des liens de preuve (3, un par projet
+  listé). **Rien retenu** : un CV est structurellement déclaratif pour son
+  expérience/formation/compétences, la mission acte déjà ce principe pour
+  `#about`. Le vrai test de rotation D pour cette page (le libellé engage-t-il
+  un contenu qu'il ne livre pas ?) a été traité cycle 036 sur le seul lien
+  cliquable vers une preuve.
+- **Premier run complet de `ui-audit.mjs --path=/cv` (10 combinaisons)** : 0
+  overflow horizontal, 0 violation axe-core, 0 erreur console/page. **CLS
+  mesuré, une anomalie isolée et confirmée** : tablet-768 + FR = **0.1603**
+  (zone « needs improvement » Core Web Vitals, seuil 0.1), contre ≤ 0.012 sur
+  les neuf autres combinaisons. Creusé avant de le tenir pour réel (leçon
+  cycle 021) : reproductible 100 % (4/4 runs identiques), isolé à la bande
+  700-768px en français uniquement (768px EN = 0.0007), et confirmé causé par
+  un reflow de police web à froid (FOUT) — un `page.reload()` dans le même
+  contexte (polices déjà en cache) fait tomber le CLS à **0**. Cause racine :
+  `body` charge Almarai avec `display=swap` (`index.html`), qui redessine le
+  texte courant (`.cv-hook`, `.cv-timeline`, `.cv-contacts`) avec des
+  métriques différentes une fois la police réelle arrivée — le français, plus
+  long à contenu égal, franchit une limite de retour à ligne à cette largeur
+  que l'anglais ne franchit pas. **Écart repéré au passage** : MISSION-UI.md
+  §1 documente la police de corps comme « Inter », mais `--font-body: "Inter"`
+  n'est référencé nulle part dans `src/` et Inter n'est jamais chargé — la
+  police de corps réelle est Almarai depuis l'origine du projet. Consigné en
+  `QUESTIONS.md` (Q5) plutôt que deviné, parce que la réponse détermine la
+  bonne réparation du CLS (ajuster Almarai en place, ou finir une migration
+  vers Inter jamais terminée).
+
+### Changements livrés
+
+- `a11a1dd` — chore(ui-audit): `--path=<route>` sur `ui-audit.mjs` et
+  `ui-evidence-probe.mjs`, correctif du repli silencieux de focus sur `/cv`.
+- `67373f2` — ui-loop: galerie du cycle régénérée (bloc texte, pas d'image —
+  voir Vérification).
+
+Aucun correctif de CLS livré ce cycle : la réparation standard
+(`font-display: optional` ou des descripteurs `size-adjust`/`ascent-override`
+calibrés) touche le chargement de police de **tout le site** (Almarai est la
+police de base de `body`, pas seulement de `/cv`), donc exige sa propre
+vérification avant/après sur les 4 viewports × 2 langues des **deux** routes
+— trop large pour être greffée en fin d'un cycle déjà consacré à l'outillage,
+et bloquée en pratique sur Q5 tant qu'elle n'est pas tranchée.
+
+### Vérification
+
+- Build : ✅ avant et après (679,85 kB JS / 87,13 kB CSS inchangé — seuls des
+  fichiers `scripts/*.mjs` modifiés, aucun `src/` touché). `tsc -b` (inclus) :
+  ✅. `npx eslint scripts/ui-audit.mjs scripts/ui-evidence-probe.mjs` : 2
+  warnings préexistants (confirmés par `git stash` — présents avant ce
+  cycle, non introduits par ce chantier), 0 erreur.
+- Sonde de reproduction CLS (ad hoc, supprimée après usage) : 4 runs
+  indépendants sur tablet-768 FR, CLS = 0.1598-0.1603 à chaque fois, mêmes
+  deux entrées de shift. Bisection de largeur (640/700/767/768px, FR) et de
+  langue (768px EN) pour isoler la bande et la langue exactes. Test
+  cache-chaud (`page.reload()` même contexte) : CLS 0.1603 → **0**, confirmant
+  la cause (reflow de police, pas un défaut de mise en page statique).
+- Viewports vérifiés : les 4 de la mission + la bande 700-768 en pas fins pour
+  isoler l'anomalie, aux 2 langues, via le run complet `ui-audit.mjs
+  --path=/cv` (10 combinaisons, hover + focus clavier + axe-core inclus).
+- Langues : FR ✅ EN ✅ (l'anomalie elle-même est spécifique à FR, documentée
+  comme telle, pas un défaut symétrique manqué).
+- reduced-motion : ✅ mesuré (2 passes dédiées, CLS 0.010-0.012, cohérent
+  avec l'absence d'animation d'entrée, sans lien avec l'anomalie de police).
+- Régression détectée : non — aucun fichier `src/` modifié.
+
+### Reverté
+
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024, reconfirmé
+  pour la 12e fois consécutive.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025, reconfirmé de
+  même.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026,
+  reconfirmé de même.
+- **Le §4 de MISSION-UI.md reste intégralement traité, revérifié sur le code
+  réel pour la 12e fois consécutive (cycles 026-037).**
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Prochain cycle — point de reprise exact
+- Relire MISSION-UI.md en entier (§0) puis reprendre l'ordre de priorité §2
+  phase 4 normal : (1) tout P0 réel détecté en phase 1 ; (2) §3 reste P2
+  gelée sauf régression/bug bloquant/violation d'accessibilité
+  mesurée/raccord imposé ; (3) « reste du site ». **Candidat prioritaire
+  chiffré** : si `QUESTIONS.md` Q5 est tranchée par Axel avant le prochain
+  cycle, corriger le CLS de `/cv` (tablet-768 + FR, 0.1603 → cible < 0.1) en
+  ajustant le chargement de police décidé par la réponse, avec vérification
+  avant/après sur les 4 viewports × 2 langues des deux routes (`/` et `/cv`),
+  pas seulement `/cv`. Si Q5 n'est pas tranchée, ce chantier reste bloqué —
+  ne pas deviner, passer au suivant (`ui-gallery.mjs` mode `--freeze-at`, ou
+  toute autre entrée P2 du backlog).
+- Candidats P2 déjà chiffrés au backlog, non traités ce cycle : bundle JS
+  679,85 kB (226 kB gzip, warning Vite « chunk > 500kB ») ; mode
+  `--freeze-at=<ms>` pour `ui-gallery.mjs` ; mode dédié qui verrouille
+  `scrollY` avant de positionner une cible `viewport:` ; tokens CSS orphelins
+  `--fictif-ink`/`--fictif-border` (`tokens.css`, `index.css`), sans coût ni
+  risque, toujours en place ; couverture du probe de contraste maison
+  (`scripts/lib/probe-color.js`) toujours limitée à des sondes ad hoc
+  ponctuelles plutôt qu'à un balayage systématique de tout le site.
+
+### Questions bloquantes ouvertes
+- **Q5 (nouvelle ce cycle)** — écart entre la police de corps documentée
+  (Inter, MISSION-UI.md §1) et celle réellement chargée (Almarai, `body` dans
+  `src/index.css`) ; `--font-body: "Inter"` orphelin dans `src/tokens.css`
+  (jamais référencé). Détermine la bonne réparation du CLS mesuré ce cycle.
+  Voir `QUESTIONS.md`.
+- Q1-Q4 résolues le 2026-09-12, voir `QUESTIONS.md`.
+
+---
+
 ## Cycle 036 — 2026-09-13 04:42
 
 **Zone travaillée** : hors zone prioritaire (§3, gelée sur toutes ses
