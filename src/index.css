@@ -774,12 +774,24 @@ a {
     0 28px 80px rgba(0, 0, 0, 0.36);
 }
 
+/* `.home-project-card` clips to a fixed height from 1024px up (sticky
+   scrollytelling stack, see the two `.home-project-step` media queries
+   below) so the copy column can outgrow its box — measured cycle 042 at
+   21-184px of overflow across 1024/1280/1440/1920, in both languages, on
+   4 of 6 project cards (01/04/05/06). Without a scroll boundary here, that
+   overflow is clipped by the ancestor's `overflow: hidden` with no way to
+   reach it: `.home-project-actions` (the only path to "Open case study",
+   the live demo and the repo link) rendered fully or partially outside the
+   visible box. `overflow-y: auto` turns silent clipping into a reachable
+   scroll, same pattern as `.project-detail-content` (ProjectDetailModal). */
 .home-project-copy {
   display: flex;
   min-width: 0;
   min-height: 0;
   flex-direction: column;
   padding: clamp(1.4rem, 3vw, 2.5rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .home-project-meta {
@@ -912,12 +924,16 @@ a {
   padding: 0.4rem 0.65rem;
 }
 
+/* Cycle 042: moved up in the DOM (see OnePage.tsx), right after the hook and
+   before the description — `margin-top: auto` and `padding-top` made sense
+   when this row was the last flex child pinned to the card's bottom; now the
+   gap it needs is *below* it, toward the paragraph that has no margin-top of
+   its own. */
 .home-project-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
-  margin-top: auto;
-  padding-top: 1.4rem;
+  margin-bottom: 1.4rem;
 }
 
 .home-project-actions a,
@@ -3118,7 +3134,7 @@ a {
   }
 
   .home-project-actions {
-    padding-top: 1rem;
+    margin-bottom: 1rem;
   }
 
   .home-project-proof {
@@ -3209,7 +3225,7 @@ a {
   }
 
   .home-project-actions {
-    padding-top: 1rem;
+    margin-bottom: 1rem;
   }
 }
 

@@ -237,7 +237,7 @@ function ProjectShowcaseCard({
       style={{ top: `calc(5.5rem + ${index * 28}px)`, zIndex: index + 1 }}
     >
       <article className="home-project-card">
-        <div className="home-project-copy">
+        <div className="home-project-copy" tabIndex={0}>
           <div className="home-project-meta">
             <span>{labels.project} {project.id}</span>
             <span>{project.status}</span>
@@ -245,6 +245,49 @@ function ProjectShowcaseCard({
           <span className="home-project-category">{project.category}</span>
           <h3>{project.title}</h3>
           {project.hook ? <strong className="home-project-hook">{project.hook}</strong> : null}
+
+          {/* Cycle 042: this action row is the only path to "Open case study",
+              the live demo and the repo link. It used to sit after every other
+              block (description, why-it-matters, results, evidence, tags) —
+              at 1024px+, the card stack layers each next project on top of the
+              previous one (z-index cascade) as the visitor scrolls, and that
+              cascade starts covering a card's *bottom* well before its content
+              finishes. Measured cycle 042: on French copy (longer than English
+              at equal meaning), 4 of 6 cards overflowed their fixed-height box
+              by 21-215px across 1024-1920px, and the covering next-card left
+              this row unclickable by mouse for projects 04/05/06 specifically
+              — a P0 "contenu invisible" hit on the mission's three priority
+              chantiers. Moving it here, right under the one-line hook and
+              before the variable-length description, keeps it inside the part
+              of the card that's never reached by the incoming-card cascade,
+              regardless of how long either language's copy runs. */}
+          <div className="home-project-actions">
+            {project.caseStudy?.length ? (
+              <button type="button" onClick={() => onOpenProject(project)}>
+                <BookOpen size={16} aria-hidden="true" />
+                {labels.openCaseStudy}
+              </button>
+            ) : null}
+            {repoLink ? (
+              <a href={repoLink.url} target="_blank" rel="noreferrer">
+                <GitBranch size={16} aria-hidden="true" />
+                {labels.viewRepository}
+              </a>
+            ) : null}
+            {demoLink ? (
+              <a href={demoLink.url} target="_blank" rel="noreferrer">
+                <ExternalLink size={16} aria-hidden="true" />
+                {labels.viewDemo}
+              </a>
+            ) : null}
+            {reportLink ? (
+              <a href={reportLink.url} target="_blank" rel="noreferrer">
+                <FileText size={16} aria-hidden="true" />
+                {labels.viewReport}
+              </a>
+            ) : null}
+          </div>
+
           <p>{project.description}</p>
 
           {project.whyItMatters ? (
@@ -273,33 +316,6 @@ function ProjectShowcaseCard({
             {project.technologies.slice(0, 5).map((technology) => (
               <span key={technology}>{technology}</span>
             ))}
-          </div>
-
-          <div className="home-project-actions">
-            {project.caseStudy?.length ? (
-              <button type="button" onClick={() => onOpenProject(project)}>
-                <BookOpen size={16} aria-hidden="true" />
-                {labels.openCaseStudy}
-              </button>
-            ) : null}
-            {repoLink ? (
-              <a href={repoLink.url} target="_blank" rel="noreferrer">
-                <GitBranch size={16} aria-hidden="true" />
-                {labels.viewRepository}
-              </a>
-            ) : null}
-            {demoLink ? (
-              <a href={demoLink.url} target="_blank" rel="noreferrer">
-                <ExternalLink size={16} aria-hidden="true" />
-                {labels.viewDemo}
-              </a>
-            ) : null}
-            {reportLink ? (
-              <a href={reportLink.url} target="_blank" rel="noreferrer">
-                <FileText size={16} aria-hidden="true" />
-                {labels.viewReport}
-              </a>
-            ) : null}
           </div>
         </div>
 
