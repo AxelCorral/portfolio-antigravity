@@ -46,6 +46,23 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   radial `--overlay-scrim` (nouveau token) sous le contrôle, sans bord ni
   arête, le parti "typographie nue" documenté dans `index.css` est conservé.
 
+- [x] **`.city-contact` (CTA "Contact" du nav) : texte blanc sur fond clair au
+  survol, ~1.3:1** (cycle 040). Ni le balayage au repos (cycle 039) ni
+  axe-core ne peuvent voir un défaut qui n'existe qu'à l'état `:hover` — angle
+  mort confirmé identique à celui documenté cycle 021 pour l'état de repos.
+  `scripts/ui-contrast-sweep.mjs` étendu avec `--pseudo=hover,focus-visible`
+  (force l'état via CDP `CSS.forcePseudoState` élément par élément, un
+  balayage complet 2 routes × 4 viewports × 2 langues × 2 états prend
+  ~11 min). Premier run pleine couverture : 1 violation, exactement
+  `.city-contact` héritant de la règle générique `.city-nav a:hover { color:
+  #fff }` alors que son fond (`#e1e0cc`) est clair, pas sombre comme le reste
+  du nav. Corrigé (commit `c4a6e9b`) : `.city-nav a:hover:not(.city-contact)`.
+  Deuxième run après correctif : **0 violation** sur les 32 combinaisons
+  (16 repos + 16 pseudo-état). `scripts/ui-gallery.mjs` gagne en parallèle un
+  mode `hover:<sélecteur>` (commit `f124250`) — aucun mode existant ne
+  pouvait produire une paire AVANT/APRÈS honnête pour un défaut qui ne se
+  voit qu'au survol.
+
 ## P1 — Intégration des nouveaux projets (MISSION-UI.md §4)
 
 - [x] **Vers l'Élysée** — carte projet + page détail + section démo (iframe
@@ -390,7 +407,9 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   utilisé par `CVPage.tsx`), homepage vérifiée visuellement identique après
   coup. Les tokens CSS `--fictif-ink`/`--fictif-border` (`tokens.css`,
   `index.css`), désormais orphelins eux aussi mais sans coût ni risque,
-  laissés en place — hors périmètre de ce chantier.
+  laissés en place — hors périmètre de ce chantier. **Retirés cycle 040**
+  (commit `42ed056`) : `grep -rn` confirmant l'absence de toute référence
+  restante, build identique à l'octet près avant/après.
 - [x] **`.project-case-study span`/`.project-overview-grid aside > span`
   (`ProjectDetailModal.tsx`, onglet Overview) mesurés à 4.28:1 et 4.02:1**
   (cycle 033, rotation C, mesure de contraste au probe maison plutôt qu'à
