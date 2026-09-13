@@ -6,6 +6,121 @@
 
 ---
 
+## Cycle 038 — 2026-09-13 06:05
+
+**Zone travaillée** : hors zone prioritaire (§3, gelée sur toutes ses
+sous-sections) et hors §4 (reconfirmé intégralement traité) — `/cv`,
+`.cv-two-col` dans `src/index.css` (compteur `cv-page`, 2/3 → 3/3, gelée).
+**Rotation de questions** : **E — Mobile-first réel**, jamais appliquée à
+`/cv` dans son ensemble (seule la page d'accueil l'avait reçue, cycle 027).
+
+### Note de continuité — §4 revérifié sur le code, pas sur le seul journal
+
+`grep 'id: "0[456]"' src/data/projects.ts` → les trois entrées existent ;
+`grep 'project.id ===' src/OnePage.tsx` → 01/02/03/06 ont leur carousel
+dédié, 04/05 tombent dans la branche générique `demoLink ? <LiveDemoEmbed>`
+(voulu, Q2/Q3 tranchées). `npm run build` vert avant tout changement
+(679,85 kB JS / 87,16 kB CSS, JS identique à la fin du cycle 037, CSS +0,03
+kB sans lien avec §4) et revérifié vert après. **Le §4 de MISSION-UI.md
+reste intégralement traité, reconfirmé pour la 13e fois consécutive (cycles
+026-038).**
+
+### Constats d'audit
+
+Pas de fichier `AUDIT-*.md` séparé (chantier unique, mesuré par des sondes
+Playwright ad hoc, supprimées après usage). Rotation E posée sur `/cv` à
+390px :
+- **Cibles tactiles** : 9/9 conformes (≥44px), 0 sous le plancher.
+- **Scroll horizontal parasite** : aucun (`scrollWidth === innerWidth` en EN
+  et FR).
+- **Les sections du bas sont-elles pensées ou juste empilées ?** — un
+  défaut mesuré : `.cv-two-col` (Education + Languages) passe en une seule
+  colonne implicite sous 768px, mais chaque enfant `<section className="cv-section">`
+  conservait son propre `margin-bottom: 3.5rem` (56px) **en plus** du
+  `gap: 3rem` (48px) de la grille — 104px mesurés entre "General
+  Baccalaureate — 2020" et le kicker "LANGUAGES", contre 56px de rythme
+  normal entre sections ailleurs sur la même page (ex. #experience →
+  #projects, mesuré à exactement 56px). Un gap presque doublé, sans
+  intention visible, à l'endroit précis où le layout bascule de grille à
+  empilement : exactement le symptôme que rotation E demande de débusquer.
+  Repéré par mesure de bounding box, pas à l'œil (la capture seule montrait
+  un « grand vide » sans dire s'il était voulu ou non).
+
+### Changements livrés
+
+- `fd91727` — fix(cv-page): `.cv-two-col > .cv-section { margin-bottom: 0 }`
+  — supprime le doublon de marge, le `gap` de la grille redevient la seule
+  source d'espacement vertical en mode empilé.
+- `f6d57ac` — ui-loop: galerie du cycle 038.
+
+### Vérification
+
+- Build : ✅ avant et après (679,85 kB JS inchangé, CSS 87,16 → 87,20 kB).
+  `tsc -b` (inclus) : ✅.
+- Sonde de mesure dédiée (ad hoc, supprimée après usage) : gap vertical
+  Education→Languages mesuré aux 4 viewports × 2 langues. Avant : 104px
+  constant (390, et 768/1440/1920 tant que le point de rupture n'a pas
+  encore basculé en 2 colonnes — non applicable, voir ci-dessous). Après :
+  **48px** en mode empilé (390, et 768 portrait tant qu'il reste sous le
+  point de rupture `min-width: 768px` de `.cv-two-col`). Mode 2 colonnes
+  (768/1440/1920, gouttière horizontale) : **48px avant comme après**,
+  strictement inchangé — la correction ne touche que le cas empilé.
+- Viewports vérifiés : 390 / 768 / 1440 / 1920.
+- Langues : FR ✅ EN ✅ (gap identique dans les deux, le texte plus long du
+  FR ne change pas la mesure de marge).
+- reduced-motion : non applicable — correctif de marge statique, aucune
+  animation en jeu.
+- Régression détectée : non. axe-core scopé à `/cv` 390px : **0 violation**
+  avant et après, EN et FR. Mode 2 colonnes (desktop) vérifié identique au
+  pixel près avant/après.
+
+### Reverté
+
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024, reconfirmé
+  pour la 13e fois consécutive.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025, reconfirmé de
+  même.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026,
+  reconfirmé de même.
+- **Le §4 de MISSION-UI.md reste intégralement traité, revérifié sur le code
+  réel pour la 13e fois consécutive (cycles 026-038).**
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Prochain cycle — point de reprise exact
+- Relire MISSION-UI.md en entier (§0) puis reprendre l'ordre de priorité §2
+  phase 4 normal : (1) tout P0 réel détecté en phase 1 ; (2) §3 reste P2
+  gelée sauf régression/bug bloquant/violation d'accessibilité
+  mesurée/raccord imposé ; (3) « reste du site ». `cv-page` est désormais
+  **3/3, gelée** — ne plus y ouvrir de chantier sans dérogation écrite
+  (§6). **Candidat prioritaire chiffré si Q5 est tranchée** : corriger le
+  CLS de `/cv` (tablet-768 + FR, 0.1603 → cible < 0.1, cf. cycle 037) en
+  ajustant le chargement de police décidé par la réponse, avec vérification
+  avant/après sur les 4 viewports × 2 langues des deux routes (`/` et `/cv`).
+  Si Q5 n'est pas tranchée, ce chantier reste bloqué — passer au suivant
+  parmi les candidats P2 chiffrés du backlog (`ui-gallery.mjs`
+  `--freeze-at=<ms>`, extension de couverture du probe de contraste maison à
+  tout le site, bundle JS 679,85 kB).
+- Candidats P2 déjà chiffrés au backlog, non traités ce cycle : bundle JS
+  679,85 kB (226 kB gzip, warning Vite « chunk > 500kB ») ; mode
+  `--freeze-at=<ms>` pour `ui-gallery.mjs` ; mode dédié qui verrouille
+  `scrollY` avant de positionner une cible `viewport:` ; tokens CSS orphelins
+  `--fictif-ink`/`--fictif-border` (`tokens.css`, `index.css`), sans coût ni
+  risque, toujours en place ; couverture du probe de contraste maison
+  (`scripts/lib/probe-color.js`) toujours limitée à des sondes ad hoc
+  ponctuelles plutôt qu'à un balayage systématique de tout le site.
+
+### Questions bloquantes ouvertes
+- **Q5** — écart entre la police de corps documentée (Inter,
+  MISSION-UI.md §1) et celle réellement chargée (Almarai, `body` dans
+  `src/index.css`) ; détermine la bonne réparation du CLS mesuré cycle 037.
+  Toujours ouverte, non tranchée par Axel à ce jour. Voir `QUESTIONS.md`.
+- Q1-Q4 résolues le 2026-09-12, voir `QUESTIONS.md`.
+
+---
+
 ## Cycle 037 — 2026-09-13 05:10
 
 **Zone travaillée** : hors zone prioritaire (§3, gelée sur toutes ses

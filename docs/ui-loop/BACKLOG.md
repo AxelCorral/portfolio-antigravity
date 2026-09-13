@@ -525,6 +525,20 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   reduced-motion) termine désormais sans perte de données même si une
   capture individuelle échoue encore occasionnellement.
 
+- [x] **`.cv-two-col` double le gap vertical entre Education et Languages sous
+  768px** (cycle 038, rotation E, `/cv`). Le conteneur passe en une seule
+  colonne implicite sous 768px, mais chaque enfant `<section className="cv-section">`
+  gardait son propre `margin-bottom: 3.5rem` (56px) en plus du `gap: 3rem`
+  (48px) de la grille — 104px mesurés entre le dernier item d'Education et le
+  kicker Languages, contre 56px de rythme normal entre sections ailleurs sur
+  la page (ex. #experience → #projects). Corrigé commit `fd91727` :
+  `.cv-two-col > .cv-section { margin-bottom: 0 }`. Après : 48px aux 4
+  viewports × 2 langues en mode empilé (390/768 tablette portrait avant le
+  passage à 2 colonnes) ; le mode 2 colonnes (≥768px, gouttière horizontale
+  48px) mesuré strictement identique avant/après aux 4 viewports × 2 langues.
+  0 violation axe-core avant/après. Compteur §6 `cv-page` : 2/3 → **3/3,
+  gelée**.
+
 ## Terminé
 
 - [x] Cycle 028 — §4 reconfirmé intégralement traité (code réel revérifié, pas

@@ -424,11 +424,13 @@ paragraphe overview via `--measure-lede`, `tabIndex` sur la zone de
 contenu scrollable — correctif `scrollable-region-focusable` ; cycle 033 :
 contraste des eyebrows/labels du case-study 4.28:1/4.02:1 → 5.46:1,
 partagé par les 6 projets) · `cv-page` (`src/pages/CVPage.tsx`,
-`.cv-*` dans `src/index.css`) **2/3** (cycle 034 : contraste de trois
+`.cv-*` dans `src/index.css`) **3/3 — gelée** (cycle 034 : contraste de trois
 sélecteurs porté à ≥ 4.5:1, cibles tactiles des contacts à 44px, mesure
 de lecture des puces via `--measure-lede` ; cycle 035 : kicker
 "Axel Corral" redondant avec le `<h1>` juste en dessous retiré,
-rotation A)
+rotation A ; cycle 038 : gap vertical Education/Languages sous 768px
+104px→48px, `.cv-two-col > .cv-section { margin-bottom: 0 }`,
+rotation E)
 
 Les sections gelées ne rouvrent que par dérogation écrite. Ce plafond existe parce
 que la boucle a produit 26 commits sur la zone basse pendant que les trois projets
