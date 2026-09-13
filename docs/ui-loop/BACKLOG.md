@@ -577,6 +577,42 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   langues) : 0 violation résiduelle. axe-core scopé à `.home-project-card` :
   0 violation aux 4 combinaisons 390/1440 × EN/FR.
 
+- [ ] **`reduce`-motion coûte PLUS de temps main-thread au chargement que
+  `no-preference`, `CinematicOpening.tsx`** (cycle 041, nouvel outil
+  `scripts/ui-longtask-probe.mjs`, rotation C). Premier balayage
+  (PerformanceObserver `longtask`, seuil Core Web Vitals 50ms, 4 viewports ×
+  2 langues × 2 préférences de mouvement) sur `/` : à 1440, `no-preference`
+  charge avec 1-2 tâches longues (TBT ~200-250ms), `reduce` en charge 4-5
+  (TBT ~380-450ms) — reproduit identique sur 4 runs indépendants (§ leçon
+  cycle 037 : ne jamais retenir une seule mesure). Aucune tâche longue au
+  scroll dans les deux cas (0 partout). Isolé par profil CPU (CDP
+  `Profiler.start/stop`, script jetable supprimé après usage) : sous
+  `reduce`, la fonction interne `measure()` de framer-motion
+  (`useScroll`, lecture forcée de `offsetLeft`/`offsetTop`/`clientHeight`
+  en remontant la chaîne `offsetParent`) passe de 5.5ms à 224ms de temps
+  propre, et le `measure()` local de `CinematicOpening.tsx`
+  (`useLayoutEffect`, lecture de `ref.current.offsetHeight`) passe de
+  ~143ms à ~238ms cumulés. `.city-content` passe à `display: 'none'` sous
+  `reduce` (`CinematicOpening.tsx`), mais `.city-content` est
+  `position: absolute` dans `.intro-sequence` (`height: 240vh` fixe,
+  `src/index.css:450`) — son affichage ne change donc pas la hauteur du
+  conteneur scrollable, hypothèse de départ (layout shift du pin)
+  **infirmée**. Cause exacte non tranchée : les deux lectures de layout
+  forcées (la nôtre + celle de framer-motion) semblent se payer plus cher
+  l'une l'autre quand les styles `reduce` sont appliqués en écriture React
+  synchrone au lieu de valeurs animées framer-motion (batchées en RAF) —
+  hypothèse plausible, non prouvée au niveau du commit exact. **Aucun
+  correctif livré** : la piste la plus évidente (différer le `measure()`
+  de `CinematicOpening.tsx` hors de `useLayoutEffect`) risquerait un flash
+  de mauvais calibrage du scroll-pin au premier frame sur un composant
+  hero central déjà finement calé (cascade cycle 022) — pas assez sûr pour
+  être tenté sans budget de vérification dédié. Impact réel mesuré :
+  ~150-250ms supplémentaires une seule fois au chargement, avant toute
+  interaction de scroll (TBT au scroll = 0 dans les deux cas) ; aucun défaut
+  visible (opacité/contraste déjà vérifiés conformes sous `reduce` par
+  `ui-motion-probe.mjs`, cycles antérieurs). Candidat P2 pour un futur cycle
+  avec budget dédié à l'instrumentation fine de `CinematicOpening.tsx`.
+
 ## Terminé
 
 - [x] Cycle 028 — §4 reconfirmé intégralement traité (code réel revérifié, pas

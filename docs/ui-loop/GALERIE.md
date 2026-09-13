@@ -5,6 +5,25 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 041 — 2026-09-13 · Outillage `ui-longtask-probe.mjs` + coût main-thread de `reduce`-motion diagnostiqué
+
+> Pas de paire AVANT/APRÈS : le chantier est un ajout d'outillage (nouveau
+> `scripts/ui-longtask-probe.mjs`, aucun fichier `src/` touché) et un
+> diagnostic, pas une correction visuelle. Preuve mesurable, non une image :
+> premier balayage main-thread (`PerformanceObserver` `longtask`, seuil Core
+> Web Vitals 50ms) sur `/`, 4 viewports × 2 langues × 2 préférences de
+> mouvement → à 1440, `reduce`-motion charge avec 4-5 tâches longues (TBT
+> ~380-450ms) contre 1-2 tâches (TBT ~200-250ms) sous `no-preference`,
+> reproduit sur 4 runs indépendants. Isolé par profil CPU (CDP `Profiler`,
+> script jetable supprimé après usage) à la fonction interne `measure()` de
+> framer-motion (`useScroll`) et au `measure()` local de
+> `CinematicOpening.tsx` — cause exacte non tranchée, correctif non livré
+> (piste la plus évidente jugée pas assez sûre sans budget dédié sur un
+> composant hero central). Voir `BACKLOG.md` pour la reproduction complète.
+
+`c2ffb26`
+
+---
 ## Cycle 040 — 2026-09-13 · Contraste au survol du CTA de nav (.city-contact)
 
 > Le sweep --pseudo=hover a trouve le texte blanc a env. 1.3:1 sur le fond clair du CTA au survol ; exclu de la regle .city-nav a:hover.
