@@ -6,6 +6,137 @@
 
 ---
 
+## Cycle 042 — 2026-09-13 11:40
+
+**Zone travaillée** : `.home-project-card`/`.home-project-copy`/
+`.home-project-actions` (`src/OnePage.tsx`, `src/index.css`) — le composant
+de carte projet partagé par les 6 projets, y compris les trois chantiers
+prioritaires du §4 (Vers l'Élysée `04`, Ombrair `05`, Analyse vidéo football
+`06`).
+**Rotation de questions** : aucune rotation A-E complète — chantier déclenché
+par une revérification visuelle du §4 (priorité imposée de ce run), pas par
+un audit de rotation programmé.
+
+### Note de continuité — §4 revérifié sur le code ET visuellement, pas sur le seul journal
+
+`grep 'id: "0[456]"' src/data/projects.ts` et `grep 'project.id ===' src/OnePage.tsx`
+confirment à nouveau la structure (17e reconfirmation consécutive, cycles
+026-042). Mais cette fois, plutôt que de s'arrêter à la reconfirmation
+grep habituelle, ce cycle a rouvert les captures visuelles des trois
+chantiers (cartes + modales, 390/1440 × EN/FR) parce que la consigne de ce
+run fait de ces trois chantiers la priorité absolue — et la capture a
+immédiatement révélé un défaut qu'aucune des 16 reconfirmations précédentes
+n'avait détecté : voir Constats.
+
+### Constats d'audit
+
+- **P0 — le bouton "Open case study"/lien démo/lien repo était couvert et
+  inatteignable au clic sur 4 des 6 cartes projet, à quasiment tous les
+  viewports desktop** — capture d'écran (`card-05-1440-fr`), P0. À partir de
+  1024px, `.home-project-card` est à hauteur fixe (`overflow: hidden`, les
+  cartes s'empilent en cascade sticky avec un `z-index` croissant par
+  index). Mesuré : `.home-project-copy` déborde cette hauteur de 21 à 215px
+  sur les projets 01/04/05/06, aux 4 viewports 1024-1920px, dans les deux
+  langues (pire en français). Le débordement était englouti en silence par
+  l'`overflow:hidden` du parent, et `elementFromPoint()` a confirmé qu'au
+  point de clic du bouton de la carte 05, l'élément réellement peint à
+  l'écran était `.home-project-copy` de la carte **06** — la carte suivante
+  recouvre la précédente dès que son contenu s'approche du bas, par
+  construction de la cascade. Un test de clic Playwright exhaustif (6
+  projets × 3 viewports × 2 langues) a chiffré l'ampleur : `locator.click()`
+  en timeout sur 04/05 en français à 1440, puis sur 05 à tous les viewports
+  testés, y compris en anglais, une fois le test étendu aux 6 projets.
+
+### Changements livrés
+
+- `72ab734` — fix(home-project-card): `.home-project-copy` gagne
+  `overflow-y: auto` + `overscroll-behavior: contain` + `tabIndex={0}` (même
+  motif que `.project-detail-content`/`ProjectDetailModal`, cycle 032) ;
+  `.home-project-actions` déplacé dans le JSX juste après le `hook`, avant la
+  `description` — la seule zone de la carte jamais atteinte par la cascade
+  de la carte suivante, quelle que soit la longueur du texte. CSS : l'ancien
+  `margin-top: auto` + `padding-top` (qui plaquait la rangée en bas de la
+  colonne flex) devient `margin-bottom` (l'espace requis est maintenant en
+  dessous, vers un paragraphe qui n'a pas de `margin-top` propre) aux 3
+  endroits concernés (règle de base + 2 media queries desktop).
+- `ui-loop: galerie cycle 042` (à suivre) — capture AVANT/APRÈS
+  `viewport:project-05@200` à 390/1440 FR, montrant la rangée d'actions
+  absente puis visible sous le hook.
+- `ui-loop: journaliser cycle 042` (à suivre).
+
+### Vérification
+
+- Build : ✅ avant et après (`tsc -b && vite build` vert ; CSS 87,25 →
+  87,42 kB, JS 679,85 → 679,86 kB — delta cohérent avec la règle déplacée +
+  le commentaire).
+- Test de clic Playwright exhaustif après correctif : **0/36 échecs** (6
+  projets × 3 viewports [1024/1440/1920] × 2 langues) — chaque bouton "Open
+  case study" présent ouvre bien `ProjectDetailModal`. **0/12 échecs** à
+  768px sous `reduced-motion` (6 projets × 2 langues). Script jetable,
+  supprimé après usage (`scripts/.tmp/`, conforme §6).
+- axe-core (page complète, après scroll complet jusqu'en bas) : **0
+  violation** à 390 et 1440, EN et FR.
+- Clavier : `Tab` depuis la zone `.home-project-copy` de la carte 05 (la
+  pire, testée explicitement) atteint "Open case study" en **une seule
+  pression**, contre un bouton totalement hors d'atteinte au clic avant
+  correctif.
+- Viewports vérifiés : 390 / 768 / 1024 / 1280 / 1440 / 1920 (couverture
+  élargie au-delà des 4 viewports de référence pour cartographier
+  précisément l'étendue du défaut avant de corriger — voir `BACKLOG.md`).
+- Langues : FR ✅ EN ✅.
+- reduced-motion : ✅ (768px, 6 projets, 2 langues, 0 échec de clic).
+- Régression détectée : non. Screenshots de contrôle (`final-04-1440-fr`,
+  `final-05-390-fr`) : hiérarchie visuelle propre, le CTA apparaît
+  immédiatement après le hook, avant la description — lu comme une
+  amélioration de crédibilité (rotation D) plutôt qu'un compromis, mais
+  déclenché par la mesure de clickabilité, pas par une préférence
+  esthétique. Un artefact de capture (le lien "Aller au contenu" superposé
+  dans `final-05-390-fr`) est le piège de screenshot déjà documenté cycle
+  019 (élément `position: fixed` collé à sa position de document dans une
+  capture d'élément plus haute que le viewport) — pas un défaut réel, non
+  retenu.
+
+### Reverté
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024. **CTA de la
+  carte rendu réellement cliquable ce cycle** (régression non détectée par
+  les 16 reconfirmations précédentes, qui ne revérifiaient que la structure
+  du code, jamais la clickabilité réelle du rendu).
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025. Même correctif
+  appliqué, c'était le cas le plus sévère (débordement jusqu'à 215px).
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026.
+  Même correctif appliqué.
+- **Le §4 de MISSION-UI.md reste intégralement traité pour la 17e fois
+  consécutive (cycles 026-042), et cette fois la revérification a été
+  visuelle et interactive, pas seulement une lecture du code.**
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Prochain cycle — point de reprise exact
+- Relire MISSION-UI.md en entier (§0), puis revérifier le §4 **visuellement
+  et interactivement** (pas seulement par `grep`) avant de considérer une
+  reconfirmation comme acquise — la leçon de ce cycle est que 16
+  reconfirmations "sur le code" avaient laissé passer un bug de clickabilité
+  réelle. Une fois cette revérification faite, reprendre l'ordre de priorité
+  §2 phase 4 normal : §3 reste P2 gelée sauf régression/bug
+  bloquant/violation d'accessibilité mesurée/raccord imposé ; "reste du
+  site" ensuite. Candidats P2 inchangés (voir `BACKLOG.md`) : le coût
+  main-thread de `reduce`-motion au chargement de `CinematicOpening.tsx`
+  (~150-250ms, cycle 041, sans correctif sûr identifié) ; le CLS de `/cv`
+  (cycle 037, bloqué sur Q5) ; bundle JS 679,86 kB (226 kB gzip) ; mode
+  `--freeze-at=<ms>` pour `ui-gallery.mjs` ; mode qui verrouille `scrollY`
+  avant `viewport:` ; contraste des coches `<Check>` de Capabilities
+  (`#capabilities` gelée, arbitrage d'icône) ; largeur de colonne
+  `.capability-card` à 1024px (grille, `#capabilities` gelée).
+
+### Questions bloquantes ouvertes
+- **Q5** — écart police de corps documentée (Inter) vs chargée (Almarai),
+  toujours ouverte, non tranchée par Axel. Voir `QUESTIONS.md`.
+- Q1-Q4 résolues le 2026-09-12.
+
+---
+
 ## Cycle 041 — 2026-09-13 10:26
 
 **Zone travaillée** : hors zone prioritaire (§3, gelée sur toutes ses
