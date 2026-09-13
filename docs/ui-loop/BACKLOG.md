@@ -613,6 +613,44 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   `ui-motion-probe.mjs`, cycles antérieurs). Candidat P2 pour un futur cycle
   avec budget dédié à l'instrumentation fine de `CinematicOpening.tsx`.
 
+- [x] **`.home-project-actions` (bouton "Open case study"/lien démo/lien repo)
+  couvert et inatteignable au clic sur 4 des 6 cartes projet, presque partout
+  en desktop** (cycle 042, découvert en revérifiant visuellement le §4 —
+  priorité absolue de ce run — plutôt que de se fier au seul journal). À
+  partir de 1024px, `.home-project-card` est une hauteur fixe (`overflow:
+  hidden`, pin sticky en cascade z-index croissant) : mesuré, le contenu de
+  `.home-project-copy` déborde cette hauteur de 21 à 215px sur 01/04/05/06,
+  aux 4 viewports desktop (1024/1280/1440/1920) et dans les deux langues (pire
+  en français, plus long à sens égal). L'`overflow:hidden` du parent
+  engloutissait silencieusement ce débordement — `.home-project-actions`,
+  seul chemin vers "Open case study" (qui ouvre `ProjectDetailModal`), la
+  démo live et le repo, se retrouvait entièrement ou partiellement hors de la
+  boîte visible, ou physiquement recouvert par la carte projet suivante
+  (confirmé par `elementFromPoint()` : au point de clic du bouton de la carte
+  05, l'élément peint était `.home-project-copy` de la carte **06**). Un test
+  de clic Playwright exhaustif (6 projets × 3 viewports × 2 langues = 36
+  combinaisons) le confirmait : `locator.click()` **timeout** sur 04/05 en
+  français à 1440, et plus largement sur 05 à tous les viewports même en
+  anglais une fois le test étendu. **P0** — "contenu invisible", touchant
+  directement les trois chantiers prioritaires du §4 de ce run. Corrigé
+  (commit `72ab734`) : `.home-project-copy` gagne `overflow-y: auto` +
+  `tabIndex={0}` (même motif que `.project-detail-content` dans
+  `ProjectDetailModal`, cycle 032) pour que tout débordement résiduel reste
+  atteignable au lieu d'être coupé en silence ; et surtout,
+  `.home-project-actions` est déplacé dans le JSX (`OnePage.tsx`) juste après
+  le `hook` (accroche courte), avant la `description` de longueur variable —
+  la seule zone de la carte jamais atteinte par la carte suivante qui arrive
+  par le bas, quelle que soit la longueur du texte dans l'une ou l'autre
+  langue. Revérifié après correctif : **0/36 échecs de clic** (6 projets × 3
+  viewports × 2 langues, 1024-1920px), **0/12** à 768px sous
+  `reduced-motion`, **0 violation axe-core** (390/1440 × EN/FR après scroll
+  complet), et Tab atteint "Open case study" en **une seule pression** après
+  focus de la zone désormais scrollable. Bonus hiérarchie (rotation D,
+  incidentelle) : le CTA arrive maintenant avant le mur de texte au lieu
+  d'après, cohérent avec "un tech lead qui scrolle 15 secondes doit
+  comprendre" — mais le chantier a été déclenché par la mesure de
+  clickabilité, pas par une préférence esthétique.
+
 ## Terminé
 
 - [x] Cycle 028 — §4 reconfirmé intégralement traité (code réel revérifié, pas

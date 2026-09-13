@@ -5,6 +5,17 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 042 — 2026-09-13 · CTA carte projet enfin cliquable (04/05/06)
+
+> L'action « Ouvrir l'étude de cas »/démo/repo était couverte par la carte projet suivante, sur les 3 chantiers prioritaires du §4, en français à tous les viewports desktop.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-042/cta-carte-projet-enfin-cliquable-04-05-06-390-avant.webp) | ![après 390](shots/cycle-042/cta-carte-projet-enfin-cliquable-04-05-06-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-042/cta-carte-projet-enfin-cliquable-04-05-06-1440-avant.webp) | ![après 1440](shots/cycle-042/cta-carte-projet-enfin-cliquable-04-05-06-1440-apres.webp) |
+
+`72ab734`
+
 ## Cycle 041 — 2026-09-13 · Outillage `ui-longtask-probe.mjs` + coût main-thread de `reduce`-motion diagnostiqué
 
 > Pas de paire AVANT/APRÈS : le chantier est un ajout d'outillage (nouveau
@@ -24,6 +35,7 @@
 `c2ffb26`
 
 ---
+
 ## Cycle 040 — 2026-09-13 · Contraste au survol du CTA de nav (.city-contact)
 
 > Le sweep --pseudo=hover a trouve le texte blanc a env. 1.3:1 sur le fond clair du CTA au survol ; exclu de la regle .city-nav a:hover.
