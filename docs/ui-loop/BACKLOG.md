@@ -217,7 +217,7 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   ne compte que les niveaux typographiques. A trancher dans un cycle de rotation
   A ou D. **P2.**
 
-- [ ] **axe-core ne juge pas le contraste de cette page** (cycle 021) : **0
+- [x] **axe-core ne juge pas le contraste de cette page** (cycle 021) : **0
   violation `color-contrast` et 494 noeuds `incomplete`**, motif dominant
   « background color could not be determined due to a pseudo element » (les halos
   `::before` de `.capability-card` et `.about-card`) et « overlapped by another
@@ -225,8 +225,16 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   un feu vert ; ce n'en etait pas un, et c'est ainsi qu'un texte a 3,47:1 a
   survecu vingt cycles. Piste : mesurer le contraste dans le probe maison plutot
   que d'attendre d'axe qu'il le fasse — c'est deja le cas depuis ce cycle, mais
-  le probe ne couvre que les 4 sections de la zone prioritaire. **P2 — etendre
-  la couverture du probe au reste de la page.**
+  le probe ne couvre que les 4 sections de la zone prioritaire. Couverture
+  étendue cycle 039 : nouvel outil `scripts/ui-contrast-sweep.mjs`, qui marche
+  **tout** le DOM d'une route (pas une liste de sélecteurs choisis à la main),
+  résout `oklch()`/`oklab()`, applique les seuils WCAG AA (4.5:1 texte normal,
+  3:1 grand texte) et ignore les noeuds `aria-hidden` (décoratifs, hors WCAG
+  1.4.3 — même exception que `.pc-watermark`, cycle 033). Premier run sur les 2
+  routes × 4 viewports × 2 langues : **1 violation trouvée** (`.home-project-why
+  span`, "Why it matters"/"Pourquoi c'est important", 4.24:1), corrigée
+  immédiatement (voir plus bas). Deuxième run après correctif : **0 violation
+  sur les 16 combinaisons.**
 
 - [ ] **`#about` est le seul bloc de la zone sans aucune ancre de preuve**
   (rotation D, cycle 018). Le bloc « Analytical profile » est 100 % assertif :
@@ -538,6 +546,17 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   48px) mesuré strictement identique avant/après aux 4 viewports × 2 langues.
   0 violation axe-core avant/après. Compteur §6 `cv-page` : 2/3 → **3/3,
   gelée**.
+
+- [x] **`.home-project-why span` (kicker "Why it matters"/"Pourquoi c'est
+  important", partagé par les 6 cartes projet) mesuré à 4.24:1** (cycle 039,
+  premier run du nouveau `ui-contrast-sweep.mjs`). Sous le plancher de 4.5:1
+  à 10px, présent depuis l'origine du bloc, invisible à axe-core (même angle
+  mort que ci-dessus). Corrigé commits `e4cc8de`/`eaa8dff` : alpha `0.5` →
+  `0.58` (`src/index.css`), même valeur déjà tranchée pour ce cas de figure
+  (petit texte translucide sur fond quasi noir, cycles 002/018/033/034),
+  mesurée à **5.4:1** après. Balayage complet (2 routes × 4 viewports × 2
+  langues) : 0 violation résiduelle. axe-core scopé à `.home-project-card` :
+  0 violation aux 4 combinaisons 390/1440 × EN/FR.
 
 ## Terminé
 

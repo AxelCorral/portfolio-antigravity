@@ -6,6 +6,152 @@
 
 ---
 
+## Cycle 039 — 2026-09-13 06:35
+
+**Zone travaillée** : hors zone prioritaire (§3, gelée sur toutes ses
+sous-sections) et hors §4 (reconfirmé intégralement traité) — outillage
+(`scripts/ui-contrast-sweep.mjs`, nouveau) et `src/index.css`
+(`.home-project-why span`, partagé par les 6 cartes projet, aucun compteur
+§6 dédié jusqu'ici — 1re passe).
+**Rotation de questions** : aucune rotation A-E complète ce cycle — le
+chantier répond directement au P2 chiffré du backlog ouvert depuis le cycle
+021 (« axe-core ne juge pas le contraste de cette page… étendre la
+couverture du probe au reste du site »), pas à une nouvelle interrogation.
+
+### Note de continuité — §4 revérifié sur le code, pas sur le seul journal
+
+`grep 'id: "0[456]"' src/data/projects.ts` → les trois entrées existent ;
+`grep 'project.id ===' src/OnePage.tsx` → 01/02/03/06 ont leur carousel
+dédié, 04/05 tombent dans la branche générique `demoLink ? <LiveDemoEmbed>`
+(voulu, Q2/Q3 tranchées). `npm run build` vert avant tout changement
+(679,85 kB JS / 87,20 kB CSS, identique à l'état de fin de cycle 038) et
+revérifié vert après. **Le §4 reste intégralement traité, reconfirmé pour
+la 14e fois consécutive (cycles 026-039).**
+
+### Constats d'audit
+
+Pas de fichier `AUDIT-*.md` séparé (chantier tooling + correctif unique,
+mesuré directement par le nouvel outil et consigné ici et dans
+`BACKLOG.md`). Résumé :
+- **Outillage — nouveau `scripts/ui-contrast-sweep.mjs`.** Le backlog porte
+  depuis le cycle 021 un P2 non chiffré : axe-core rend 0 violation
+  `color-contrast` sur ce site tout en laissant des centaines de noeuds
+  `incomplete` (fond indéterminable à travers un pseudo-élément, ou
+  recouvert) — un feu vert qui n'en est pas un, déjà responsable d'un texte
+  à 3,47:1 resté invisible vingt cycles. Le probe maison
+  (`scripts/lib/probe-color.js`) résout `oklch()`/`oklab()` et compose le
+  vrai fond hérité, mais n'avait jusqu'ici jamais tourné que sur une liste
+  de sélecteurs choisis à la main, cycle par cycle. Le nouvel outil marche
+  **tout** noeud qui peint du texte sur une route (`document.body.querySelectorAll("*")`,
+  filtré sur les enfants texte directs), applique les seuils WCAG AA (4.5:1
+  texte normal, 3:1 grand texte ≥24px ou ≥19px gras — même règle qu'axe-core),
+  ignore les noeuds `aria-hidden` (décoratifs, hors WCAG 1.4.3 — même
+  exception que `.pc-watermark`, cycle 033), et dédoublonne les répétitions
+  identiques (ex. un même bullet répété sur 16 cartes ne compte qu'une fois).
+- **P0 mesuré et corrigé — `.home-project-why span` à 4.24:1.** Premier run
+  du nouvel outil sur les 2 routes × 4 viewports × 2 langues (16
+  combinaisons) : **1 seule violation**, le kicker "Why it matters"/
+  "Pourquoi c'est important" partagé par les 6 cartes projet, à 10px/400,
+  sous le plancher de 4.5:1 depuis l'origine du bloc. `/cv` : 0 violation
+  aux 8 combinaisons (déjà nettoyée cycle 034). Corrigé : `rgba(225, 224,
+  204, 0.5)` → `0.58` (`src/index.css:846`), la même valeur déjà tranchée
+  pour ce cas de figure exact (petit texte translucide sur fond quasi noir,
+  cycles 002/018/033/034) plutôt qu'une valeur recalculée au cas par cas.
+
+### Changements livrés
+
+- `e4cc8de` — chore(ui-contrast-sweep): nouvel outil de balayage de
+  contraste pleine page (WCAG AA, résolution oklch/oklab, exclusion
+  aria-hidden).
+- `eaa8dff` — fix(project-card): alpha `0.5` → `0.58` sur `.home-project-why
+  span` (`src/index.css`) — kicker "Why it matters" des 6 cartes projet,
+  4.24:1 → 5.4:1.
+- `3efe34d` — ui-loop: galerie du cycle 039.
+
+### Vérification
+
+- Build : ✅ avant et après (`npm run build` — CSS 87,20 kB inchangé au
+  centième, cohérent avec un changement d'un seul caractère sur une règle ;
+  JS 679,85 kB inchangé). `tsc -b` (inclus) : ✅.
+- Balayage de contraste (`scripts/ui-contrast-sweep.mjs`, 2 routes × 4
+  viewports × 2 langues, 16 combinaisons) : **1 violation avant** (4.24:1),
+  **0 violation après**, sur les 16 combinaisons.
+- axe-core scopé à `.home-project-card` (script ad hoc, supprimé après
+  usage), dev server port 5174 : **0 violation** aux 4 combinaisons
+  390/1440 × EN/FR (le blind-spot de contraste d'axe subsiste sans
+  conséquence, la mesure du chantier vient du probe maison).
+- Confirmation visuelle avant/après (galerie, capture resserrée sur
+  `.home-project-why`, 390 et 1440, EN) : le libellé "WHY IT MATTERS" est
+  visiblement plus clair après, sans décalage de mise en page. Premier
+  essai de galerie en mode `viewport:` a produit une paire non probante
+  (l'empilement `position: sticky` des cartes projet plaçait le haut de
+  scroll sur l'en-tête de la carte suivante, pas sur le kicker visé — piège
+  déjà documenté cycle 032 pour `openmodal:`, ici rencontré en mode
+  `viewport:`) ; corrigé en repassant en mode de capture d'élément par
+  défaut (`locator.screenshot()`), qui cadre l'élément quel que soit
+  l'empilement.
+- Viewports vérifiés : 390 / 768 / 1440 / 1920 (balayage de contraste
+  complet). Galerie : 390 et 1440 uniquement (format standard §7bis).
+- Langues : FR ✅ EN ✅ (même règle CSS, aucune dépendance à la langue —
+  vérifié malgré tout aux 16 combinaisons par le balayage).
+- reduced-motion : sans objet — un seul canal alpha statique modifié,
+  aucune animation touchée.
+- Régression détectée : non. `/cv` revérifiée dans le même balayage : 0
+  violation aux 8 combinaisons, inchangé depuis le cycle 034.
+
+### Reverté
+
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024, reconfirmé
+  pour la 14e fois consécutive.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025, reconfirmé de
+  même.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026,
+  reconfirmé de même.
+- **Le §4 de MISSION-UI.md reste intégralement traité, revérifié sur le
+  code réel pour la 14e fois consécutive (cycles 026-039).**
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Prochain cycle — point de reprise exact
+- Relire MISSION-UI.md en entier (§0) puis reprendre l'ordre de priorité §2
+  phase 4 normal : (1) tout P0 réel détecté en phase 1 ; (2) §3 reste P2
+  gelée sauf régression/bug bloquant/violation d'accessibilité
+  mesurée/raccord imposé ; (3) « reste du site ». Le P2 chiffré du cycle
+  021 (couverture du probe de contraste) est désormais traité — l'outil
+  `ui-contrast-sweep.mjs` existe et a balayé les 2 routes actuelles au
+  complet, 0 violation résiduelle. **Si Q5 est tranchée avant le prochain
+  cycle**, le candidat prioritaire redevient le CLS de `/cv` (tablet-768 +
+  FR, 0.1603 → cible < 0.1, cf. cycle 037), à corriger en ajustant le
+  chargement de police décidé par la réponse, avec vérification avant/après
+  sur les 4 viewports × 2 langues des deux routes. Si Q5 reste ouverte,
+  candidats P2 restants du backlog : bundle JS 679,85 kB (226 kB gzip,
+  warning Vite « chunk > 500kB ») ; mode `--freeze-at=<ms>` pour
+  `ui-gallery.mjs` ; mode dédié qui verrouille `scrollY` avant de
+  positionner une cible `viewport:` (le piège rencontré ce cycle en est une
+  nouvelle occurrence, contourné à la main comme au cycle 032) ; tokens CSS
+  orphelins `--fictif-ink`/`--fictif-border` ; le contraste des 16 coches
+  `<Check>` des cartes Capabilities plus claires que leur texte (rotation
+  A/D, `#capabilities` gelée — arbitrage d'icône, pas un correctif de
+  contraste au sens WCAG, à trancher hors plafond de retouche puisqu'il ne
+  s'agit pas de la même classe de défaut) ; la largeur de colonne de
+  `.capability-card` à 1024px (arbitrage de grille, `#capabilities` gelée) ;
+  la mesure de coût de rendu des animations (`longtask`, rotation C, jamais
+  faite) ; `ui-contrast-sweep.mjs` lui-même pourrait être étendu à `:hover`/
+  `:focus-visible` (actuellement seulement l'état de repos après scroll
+  complet), candidat d'outillage si un futur composant introduit un
+  contraste qui ne se dégrade qu'au survol.
+
+### Questions bloquantes ouvertes
+- **Q5** — écart entre la police de corps documentée (Inter,
+  MISSION-UI.md §1) et celle réellement chargée (Almarai, `body` dans
+  `src/index.css`) ; détermine la bonne réparation du CLS mesuré cycle 037.
+  Toujours ouverte, non tranchée par Axel à ce jour. Voir `QUESTIONS.md`.
+- Q1-Q4 résolues le 2026-09-12, voir `QUESTIONS.md`.
+
+---
+
 ## Cycle 038 — 2026-09-13 06:05
 
 **Zone travaillée** : hors zone prioritaire (§3, gelée sur toutes ses
