@@ -6,6 +6,158 @@
 
 ---
 
+## Cycle 041 — 2026-09-13 10:26
+
+**Zone travaillée** : hors zone prioritaire (§3, gelée sur toutes ses
+sous-sections) et hors §4 (reconfirmé intégralement traité) — outillage
+(nouveau `scripts/ui-longtask-probe.mjs`) et diagnostic de
+`src/components/CinematicOpening.tsx` (aucune modification, chantier
+purement diagnostique).
+**Rotation de questions** : **C — Mouvement**, question jamais chiffrée
+(« la mesure de coût de rendu des animations (`longtask`, rotation C,
+jamais faite) », candidat P2 listé aux points de reprise des cycles
+038-040).
+
+### Note de continuité — §4 revérifié sur le code, pas sur le seul journal
+
+`grep 'id: "0[456]"' src/data/projects.ts` → les trois entrées existent ;
+`grep 'project.id ===' src/OnePage.tsx` → 01/02/03/06 ont leur carousel
+dédié, 04/05 tombent dans la branche générique `demoLink ? <LiveDemoEmbed>`
+(voulu, Q2/Q3 tranchées). `npm run build` vert avant tout changement
+(679,85 kB JS / 87,25 kB CSS, identique à la fin du cycle 040) et revérifié
+vert après (identique à l'octet près — aucun fichier `src/` modifié ce
+cycle). **Le §4 reste intégralement traité, reconfirmé pour la 16e fois
+consécutive (cycles 026-041).**
+
+### Constats d'audit
+
+Pas de fichier `AUDIT-*.md` séparé (chantier d'outillage + diagnostic
+unique, mesuré directement par le nouvel outil et par un profil CPU
+jetable, consigné ici et dans `BACKLOG.md`). Résumé :
+- **Outillage — nouveau `scripts/ui-longtask-probe.mjs`.**
+  `ui-motion-probe.mjs` (rotation C existante) mesure la lisibilité pendant
+  l'animation, mais aucun outil ne mesurait si l'animation elle-même rend
+  la page saccadée. Le nouvel outil enregistre un
+  `PerformanceObserver({entryTypes:["longtask"]})` avant tout script
+  applicatif (`addInitScript`), sur deux fenêtres — `load` (2,4s après
+  navigation, couvre l'entrée `CinematicOpening`) et `scroll` (défilement
+  progressif par pas de 400px jusqu'en bas, couvre chaque reveal
+  `ScrollTrigger`) — aux 4 viewports × 2 langues × 2 préférences de
+  mouvement (`no-preference`/`reduce`), en calculant le TBT (Total Blocking
+  Time, définition Core Web Vitals : somme de `duration - 50` par tâche
+  &gt;50ms). Piège MSYS déjà documenté (cycles 035/036) rencontré à
+  l'identique sur `--path=/` : `MSYS_NO_PATHCONV=1` requis.
+- **P2 mesuré, non corrigé — `reduce`-motion coûte PLUS de temps main-thread
+  au chargement que `no-preference`, sur `CinematicOpening.tsx`.** Premier
+  run à 1440 : `no-preference` charge avec 1-2 tâches longues (TBT
+  ~200-250ms), `reduce` en charge 4-5 (TBT ~380-450ms) ; 0 tâche longue au
+  scroll dans les deux cas, aux deux langues. Contre-intuitif (moins
+  d'animation devrait coûter moins cher), donc vérifié avant d'être retenu
+  comme réel (leçon cycle 037) : reproduit identique sur 4 runs
+  indépendants à 1440 (`--viewports=1440`, 3 répétitions supplémentaires).
+  Isolé par profil CPU (CDP `Profiler.start`/`stop`, script jetable
+  `scripts/.tmp-cpuprofile.mjs`, supprimé après usage) : sous `reduce`, la
+  fonction interne `measure()` de framer-motion (`useScroll`, lit
+  `offsetLeft`/`offsetTop`/`clientHeight` en remontant la chaîne
+  `offsetParent` — layout forcé) passe de 5,5ms à 224ms de temps propre
+  cumulé sur la fenêtre de charge ; le `measure()` local de
+  `CinematicOpening.tsx` (`useLayoutEffect`, lit `ref.current.offsetHeight`)
+  passe de ~143ms à ~238ms cumulés. Hypothèse de départ testée et
+  **infirmée** : `.city-content` passe à `display: 'none'` sous `reduce`,
+  mais `.city-content` est `position: absolute` dans `.intro-sequence`
+  (`height: 240vh` fixe, `src/index.css:450`) — son affichage ne change donc
+  pas la hauteur du conteneur scrollable, ce n'est pas un layout shift du
+  pin. Cause exacte non tranchée dans le temps de ce cycle (piste restante :
+  les écritures de style `reduce` passent par le commit React synchrone
+  plutôt que par les valeurs animées de framer-motion, batchées en RAF sous
+  `no-preference` — non prouvée au niveau du commit exact). **Aucun
+  correctif livré** : la piste la plus évidente (différer le `measure()` de
+  `CinematicOpening.tsx` hors de `useLayoutEffect`) risquerait un flash de
+  mauvais calibrage du scroll-pin au premier frame sur le composant hero le
+  plus visible du site, déjà finement calé (cascade cycle 022) — pas assez
+  sûr pour être tenté sans budget de vérification dédié. Impact réel mesuré
+  : ~150-250ms supplémentaires une seule fois au chargement, avant toute
+  interaction de scroll, sans défaut visible (opacité/contraste sous
+  `reduce` déjà vérifiés conformes par `ui-motion-probe.mjs`, cycles
+  antérieurs).
+
+### Changements livrés
+
+- `c2ffb26` — chore(ui-longtask-probe): nouvel outil de mesure de coût
+  main-thread (rotation C), `PerformanceObserver` longtask, 4 viewports × 2
+  langues × 2 préférences de mouvement.
+- (à suivre) — `docs(backlog)`, `ui-loop: galerie`, `ui-loop: journaliser`
+  pour ce cycle.
+
+### Vérification
+
+- Build : ✅ avant et après (679,85 kB JS / 87,25 kB CSS, identique à
+  l'octet près — aucun fichier `src/` modifié). `tsc -b` (inclus) : ✅.
+  `npx eslint scripts/ui-longtask-probe.mjs` : 0 erreur, 0 warning.
+- Balayage main-thread (`scripts/ui-longtask-probe.mjs`, 4 viewports × 2
+  langues × 2 préférences de mouvement, homepage) : 0 tâche longue au
+  scroll sur les 16 combinaisons ; au chargement, `reduce` systématiquement
+  plus coûteux que `no-preference` (voir Constats). Reproductibilité
+  confirmée par 3 runs supplémentaires ciblés à 1440 avant d'être retenue
+  comme un constat réel.
+- Profil CPU dédié (CDP `Profiler`, script jetable supprimé après usage) :
+  isolation de la fonction responsable de l'écart à `measure()`
+  (framer-motion `useScroll` + `CinematicOpening.tsx`), sur les deux
+  préférences de mouvement, à 1440/EN.
+- Viewports vérifiés : 390 / 768 / 1440 / 1920 (balayage complet). Pas de
+  galerie image (chantier d'outillage + diagnostic, aucun changement
+  visuel — voir `GALERIE.md`, format texte comme au cycle 037).
+- Langues : FR ✅ EN ✅ (balayage complet aux deux langues, écart mesuré
+  présent dans les deux).
+- reduced-motion : c'est l'objet même du diagnostic — mesuré aux deux
+  préférences à chaque combinaison, aucune animation modifiée.
+- Régression détectée : non — aucun fichier `src/` modifié ce cycle.
+
+### Reverté
+
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024, reconfirmé
+  pour la 16e fois consécutive.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025, reconfirmé de
+  même.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026,
+  reconfirmé de même.
+- **Le §4 de MISSION-UI.md reste intégralement traité, revérifié sur le
+  code réel pour la 16e fois consécutive (cycles 026-041).**
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Prochain cycle — point de reprise exact
+- Relire MISSION-UI.md en entier (§0) puis reprendre l'ordre de priorité §2
+  phase 4 normal : (1) tout P0 réel détecté en phase 1 ; (2) §3 reste P2
+  gelée sauf régression/bug bloquant/violation d'accessibilité
+  mesurée/raccord imposé ; (3) « reste du site ». **Candidat prioritaire
+  chiffré** : le coût main-thread supplémentaire de `reduce`-motion au
+  chargement de `CinematicOpening.tsx` (~150-250ms, voir `BACKLOG.md`) reste
+  un P2 ouvert, sans correctif sûr identifié ce cycle — un futur cycle avec
+  budget dédié pourrait creuser si les écritures de style `reduce`
+  (commit React synchrone) sont bien la cause exacte avant de tenter un
+  correctif sur ce composant hero central. Si Q5 est tranchée avant le
+  prochain cycle, le candidat redevient le CLS de `/cv` (tablet-768 + FR,
+  0.1603 → cible &lt; 0.1, cf. cycle 037). Autres candidats P2 inchangés :
+  bundle JS 679,85 kB (226 kB gzip, warning Vite « chunk > 500kB ») ; mode
+  `--freeze-at=<ms>` pour `ui-gallery.mjs` ; mode dédié qui verrouille
+  `scrollY` avant de positionner une cible `viewport:` ; le contraste des 16
+  coches `<Check>` des cartes Capabilities plus claires que leur texte
+  (rotation A/D, `#capabilities` gelée — arbitrage d'icône, pas un
+  correctif de contraste au sens WCAG) ; la largeur de colonne de
+  `.capability-card` à 1024px (arbitrage de grille, `#capabilities` gelée).
+
+### Questions bloquantes ouvertes
+- **Q5** — écart entre la police de corps documentée (Inter,
+  MISSION-UI.md §1) et celle réellement chargée (Almarai, `body` dans
+  `src/index.css`) ; détermine la bonne réparation du CLS mesuré cycle 037.
+  Toujours ouverte, non tranchée par Axel à ce jour. Voir `QUESTIONS.md`.
+- Q1-Q4 résolues le 2026-09-12, voir `QUESTIONS.md`.
+
+---
+
 ## Cycle 040 — 2026-09-13 09:45
 
 **Zone travaillée** : hors zone prioritaire (§3, gelée sur toutes ses
