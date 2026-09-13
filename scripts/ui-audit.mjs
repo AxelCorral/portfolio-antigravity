@@ -15,7 +15,14 @@
  *
  * Output: docs/ui-loop/screenshots/<runId>/... + docs/ui-loop/screenshots/<runId>/report.json
  *
- * Usage: node scripts/ui-audit.mjs [--base-url=http://localhost:5183]
+ * Usage: node scripts/ui-audit.mjs [--base-url=http://localhost:5183] [--path=/cv]
+ *
+ * --path=<route> audits a route other than the homepage (e.g. `/cv`). Every
+ * capture stage keeps running the same way; only the per-section screenshot
+ * list (SECTIONS) switches to that route's own landmarks, the same pattern
+ * `ui-gallery.mjs`/`ui-hierarchy-probe.mjs`/`ui-evidence-probe.mjs` already use
+ * (cycles 034/035/037 lesson: a route without its own selector set is
+ * invisible to every probe in the loop, however many cycles run against `/`).
  */
 import { chromium } from "playwright";
 import AxeBuilder from "@axe-core/playwright";
@@ -35,7 +42,8 @@ const args = Object.fromEntries(
 );
 
 const DEV_PORT = 5183;
-const BASE_URL = args["base-url"] ?? `http://localhost:${DEV_PORT}`;
+const ROUTE_PATH = args.path ? (args.path.startsWith("/") ? args.path : `/${args.path}`) : "";
+const BASE_URL = (args["base-url"] ?? `http://localhost:${DEV_PORT}`) + ROUTE_PATH;
 const runId = new Date().toISOString().replace(/[:.]/g, "-");
 const OUT_DIR = path.join(ROOT, "docs/ui-loop/screenshots", runId);
 
@@ -49,13 +57,35 @@ const VIEWPORTS = [
 const LANGS = ["en", "fr"];
 
 // Sections that make up the priority zone (below the project slides) plus the
-// slides themselves for continuity/comparison.
-const SECTIONS = [
-  { id: "selected-work", label: "project-slides" },
-  { id: "about", label: "about-analytical-profile" },
-  { id: "capabilities", label: "capabilities" },
-  { id: "contact", label: "contact-footer" },
-];
+// slides themselves for continuity/comparison. --path=/cv switches to that
+// route's own landmarks — it has no project slides or priority zone at all.
+const SECTIONS =
+  ROUTE_PATH === "/cv"
+    ? [
+        { id: "experience", label: "cv-experience" },
+        { id: "projects", label: "cv-projects" },
+      ]
+    : [
+        { id: "selected-work", label: "project-slides" },
+        { id: "about", label: "about-analytical-profile" },
+        { id: "capabilities", label: "capabilities" },
+        { id: "contact", label: "contact-footer" },
+      ];
+
+// The hover/focus dry-run below targets homepage-only selectors; on /cv it
+// probes the route's own interactive elements instead so that pass isn't
+// silently a no-op (0 matches, 0 screenshots, no error) on the second route.
+const HOVER_TARGETS =
+  ROUTE_PATH === "/cv"
+    ? [
+        { selector: ".cv-project-card", name: "cv-project-card" },
+        { selector: ".cv-contacts a", name: "cv-contact-link" },
+      ]
+    : [
+        { selector: ".contact-links a", name: "contact-link" },
+        { selector: ".capability-card .card-link", name: "capability-learn-more" },
+        { selector: ".build-mode-trigger-strong", name: "discover-personal-cta" },
+      ];
 
 async function waitForServer(url, timeoutMs = 30000) {
   const start = Date.now();
@@ -179,12 +209,7 @@ async function capturePage({ lang, viewport, reducedMotion }) {
 
   // 7. Hover states — only once per language, at the laptop viewport, to bound run time.
   if (viewport.name === "laptop-1440" && !reducedMotion) {
-    const hoverTargets = [
-      { selector: ".contact-links a", name: "contact-link" },
-      { selector: ".capability-card .card-link", name: "capability-learn-more" },
-      { selector: ".build-mode-trigger-strong", name: "discover-personal-cta" },
-    ];
-    for (const target of hoverTargets) {
+    for (const target of HOVER_TARGETS) {
       const el = page.locator(target.selector).first();
       if ((await el.count()) === 0) continue;
       await el.scrollIntoViewIfNeeded();
@@ -203,7 +228,13 @@ async function capturePage({ lang, viewport, reducedMotion }) {
         const rect = el.getBoundingClientRect();
         return { tag: el.tagName, text: el.textContent?.slice(0, 40), y: rect.top + window.scrollY };
       });
-      if (active && active.y > (await page.evaluate(() => document.getElementById("about")?.offsetTop ?? Infinity)) - 200) {
+      // "Past the fold" landmark used to decide when a focused element is worth
+      // its own screenshot. `#about` only exists on the homepage; on /cv, where
+      // it's absent, falling back to Infinity made this predicate never true —
+      // a silent no-op, not an error (same failure shape as the hover pass
+      // above before HOVER_TARGETS existed).
+      const foldMarker = ROUTE_PATH === "/cv" ? "experience" : "about";
+      if (active && active.y > (await page.evaluate((id) => document.getElementById(id)?.offsetTop ?? Infinity, foldMarker)) - 200) {
         await page.evaluate((y) => window.scrollTo(0, Math.max(0, y - 300)), active.y);
         await page.waitForTimeout(120);
         await page.screenshot({ path: path.join(dir, `focus-${t}.png`) });

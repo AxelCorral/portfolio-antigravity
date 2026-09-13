@@ -10,7 +10,34 @@
 
 ## Ouvertes
 
-_(aucune — les quatre questions ouvertes ont été tranchées par Axel le 2026-09-12)_
+### Q5 — Police de corps documentée (« Inter ») vs police réellement chargée (« Almarai »)
+
+**Constat (cycle 037)** : `MISSION-UI.md` §1 documente l'identité comme
+« Fraunces (titres), JetBrains Mono (technique), **Inter** (corps) ». Le code
+déclare `--font-body: "Inter", system-ui, sans-serif` dans `src/tokens.css`,
+mais ce token **n'est référencé nulle part** (`grep -rn "var(--font-body)"
+src/` → 0 résultat) et Inter n'est jamais chargé (absent de l'URL Google Fonts
+dans `index.html`, qui ne charge qu'Almarai/Fraunces/Instrument Serif/
+JetBrains Mono). La police de corps réellement utilisée depuis l'origine du
+projet est **Almarai** (`body { font-family: "Almarai", ... }`,
+`src/index.css:59`).
+
+**Pourquoi c'est bloquant** : ce cycle a mesuré un CLS de 0.16 sur `/cv`
+(tablet-768 + FR), confirmé causé par le reflow de police web (FOUT) d'Almarai
+au chargement à froid — voir `BACKLOG.md`. La réparation standard touche
+directement quelle police charge et comment (`font-display`, éventuellement
+des métriques de repli calibrées). Je ne peux pas savoir si Inter est
+l'intention réelle jamais finalisée (auquel cas la bonne réparation est de
+finir la migration vers Inter) ou si Almarai est le choix délibéré et la
+mention "Inter" dans la mission est simplement restée obsolète (auquel cas on
+corrige la doc et on ajuste le chargement d'Almarai en place). Deviner l'un ou
+l'autre reviendrait à changer une police ou une identité visuelle sans
+arbitrage — interdit par le garde-fou §6 sans décision explicite.
+
+**Question pour Axel** : la police de corps du site doit-elle rester Almarai
+(et la mention "Inter" dans `MISSION-UI.md` §1 doit être corrigée), ou
+Inter était-elle prévue et jamais chargée (auquel cas il faut l'ajouter à
+l'URL Google Fonts et basculer `body` dessus) ?
 
 ---
 

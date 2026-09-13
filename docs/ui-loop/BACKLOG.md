@@ -466,6 +466,41 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   sur le bouton de fermeture, **0 violation axe-core**. `/cv` ne liste que
   les projets 01/02/03 — vérifié intentionnel (CV formel, projets à dépôt
   vérifiable seulement), pas un défaut.
+- [ ] **CLS 0.1603 sur `/cv` à tablet-768 + FR uniquement, causé par un reflow
+  de police web à froid (FOUT)** (cycle 037, premier run complet de
+  `ui-audit.mjs` sur `/cv` après l'ajout de `--path=<route>`). Reproductible
+  100 % (4/4 runs identiques, ~0.156-0.160), isolé à la bande 700-768px en
+  français uniquement (768px EN = 0.0007 ; toutes les autres combinaisons
+  ≤ 0.012), et confirmé comme un problème de chargement de police par
+  élimination : un `page.reload()` dans le même contexte (polices déjà en
+  cache) fait tomber le CLS à **0**. La police de corps (`body`, chargée via
+  Almarai + `display=swap` dans `index.html`) s'affiche d'abord en police de
+  repli système puis se redessine avec des métriques différentes, déplaçant
+  les retours à la ligne du texte courant (`.cv-hook`, `.cv-timeline`,
+  `.cv-contacts`) — le français, plus long à contenu égal, franchit une
+  limite de wrap à cette largeur que l'anglais ne franchit pas. **Pas corrigé
+  ce cycle** : la correction standard (`font-display: optional`, ou des
+  descripteurs `size-adjust`/`ascent-override`) touche le chargement de police
+  de tout le site (Almarai est la police de base de `body`, pas seulement de
+  `/cv`), donc exige sa propre vérification avant/après sur les 4 viewports ×
+  2 langues des deux routes avant d'être livrée — trop large pour être
+  greffée en fin de cycle. Bloqué en pratique sur `QUESTIONS.md` Q5 (écart
+  entre la police de corps documentée — Inter — et celle réellement chargée —
+  Almarai — qui détermine quelle réparation est la bonne). **P1 — prochain
+  candidat naturel une fois Q5 tranchée.**
+- [x] **`scripts/ui-evidence-probe.mjs`/`scripts/ui-audit.mjs` ne savaient
+  auditer que la page d'accueil** (cycle 037, même angle mort que
+  `ui-gallery.mjs`/`ui-hierarchy-probe.mjs` avant les cycles 034/035). Ajouté
+  `--path=<route>` aux deux : `ui-evidence-probe.mjs` bascule son inventaire
+  de blocs sur les sections `/cv` (rôle "zone" uniforme, pas de "showcase" —
+  un CV n'a pas de slides projet) ; `ui-audit.mjs` bascule ses sections de
+  capture et ses cibles de survol, et corrige un repli silencieux
+  (`document.getElementById("about")` en dur pour décider si un état de focus
+  clavier mérite sa capture — absent sur `/cv`, le `?? Infinity` rendait ce
+  test toujours faux sans jamais le signaler). Premier run complet de
+  `ui-audit.mjs --path=/cv` (10 combinaisons) : 0 overflow, 0 violation
+  axe-core, 0 erreur console — et l'anomalie de CLS ci-dessus, qui valide que
+  l'extension apporte une couverture réelle et pas seulement un flag inerte.
 - [ ] **`ui-gallery.mjs` : le mode `viewport:<cible>@<y>` suppose qu'un
   scroll ne change que la position de la cible dans le document** (cycle
   029). Faux pour toute section pilotée par la position de scroll absolue

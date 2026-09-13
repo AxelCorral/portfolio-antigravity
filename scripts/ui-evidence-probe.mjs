@@ -51,7 +51,8 @@ const args = Object.fromEntries(
   }),
 );
 
-const BASE_URL = args["base-url"] ?? "http://localhost:5183";
+const ROUTE_PATH = args.path ? (args.path.startsWith("/") ? args.path : `/${args.path}`) : "";
+const BASE_URL = (args["base-url"] ?? "http://localhost:5183") + ROUTE_PATH;
 const TAG = args.tag ?? new Date().toISOString().replace(/[:.]/g, "-");
 const OUT_DIR = path.join(ROOT, "docs/ui-loop/screenshots", `evidence-${TAG}`);
 
@@ -67,16 +68,32 @@ const LANGS = args.langs ? String(args.langs).split(",") : ["en", "fr"];
 
 // The showcase (worked part of the page) is measured alongside the zone so the
 // "finish gap" of D-Q3 is a difference between two inventories, not a feeling.
-const BLOCKS = [
-  { sel: ".city-nav", key: "nav", role: "reste" },
-  { sel: ".city-content", key: "hero-intro", role: "reste" },
-  { sel: "#profile", key: "hero-profile", role: "reste" },
-  { sel: "#selected-work", key: "selected-work", role: "showcase" },
-  { sel: "#about", key: "about", role: "zone" },
-  { sel: "#capabilities", key: "capabilities", role: "zone" },
-  { sel: "#contact", key: "contact", role: "zone" },
-  { sel: ".site-footer", key: "site-footer", role: "zone" },
-];
+//
+// --path=/cv switches to the CV route's own sections (cycles 034/035 lesson:
+// a route without its own block set is invisible to every probe in the loop).
+// There is no "showcase" on this page (a CV has no hero slideshow) — every
+// block is measured as "zone" so D-Q3's finish-gap comparison runs top to
+// bottom of the same page instead of against a homepage section it doesn't
+// share a DOM with.
+const BLOCKS =
+  ROUTE_PATH === "/cv"
+    ? [
+        { sel: ".cv-header", key: "cv-header", role: "zone" },
+        { sel: "#experience", key: "cv-experience", role: "zone" },
+        { sel: "#projects", key: "cv-projects", role: "zone" },
+        { sel: ".cv-two-col", key: "cv-education-languages", role: "zone" },
+        { sel: ".cv-skills-groups", key: "cv-skills", role: "zone" },
+      ]
+    : [
+        { sel: ".city-nav", key: "nav", role: "reste" },
+        { sel: ".city-content", key: "hero-intro", role: "reste" },
+        { sel: "#profile", key: "hero-profile", role: "reste" },
+        { sel: "#selected-work", key: "selected-work", role: "showcase" },
+        { sel: "#about", key: "about", role: "zone" },
+        { sel: "#capabilities", key: "capabilities", role: "zone" },
+        { sel: "#contact", key: "contact", role: "zone" },
+        { sel: ".site-footer", key: "site-footer", role: "zone" },
+      ];
 
 const withTimeout = (p, ms, label) =>
   Promise.race([
