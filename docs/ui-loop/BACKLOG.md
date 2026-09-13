@@ -402,6 +402,26 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   grandeur sous les cas déjà arbitrés en zone prioritaire), et le carousel
   répond déjà aux trois questions de la rotation (eases nommés, pas de
   contenu invisible, reduced-motion propre).
+- [x] **`/cv` jamais visitée par aucun outil d'audit de la boucle** (cycle
+  034 — `scripts/ui-audit.mjs` ne charge que `BASE_URL`, aucune route). Sonde
+  Playwright ad hoc a mesuré trois défauts : `.cv-kicker`/`.cv-section-kicker`
+  à 4.49:1, `.cv-timeline-dates` à 4.21:1, `.cv-print-note` à 2.52:1 (P0
+  mesuré, motif déjà corrigé ailleurs cycles 002/018/033, jamais appliqué à
+  cette page) ; `.cv-contacts a` (liens email/GitHub) à 40px de haut (P1
+  mesuré, sous le plancher de 44px) ; `.cv-timeline-bullets li` à 111
+  caractères/ligne à 1440 (P2 mesuré, au-dessus du plafond de 75 de rotation
+  B). Corrigé commit `a47fe85` : alpha `0.52`/`0.5`/`0.35` → `0.58` (valeur
+  déjà tranchée pour ce cas de figure, cycles 002/018/033), `min-height`
+  40px→44px, `max-width: var(--measure-lede)` sur les puces. Revérifié cycle
+  034 (script de vérification dédié, supprimé après usage) : contraste
+  **5.41:1** aux 4 combinaisons 390/1440 × EN/FR, cibles tactiles **44px**, 0
+  débordement horizontal, **0 violation axe-core**, mesure de lecture 48/61
+  caractères/ligne (390/1440) — largement sous le plafond.
+- [x] **`ui-gallery.mjs` ne visitait jamais que `/`** (cycle 034, besoin du
+  chantier ci-dessus : `/cv` est une route distincte, jamais capturable en
+  avant/après). Ajouté `--path=<route>` (commit `1f71bb3`) : ajoute la route
+  à l'URL de base avant toute capture, même forme que les additions
+  incrémentales précédentes (`openmodal:`, `--viewports`).
 - [ ] **`ui-gallery.mjs` : le mode `viewport:<cible>@<y>` suppose qu'un
   scroll ne change que la position de la cible dans le document** (cycle
   029). Faux pour toute section pilotée par la position de scroll absolue

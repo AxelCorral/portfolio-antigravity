@@ -6,6 +6,151 @@
 
 ---
 
+## Cycle 034 — 2026-09-13 03:20
+
+**Zone travaillée** : hors zone prioritaire (§3, gelée sur toutes ses
+sous-sections) et hors §4 (reconfirmé intégralement traité) — page `/cv`
+(`src/pages/CVPage.tsx`, règles dans `src/index.css`). Outillage :
+`scripts/ui-gallery.mjs` gagne `--path=<route>`.
+**Rotation de questions** : aucune rotation A-E complète — les trois défauts
+relèvent du garde-fou §6 (contraste et cible tactile mesurés), une page
+jamais visitée par aucun outil d'audit de la boucle jusqu'ici plutôt qu'une
+interrogation d'angle (voir note ci-dessous).
+
+### Continuité de session — cycle repris à la phase 7
+
+Ce cycle a été **entamé dans une session précédente** (phases 1 à 6 :
+`docs/ui-loop/AUDIT-2026-09-13-cycle-034.md`, commits `a47fe85`, `1f71bb3`,
+`1252ee8`) puis interrompue avant la phase 7 (journalisation) — `git status`
+en tout début de cette session montrait l'audit non commité et `PROGRESS.md`
+sans entrée de cycle 034. Conformément au §0 (« un cycle non journalisé est
+un cycle perdu »), cette session a **revérifié le travail déjà livré plutôt
+que de lui faire confiance sur parole**, puis complète la phase 6/7. Aucune
+implémentation supplémentaire n'a été nécessaire : le chantier était
+correctement fini, seule sa trace manquait.
+
+### Note de continuité — §4 revérifié sur le code, pas sur le seul journal
+
+`grep 'id: "0[456]"' src/data/projects.ts` → les trois entrées existent ;
+`grep 'project.id ===' src/OnePage.tsx` → 01/02/03/06 ont leur carousel
+dédié, 04/05 tombent dans la branche générique `demoLink ? <LiveDemoEmbed>`
+(voulu, Q2/Q3 tranchées). `npm run build` vert avant tout changement (repris
+de l'audit de la session précédente, revérifié à nouveau vert en fin de
+cette session). **Le §4 reste intégralement traité, reconfirmé pour la 9e
+fois consécutive (cycles 026-034).**
+
+### Constats d'audit
+
+Audit complet dans `docs/ui-loop/AUDIT-2026-09-13-cycle-034.md` (à purger
+après 24h). Résumé : `/cv` n'avait jamais été visitée par `scripts/
+ui-audit.mjs` (qui ne charge que `BASE_URL`, aucun `page.goto` avec un
+chemin) — neuf cycles consécutifs avaient audité la page d'accueil sous
+toutes les rotations pendant que la seule autre route réelle du site restait
+hors radar. Sonde Playwright ad hoc sur 390/1440 × EN/FR :
+- **Contraste — 3 P0 mesurés** : `.cv-kicker`/`.cv-section-kicker` à
+  **4.49:1**, `.cv-timeline-dates` à **4.21:1**, `.cv-print-note` à
+  **2.52:1** (le pire des trois, alpha 0.35) — tous sous le plancher de
+  4.5:1 à 10-11px, motif déjà corrigé ailleurs (cycles 002/018/033) jamais
+  appliqué à cette page. Les 7 autres sélecteurs testés : tous ≥ 7.5:1,
+  aucun défaut.
+- **Cibles tactiles — 1 P1 mesuré** : `.cv-contacts a` (liens email et
+  GitHub) à **40px** de haut, sous le plancher de 44px déjà établi ailleurs
+  (footer, cartes Capabilities, nav, carousels).
+- **Mesure de lecture — 1 P2 mesuré** : `.cv-timeline-bullets li` (puces de
+  mission de chaque poste) à **111 caractères/ligne** à 1440 (807px de
+  large, aucun `max-width`), au-dessus du plafond de 75. `.cv-timeline-role`
+  signalé par la même heuristique mais **vérifié faux positif** (aucun
+  wrap réel aux 4 combinaisons) — aucun défaut retenu sur ce sélecteur.
+- **Scroll horizontal** : 0 aux 4 combinaisons. **Niveaux typographiques** :
+  21 combinaisons distinctes, densité comparable au reste du site pour une
+  page de cette longueur — pas retenu comme défaut en soi.
+
+### Changements livrés
+
+- `a47fe85` — fix(cv-page): alpha `0.52`/`0.5`/`0.35` → `0.58` sur
+  `.cv-kicker`/`.cv-section-kicker`/`.cv-timeline-dates`/`.cv-print-note`
+  (`src/index.css`) — même valeur déjà tranchée pour ce cas de figure
+  (petit texte translucide sur fond noir, cycles 002/018/033) ; `.cv-contacts
+  a` `min-height` 40px→44px ; `.cv-timeline-bullets li` gagne `max-width:
+  var(--measure-lede)`.
+- `1f71bb3` — chore(ui-gallery): nouveau mode `--path=<route>` — la galerie
+  ne visitait jamais que `/`, rendant impossible une paire AVANT/APRÈS
+  honnête pour tout chantier vivant sur une autre route.
+- `1252ee8` — ui-loop: galerie du cycle régénérée pour `/cv` (voir
+  Vérification).
+
+### Vérification
+
+- Build : ✅ avant (CSS 87,22 kB / JS 679,81 kB, session précédente) et ✅
+  revérifié en fin de cette session (mêmes tailles — 3 canaux alpha, un
+  `min-height` et un `max-width` ne changent pas la taille du bundle au
+  kilo-octet près). `tsc -b` (inclus) : ✅.
+- **Revérification indépendante de cette session** (script Playwright ad hoc
+  `scripts/.tmp-cv-verify.mjs`, supprimé après usage, dev server lancé sur le
+  port 5183 conventionnel du projet) sur les 4 combinaisons 390/1440 ×
+  EN/FR : contraste des 4 sélecteurs corrigés **5.41:1** partout (calculé sur
+  le fond composite réellement résolu par `bgOf()`, pas une estimation) ;
+  cibles tactiles `.cv-contacts a` **44px** partout ; débordement horizontal
+  **0** partout ; mesure de lecture des puces **48 caractères/ligne à 390,
+  61 à 1440** (largement sous le plafond de 75, cohérent avec le token
+  `--measure-lede` à 58ch) ; **axe-core pleine page : 0 violation aux 4
+  combinaisons**.
+- Viewports vérifiés : 390 et 1440 (galerie + sonde de revérification), aux
+  deux langues. 768/1920 non testés séparément (aucun changement
+  dimensionnel de grille, seulement 3 canaux alpha, une hauteur de lien et
+  une largeur de paragraphe).
+- Langues : FR ✅ EN ✅ (mêmes règles CSS, `.cv-contacts a` et
+  `.cv-timeline-bullets li` ne dépendent pas de la langue ; vérifié malgré
+  tout aux 4 combinaisons par la sonde).
+- reduced-motion : sans objet — aucune animation touchée (3 couleurs
+  statiques, une hauteur minimale, une largeur maximale).
+- Navigation clavier : sans objet — aucun élément interactif nouveau, les
+  liens `.cv-contacts a` restent des `<a href>` standards.
+- Régression détectée : non.
+
+### Reverté
+
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024, reconfirmé
+  pour la 9e fois consécutive.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025, reconfirmé de
+  même.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026,
+  reconfirmé de même.
+- **Le §4 de MISSION-UI.md reste intégralement traité, revérifié sur le code
+  réel pour la 9e fois consécutive (cycles 026-034).**
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Prochain cycle — point de reprise exact
+- Relire MISSION-UI.md en entier (§0) puis reprendre l'ordre de priorité §2
+  phase 4 normal : (1) tout P0 réel détecté en phase 1 ; (2) §3 reste P2
+  gelée sauf régression/bug bloquant/violation d'accessibilité
+  mesurée/raccord imposé ; (3) « reste du site ». `/cv` a désormais reçu sa
+  première passe (compteur §6, 1/3) — le reste de la page (`.cv-education-*`,
+  `.cv-availability`, la grille de compétences, le lien `viewCaseStudy`)
+  n'a été balayé que par la sonde de contraste/mesure de ce cycle, jamais
+  sous une rotation A-E complète (candidat naturel : rotation A ou D sur
+  `/cv`, jamais posée par écrit sur cette page). `scripts/ui-audit.mjs`
+  continue de ne charger que `BASE_URL` — le nouveau mode `--path=` de
+  `ui-gallery.mjs` ne couvre que la galerie, pas l'audit complet ; étendre
+  `ui-audit.mjs` à une liste de routes reste un candidat P2 d'outillage si
+  une future route (autre que `/cv`) apparaît.
+- Candidats P2 déjà chiffrés au backlog, non traités ce cycle : bundle JS
+  679,81 kB (226 kB gzip, warning Vite « chunk > 500kB ») ; mode
+  `--freeze-at=<ms>` pour `ui-gallery.mjs` ; mode dédié qui verrouille
+  `scrollY` avant de positionner une cible `viewport:` ; tokens CSS orphelins
+  `--fictif-ink`/`--fictif-border` (`tokens.css`, `index.css`), sans coût ni
+  risque, toujours en place ; couverture du probe de contraste maison
+  (`scripts/lib/probe-color.js`) toujours limitée à des sondes ad hoc
+  ponctuelles plutôt qu'à un balayage systématique de tout le site.
+
+### Questions bloquantes ouvertes
+- Aucune (Q1-Q4 résolues le 2026-09-12, voir `QUESTIONS.md`).
+
+---
+
 ## Cycle 033 — 2026-09-13 02:05
 
 **Zone travaillée** : hors zone prioritaire (§3, gelée sur toutes ses
