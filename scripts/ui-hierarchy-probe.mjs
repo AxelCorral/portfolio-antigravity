@@ -30,7 +30,8 @@ const args = Object.fromEntries(
     return [k, v ?? true];
   }),
 );
-const BASE_URL = args["base-url"] ?? "http://localhost:5183";
+const ROUTE_PATH = args.path ? (args.path.startsWith("/") ? args.path : `/${args.path}`) : "";
+const BASE_URL = (args["base-url"] ?? "http://localhost:5183") + ROUTE_PATH;
 const TAG = args.tag ?? "probe";
 const OUT = path.join(ROOT, "docs/ui-loop/screenshots", `hierarchy-${TAG}`);
 
@@ -41,18 +42,29 @@ const VIEWPORTS = [
   { name: "1920", width: 1920, height: 1080 },
 ];
 
-const SECTIONS = [
-  { id: "about", sel: "#about" },
-  { id: "capabilities", sel: "#capabilities" },
-  { id: "contact", sel: "#contact" },
-  { id: "footer", sel: ".site-footer" },
-  // reste du site (hors zone prioritaire, cycle 030 rotation A) : hero + nav +
-  // un slide projet representatif (les 6 partagent le meme gabarit .home-project-card)
-  { id: "city-nav", sel: ".city-nav" },
-  { id: "city-content", sel: ".city-content" },
-  { id: "profile", sel: "#profile" },
-  { id: "project-card-01", sel: "#project-01 .home-project-card" },
-];
+// SECTIONS is the homepage set by default; --path=/cv switches to the CV
+// page's own sections instead (the two DOMs share no selectors worth reusing).
+const SECTIONS =
+  ROUTE_PATH === "/cv"
+    ? [
+        { id: "cv-header", sel: ".cv-header" },
+        { id: "cv-experience", sel: "#experience" },
+        { id: "cv-projects", sel: "#projects" },
+        { id: "cv-two-col", sel: ".cv-two-col" },
+        { id: "cv-skills", sel: ".cv-skills-groups" },
+      ]
+    : [
+        { id: "about", sel: "#about" },
+        { id: "capabilities", sel: "#capabilities" },
+        { id: "contact", sel: "#contact" },
+        { id: "footer", sel: ".site-footer" },
+        // reste du site (hors zone prioritaire, cycle 030 rotation A) : hero + nav +
+        // un slide projet representatif (les 6 partagent le meme gabarit .home-project-card)
+        { id: "city-nav", sel: ".city-nav" },
+        { id: "city-content", sel: ".city-content" },
+        { id: "profile", sel: "#profile" },
+        { id: "project-card-01", sel: "#project-01 .home-project-card" },
+      ];
 
 async function measure(page, viewportHeight) {
   return page.evaluate(
