@@ -452,6 +452,20 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   de perte d'information à tester, rien à retirer) ; `cv-two-col` et
   `cv-skills` sous le seuil de 4 niveaux ou proches sans near-duplicate — rien
   retenu.
+- [x] **Le lien "View case study" de `/cv` ne montrait pas de case study**
+  (cycle 036, rotation D, point de reprise explicite du cycle 035).
+  `src/pages/CVPage.tsx:90` pointe vers `/#project-XX` avec le même libellé
+  que le bouton homepage qui ouvre `ProjectDetailModal`, mais l'effet de
+  deep-link cross-route (`src/OnePage.tsx`, ajouté cycle 031) ne faisait que
+  défiler jusqu'à la carte résumé — le lecteur devait cliquer une seconde
+  fois sur "Open case study" pour obtenir ce que le premier lien promettait.
+  Corrigé commit `ca1022d` : l'effet ouvre désormais la modale (même state
+  que le clic homepage) quand le projet ciblé a une case study, en plus du
+  défilement. Vérifié aux 4 combinaisons 390/1440 × EN/FR (sonde Playwright
+  ad hoc, supprimée après usage) : modale ouverte, titre correct, focus posé
+  sur le bouton de fermeture, **0 violation axe-core**. `/cv` ne liste que
+  les projets 01/02/03 — vérifié intentionnel (CV formel, projets à dépôt
+  vérifiable seulement), pas un défaut.
 - [ ] **`ui-gallery.mjs` : le mode `viewport:<cible>@<y>` suppose qu'un
   scroll ne change que la position de la cible dans le document** (cycle
   029). Faux pour toute section pilotée par la position de scroll absolue

@@ -6,6 +6,154 @@
 
 ---
 
+## Cycle 036 — 2026-09-13 04:42
+
+**Zone travaillée** : hors zone prioritaire (§3, gelée sur toutes ses
+sous-sections) et hors §4 (reconfirmé intégralement traité) —
+`src/OnePage.tsx` (effet de deep-link entre routes), déclenché par un
+défaut relevé sur `/cv` mais corrigé entièrement côté page d'accueil (0
+passe supplémentaire consommée sur `cv-page`, compteur §6 toujours 2/3).
+**Rotation de questions** : **D — Crédibilité**, point de reprise explicite
+du cycle 035 (« le lien "View case study" de `.cv-project-card` pointe vers
+`/#project-XX`... jamais vérifié s'il ouvre effectivement la modale de case
+study ou se contente de faire défiler jusqu'à la carte »).
+
+### Note de continuité — §4 revérifié sur le code, pas sur le seul journal
+
+`grep 'id: "0[456]"' src/data/projects.ts` → les trois entrées existent ;
+`grep 'project.id ===' src/OnePage.tsx` → 01/02/03/06 ont leur carousel
+dédié, 04/05 tombent dans la branche générique `demoLink ? <LiveDemoEmbed>`
+(voulu, Q2/Q3 tranchées). `npm run build` vert avant tout changement
+(679,75 kB JS / 87,13 kB CSS, identique à l'état de fin de cycle 035) et
+revérifié vert après. **Le §4 reste intégralement traité, reconfirmé pour
+la 11e fois consécutive (cycles 026-036).**
+
+### Constats d'audit
+
+Pas de fichier `AUDIT-*.md` séparé ce cycle (chantier unique, vérifié
+directement par lecture de code puis par une sonde Playwright ad hoc,
+supprimée après usage). Résumé :
+- **P1, corrigé — le lien "View case study" de `/cv` ne montrait pas de
+  case study.** `src/pages/CVPage.tsx:90` pointe vers `/#project-XX` avec
+  le libellé `r.viewCaseStudy` ("View case study" / "Voir l'étude de cas")
+  — **exactement le même libellé** que le bouton homepage
+  `labels.openCaseStudy` qui, lui, ouvre la modale `ProjectDetailModal`
+  (`src/OnePage.tsx:280`). Mais l'effet de deep-link cross-route
+  (`src/OnePage.tsx:698-707`, ajouté cycle 031 pour résoudre l'ancre après
+  navigation depuis `/cv`) ne faisait que `scrollToId(id)` : le lecteur
+  arrivait sur la carte résumé du projet, sans la case study promise, et
+  devait cliquer une seconde fois sur "Open case study" pour l'obtenir. Un
+  clic promettant un contenu et livrant une simple ancre de scroll est
+  exactement le défaut que rotation D cherche ("les affirmations sont-elles
+  étayées... ou déclaratives ?") — ici c'est un lien, pas une affirmation
+  textuelle, mais le principe est identique : le libellé engage un contenu
+  qu'il ne délivre pas au premier geste.
+- Seuls les projets 01/02/03 sont listés sur `/cv` (`src/i18n/language.tsx`,
+  clé `projects`) — 04/05/06 n'y apparaissent pas. Vérifié intentionnel :
+  `/cv` est un CV formel centré sur des projets vérifiables avec dépôt,
+  cohérent avec Q2/Q3 (Vers l'Élysée et Ombrair sont démo-only, sans lien
+  repo). **Non retenu comme défaut** — hors du chantier §4 (qui porte sur
+  la page d'accueil, ses trois livrables y sont intacts) et pas de fait
+  nouveau justifiant d'y toucher.
+
+### Changements livrés
+
+- `ca1022d` — fix(project-deep-link): l'effet de deep-link cross-route
+  (`src/OnePage.tsx`) ouvre désormais la modale de case study (même état
+  que `onOpenProject`) quand le projet ciblé par le hash en a une, en plus
+  de faire défiler jusqu'à sa carte. `eslint-disable-next-line
+  react-hooks/exhaustive-deps` ajouté sur l'effet (dépendance intentionnelle
+  au seul montage, cohérent avec le commentaire déjà présent sur ce même
+  effet depuis le cycle 031).
+- `13bf461` — ui-loop: galerie du cycle régénérée (voir Vérification).
+
+### Vérification
+
+- Build : ✅ avant (JS 679,75 kB / CSS 87,13 kB) et après (JS **679,85 kB**
+  / CSS 87,13 kB inchangé — delta cohérent avec 9 lignes de logique
+  ajoutées, aucun CSS touché). `tsc -b` (inclus) : ✅. `npx eslint
+  src/OnePage.tsx` : ✅ aucune sortie.
+- Sonde Playwright ad hoc (`scripts/.tmp-cv-casestudy-verify.mjs`, supprimée
+  après usage), dev server sur le port 5174 (5173 déjà occupé) : clic sur le
+  premier lien `.cv-project-card` de `/cv` (projet 01, Football Data
+  Pipeline) aux 4 combinaisons 390/1440 × EN/FR — **modale ouverte à
+  chaque fois**, titre `#project-detail-title` = "Football Data Pipeline"
+  (correct), `role="dialog"` présent, focus posé sur
+  `.project-detail-close` après ouverture (comportement de focus déjà
+  géré par `ProjectDetailModal`, non modifié par ce chantier). **axe-core
+  scopé à `.project-detail-panel` : 0 violation aux 4 combinaisons.**
+- Galerie (`scripts/ui-gallery.mjs --path=/cv
+  --sections="click:/#project-01"`, `MSYS_NO_PATHCONV=1` requis sous Git
+  Bash — même piège que cycle 035 avec `--path=`) : AVANT montre
+  l'atterrissage sur la carte résumé avec le bouton "Open case study"
+  encore à cliquer ; APRÈS montre la modale de case study déjà ouverte,
+  confirmé visuellement aux deux viewports (390, 1440).
+- Viewports vérifiés : 390 et 1440 (sonde + galerie), EN et FR. 768/1920 non
+  re-testés séparément (aucun changement dimensionnel, le chantier ajoute
+  un appel conditionnel à un state setter déjà existant).
+- Langues : FR ✅ EN ✅ (le hash et le project id ne dépendent pas de la
+  langue ; les deux libellés "View case study"/"Voir l'étude de cas" ont
+  été vérifiés dans la sonde).
+- reduced-motion : sans objet — l'ouverture de modale utilise l'animation
+  déjà existante et déjà conforme de `ProjectDetailModal` (auditée cycle
+  033), aucune nouvelle animation introduite.
+- Navigation clavier : focus trap de la modale inchangé et revérifié par la
+  sonde (le focus atterrit sur le bouton de fermeture à l'ouverture, comme
+  pour un clic direct sur "Open case study").
+- Régression détectée : non. Le lien in-page "See Football Data Pipeline"
+  des cartes Capabilities (`capability.linkHref`, code séparé,
+  `src/OnePage.tsx:536-546`) n'est pas affecté : c'est une navigation
+  même-page qui ne remonte jamais l'effet de montage, et son libellé ne
+  promet qu'un défilement, pas une case study — pas de mismatch à corriger
+  là.
+
+### Reverté
+
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024, reconfirmé
+  pour la 11e fois consécutive.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025, reconfirmé de
+  même.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026,
+  reconfirmé de même.
+- **Le §4 de MISSION-UI.md reste intégralement traité, revérifié sur le code
+  réel pour la 11e fois consécutive (cycles 026-036).**
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Prochain cycle — point de reprise exact
+- Relire MISSION-UI.md en entier (§0) puis reprendre l'ordre de priorité §2
+  phase 4 normal : (1) tout P0 réel détecté en phase 1 ; (2) §3 reste P2
+  gelée sauf régression/bug bloquant/violation d'accessibilité
+  mesurée/raccord imposé ; (3) « reste du site ». `/cv` reste à 2/3 passes
+  (compteur §6) — la 3e et dernière n'est légitime que pour un défaut
+  mesuré neuf. Ce cycle a répondu à la question laissée ouverte par le
+  cycle 035 sans consommer de passe sur `/cv` elle-même (le correctif vit
+  entièrement dans `OnePage.tsx`). Candidat naturel pour un futur cycle :
+  rotation D n'a été posée par écrit sur `/cv` que partiellement (ce seul
+  lien) — le reste de la page (expérience, éducation, compétences) n'a
+  jamais reçu cette rotation dans son ensemble.
+- Candidats P2 déjà chiffrés au backlog, non traités ce cycle : bundle JS
+  679,85 kB (226 kB gzip, warning Vite « chunk > 500kB ») ; mode
+  `--freeze-at=<ms>` pour `ui-gallery.mjs` ; mode dédié qui verrouille
+  `scrollY` avant de positionner une cible `viewport:` ; tokens CSS orphelins
+  `--fictif-ink`/`--fictif-border` (`tokens.css`, `index.css`), sans coût ni
+  risque, toujours en place ; couverture du probe de contraste maison
+  (`scripts/lib/probe-color.js`) toujours limitée à des sondes ad hoc
+  ponctuelles plutôt qu'à un balayage systématique de tout le site ;
+  `scripts/ui-audit.mjs` (le run complet) continue de ne charger que
+  `BASE_URL` — `ui-gallery.mjs` et `ui-hierarchy-probe.mjs` savent désormais
+  viser `/cv`, celui-là non ; `/cv` ne liste que les projets 01/02/03, jamais
+  04/05/06 — vérifié intentionnel ce cycle (CV formel centré sur des projets
+  à dépôt vérifiable), pas un défaut, mais à garder en tête si Axel demande
+  un jour à harmoniser les deux listes.
+
+### Questions bloquantes ouvertes
+- Aucune (Q1-Q4 résolues le 2026-09-12, voir `QUESTIONS.md`).
+
+---
+
 ## Cycle 035 — 2026-09-13 04:40
 
 **Zone travaillée** : hors zone prioritaire (§3, gelée sur toutes ses
