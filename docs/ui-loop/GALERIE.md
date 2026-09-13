@@ -5,6 +5,17 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 036 — 2026-09-13 · Le lien /cv "View case study" ouvre enfin une etude de cas
+
+> Le lien promettait une etude de cas et se contentait de faire defiler jusqu'a la carte resume ; il ouvre desormais la modale de cas, comme le bouton homepage de meme libelle.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-036/le-lien-cv-view-case-study-ouvre-enfin-une-etude-de-cas-390-avant.webp) | ![après 390](shots/cycle-036/le-lien-cv-view-case-study-ouvre-enfin-une-etude-de-cas-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-036/le-lien-cv-view-case-study-ouvre-enfin-une-etude-de-cas-1440-avant.webp) | ![après 1440](shots/cycle-036/le-lien-cv-view-case-study-ouvre-enfin-une-etude-de-cas-1440-apres.webp) |
+
+`ca1022d`
+
 ## Cycle 035 — 2026-09-13 · En-tete /cv sans repetition du nom
 
 > Le kicker au-dessus du h1 repetait exactement Axel Corral, la toute premiere chose lue deux fois sur la page.
