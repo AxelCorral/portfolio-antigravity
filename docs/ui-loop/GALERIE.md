@@ -5,6 +5,17 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 040 — 2026-09-13 · Contraste au survol du CTA de nav (.city-contact)
+
+> Le sweep --pseudo=hover a trouve le texte blanc a env. 1.3:1 sur le fond clair du CTA au survol ; exclu de la regle .city-nav a:hover.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-040/contraste-au-survol-du-cta-de-nav-city-contact-390-avant.webp) | ![après 390](shots/cycle-040/contraste-au-survol-du-cta-de-nav-city-contact-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-040/contraste-au-survol-du-cta-de-nav-city-contact-1440-avant.webp) | ![après 1440](shots/cycle-040/contraste-au-survol-du-cta-de-nav-city-contact-1440-apres.webp) |
+
+`42ed056` · `c4a6e9b` · `f124250` · `e2d1397`
+
 ## Cycle 039 — 2026-09-13 · Contraste du kicker 'Why it matters' des cartes projet (4.24:1 -> 5.4:1)
 
 > Balayage de contraste pleine page (nouvel outil ui-contrast-sweep.mjs) : le kicker etait sous 4.5:1 depuis l'origine du bloc, invisible a axe-core (meme angle mort que les cycles 002/018/033/034).
