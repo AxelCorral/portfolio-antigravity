@@ -38,7 +38,6 @@ export function CVPage() {
         </div>
 
         <header className="cv-header">
-          <p className="cv-kicker">Axel Corral</p>
           <h1 className="cv-name">Axel Corral</h1>
           <p className="cv-title">{r.identity.title}</p>
 
