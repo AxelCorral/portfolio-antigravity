@@ -702,8 +702,17 @@ function OnePage() {
     // link to `#project-01` must not be resolved from the slide's shifted box.
     const frame = requestAnimationFrame(() => {
       scrollToId(id);
+      // The /cv "View case study" link points at this exact hash and says it
+      // opens the case study — before this, it only scrolled to the summary
+      // card, leaving a second click ("Open case study") to actually see one.
+      const linkedProjectId = id.startsWith("project-") ? id.slice("project-".length) : null;
+      const linkedProject = localizedProjects.find((project) => project.id === linkedProjectId);
+      if (linkedProject?.caseStudy?.length) {
+        setSelectedProjectId(linkedProject.id);
+      }
     });
     return () => cancelAnimationFrame(frame);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
