@@ -5,6 +5,17 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 043 — 2026-09-13 · Mesure de lecture des blocs case-study projet (58ch)
+
+> Les paragraphes CONTEXT/PROBLEM et PIPELINE/METHOD des 6 modales projet couraient a 99-108 caracteres/ligne, sans plafond, contrairement au paragraphe d'overview juste au-dessus.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-043/mesure-de-lecture-des-blocs-case-study-projet-58ch-390-avant.webp) | ![après 390](shots/cycle-043/mesure-de-lecture-des-blocs-case-study-projet-58ch-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-043/mesure-de-lecture-des-blocs-case-study-projet-58ch-1440-avant.webp) | ![après 1440](shots/cycle-043/mesure-de-lecture-des-blocs-case-study-projet-58ch-1440-apres.webp) |
+
+`38757b9`
+
 ## Cycle 042 — 2026-09-13 · CTA carte projet enfin cliquable (04/05/06)
 
 > L'action « Ouvrir l'étude de cas »/démo/repo était couverte par la carte projet suivante, sur les 3 chantiers prioritaires du §4, en français à tous les viewports desktop.
