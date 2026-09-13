@@ -388,7 +388,7 @@ a {
   transition: color 200ms ease;
 }
 
-.city-nav a:hover {
+.city-nav a:hover:not(.city-contact) {
   color: #fff;
 }
 
