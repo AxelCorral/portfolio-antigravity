@@ -21,10 +21,6 @@
   /* ---- Lueur / glow (chaud) ---- */
   --glow: radial-gradient(60% 50% at 70% 38%, rgba(224, 145, 63, 0.2), transparent 70%);
 
-  /* ---- Tag « Fictif » : neutre chaud, jamais rouge ---- */
-  --fictif-ink: #b9ae9b;
-  --fictif-border: rgba(241, 234, 222, 0.16);
-
   /* ---- Typographie ---- */
   --font-display: "Fraunces", Georgia, "Times New Roman", serif;
   --font-body: "Inter", system-ui, sans-serif;
