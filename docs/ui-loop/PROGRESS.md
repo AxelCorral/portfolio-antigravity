@@ -6,6 +6,188 @@
 
 ---
 
+## Cycle 040 — 2026-09-13 09:45
+
+**Zone travaillée** : hors zone prioritaire (§3, gelée sur toutes ses
+sous-sections) et hors §4 (reconfirmé intégralement traité) — outillage
+(`scripts/ui-contrast-sweep.mjs`, `scripts/ui-gallery.mjs`), `.city-nav`
+dans `src/index.css` (CTA "Contact" du hero, `CinematicOpening.tsx`,
+aucun compteur §6 dédié jusqu'ici — 1re passe), et nettoyage de tokens
+orphelins (`src/tokens.css`, `src/index.css`).
+
+**Rotation de questions** : aucune rotation A-E complète ce cycle — le
+chantier répond au candidat P2 chiffré au journal du cycle 039
+(« `ui-contrast-sweep.mjs` lui-même pourrait être étendu à `:hover`/
+`:focus-visible`... candidat d'outillage si un futur composant introduit
+un contraste qui ne se dégrade qu'au survol »), requalifié P0 dès que le
+premier run a trouvé une violation réelle.
+
+### Continuité de session — cycle repris en cours de route
+
+Ce cycle avait été **entamé dans une session précédente** : à l'ouverture
+de cette session, `git status` montrait 4 fichiers modifiés non commités
+(`scripts/ui-contrast-sweep.mjs`, `scripts/ui-gallery.mjs`,
+`src/index.css`, `src/tokens.css`) au-dessus du dernier commit journalisé
+(`2d3dd25`, fin du cycle 039) — même situation que le cycle 034 (§0 : « un
+cycle non journalisé est un cycle perdu »). Plutôt que de faire confiance
+au diff sur parole, cette session a : relu le diff des 4 fichiers en
+entier ; confirmé par `grep` que les tokens retirés (`--fictif-ink`/
+`--fictif-border`) n'étaient référencés nulle part ; relancé `npm run
+build` (vert) ; puis **relancé un balayage complet et indépendant**
+(`--pseudo=hover,focus-visible`, 2 routes × 4 viewports × 2 langues × 2
+états, 32 combinaisons, ~11 min) plutôt que de se fier au seul
+`report.json` partiel laissé par la session précédente (215 octets, une
+seule combinaison). Le travail déjà en place s'est avéré correct et
+complet ; seuls les commits, la galerie et le journal manquaient.
+
+### Note de continuité — §4 revérifié sur le code, pas sur le seul journal
+
+`grep 'id: "0[456]"' src/data/projects.ts` → les trois entrées existent ;
+`grep 'project.id ===' src/OnePage.tsx` → 01/02/03/06 ont leur carousel
+dédié, 04/05 tombent dans la branche générique `demoLink ? <LiveDemoEmbed>`
+(voulu, Q2/Q3 tranchées). `npm run build` vert avant tout changement
+(679,85 kB JS / 87,20 kB CSS, identique à la fin du cycle 039) et
+revérifié vert après (679,85 kB / 87,25 kB — delta CSS négligeable,
+cohérent avec un sélecteur `:not()` ajouté et deux déclarations de token
+retirées). **Le §4 reste intégralement traité, reconfirmé pour la 15e
+fois consécutive (cycles 026-040).**
+
+### Constats d'audit
+
+Pas de fichier `AUDIT-*.md` séparé (chantier outillage + correctif
+unique, mesuré directement par les outils et consigné ici et dans
+`BACKLOG.md`). Résumé :
+- **Outillage — `ui-contrast-sweep.mjs` gagne `--pseudo=hover,focus-visible`.**
+  Le balayage au repos (cycle 039) ne peut structurellement pas voir un
+  contraste qui ne se dégrade qu'à l'interaction — ni lui ni axe-core ne
+  forcent jamais `:hover`/`:focus-visible`. Chaque élément interactif
+  (`a, button, [role="button"], input, select, textarea`) est marqué d'un
+  index `data-hp` jetable, résolu côté CDP, chaque état demandé forcé un à
+  la fois via `CSS.forcePseudoState`, avec 320ms de stabilisation (la plus
+  longue transition CSS du projet est 250ms) avant de relancer la même
+  `measure()` scopée au sous-arbre de l'élément. Un navigateur Chromium
+  frais par combinaison viewport/langue (pas un seul partagé) : la charge
+  des sessions CDP supplémentaires rend le crash-par-réutilisation déjà
+  diagnostiqué cycle 027 beaucoup plus probable ici, deux combinaisons à
+  1920px ont crashé lors d'un essai à session partagée et sont retombées à
+  0 violation une fois isolées, confirmant une surcharge de ressources et
+  non un défaut réel.
+- **P0 mesuré et corrigé — `.city-contact` (CTA "Contact" du hero) à
+  ~1,3:1 au survol.** Premier run complet (32 combinaisons : 16 au repos +
+  16 en pseudo-état) : **1 seule violation**, exactement `.city-contact`
+  héritant de la règle générique `.city-nav a:hover { color: #fff }` — un
+  texte blanc sur son propre fond clair (`#e1e0cc`), alors que le reste du
+  nav est sur fond sombre et que le blanc y est le bon choix. Corrigé :
+  `.city-nav a:hover:not(.city-contact)` (`src/index.css:389`). Deuxième
+  run complet après correctif : **0 violation sur les 32 combinaisons**
+  (11m21s, les deux routes, les 4 viewports, les 2 langues, les 2 états).
+- **Outillage — `ui-gallery.mjs` gagne le mode `hover:<sélecteur>`.**
+  Aucun des modes existants (élément nu, `viewport:`, `openmodal:`) ne
+  pouvait produire une paire AVANT/APRÈS honnête pour un défaut qui n'est
+  visible qu'au survol — un survol réel Playwright (`.hover()`) suffit ici
+  (contrairement au balayage, qui doit forcer l'état sur des dizaines
+  d'éléments et a donc besoin de CDP). Utilisé pour la galerie de ce
+  cycle : la capture AVANT montre bien le texte "Contact" quasiment
+  invisible sur son fond, l'APRÈS le texte lisible, sans aucun autre
+  changement visuel.
+- **P2, nettoyage — tokens `--fictif-ink`/`--fictif-border` retirés**
+  (`src/tokens.css`, `src/index.css`). Orphelins depuis le cycle 031
+  (suppression du composant `FictifTag.tsx` qui les consommait), laissés
+  en place à l'époque car hors périmètre de ce chantier-là. `grep -rn`
+  confirme l'absence de toute référence restante ; `npm run build`
+  identique à l'octet près avant/après (2 canaux de couleur retirés d'un
+  bloc de tokens ne changent pas la taille du CSS généré).
+
+### Changements livrés
+
+- `e2d1397` — chore(ui-contrast-sweep): extension `--pseudo=hover,focus-visible`.
+- `f124250` — chore(ui-gallery): nouveau mode `hover:<sélecteur>`.
+- `c4a6e9b` — fix(nav-cta): `.city-nav a:hover:not(.city-contact)`
+  (`src/index.css`) — contraste au survol du CTA "Contact", ~1,3:1 → au
+  moins 19:1 (couleur de repos restaurée, déjà mesurée conforme).
+- `42ed056` — chore(tokens): retrait des tokens orphelins `--fictif-ink`/
+  `--fictif-border` (`src/tokens.css`, `src/index.css`).
+- `321cca8` — ui-loop: galerie du cycle 040.
+- `b7ffe20` — docs(backlog): journalisation du cycle 040 dans `BACKLOG.md`.
+
+### Vérification
+
+- Build : ✅ avant (679,85 kB JS / 87,20 kB CSS, état de fin de cycle 039)
+  et ✅ après chacun des 4 commits de code (679,85 kB JS inchangé /
+  87,25 kB CSS — delta cohérent avec un sélecteur `:not()` ajouté puis deux
+  déclarations de token retirées). `tsc -b` (inclus) : ✅. `npx eslint
+  scripts/ui-contrast-sweep.mjs scripts/ui-gallery.mjs` : 0 erreur, 0
+  warning.
+- Balayage de contraste pleine page avec pseudo-états
+  (`scripts/ui-contrast-sweep.mjs --pseudo=hover,focus-visible`, 2 routes ×
+  4 viewports × 2 langues) : **1 violation avant** (`.city-contact` au
+  survol, ~1,3:1), **0 violation après**, sur les 32 combinaisons (16 au
+  repos + 16 en pseudo-état), confirmé par un run complet indépendant de
+  11m21s relancé par cette session (pas seulement le spot-check partiel
+  laissé par la session précédente).
+- Confirmation visuelle avant/après (galerie, `.city-contact` en survol
+  réel, 390 et 1440, EN) : le texte "Contact" passe d'un blanc quasi
+  invisible sur fond clair à un texte sombre parfaitement lisible, sans
+  décalage de mise en page ni changement de forme du CTA.
+- Viewports vérifiés : 390 / 768 / 1440 / 1920 (balayage complet).
+  Galerie : 390 et 1440 (format standard §7bis).
+- Langues : FR ✅ EN ✅ (règle CSS indépendante de la langue, vérifié aux
+  32 combinaisons par le balayage malgré tout).
+- reduced-motion : sans objet — correctif de sélecteur CSS statique
+  (couleur de texte), aucune animation touchée par ce chantier.
+- Navigation clavier : `:focus-visible` inclus dans le balayage complet —
+  0 violation avant comme après sur cet état également (la règle générique
+  visée ne portait que sur `:hover`, mais `.city-contact` n'a par ailleurs
+  aucune règle `:focus-visible` distincte à auditer séparément).
+- Régression détectée : non. `/cv` revérifiée dans le même balayage : 0
+  violation aux 16 combinaisons (8 repos + 8 pseudo-état), inchangé.
+
+### Reverté
+
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024, reconfirmé
+  pour la 15e fois consécutive.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025, reconfirmé de
+  même.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026,
+  reconfirmé de même.
+- **Le §4 de MISSION-UI.md reste intégralement traité, revérifié sur le
+  code réel pour la 15e fois consécutive (cycles 026-040).**
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Prochain cycle — point de reprise exact
+- Relire MISSION-UI.md en entier (§0) puis reprendre l'ordre de priorité §2
+  phase 4 normal : (1) tout P0 réel détecté en phase 1 ; (2) §3 reste P2
+  gelée sauf régression/bug bloquant/violation d'accessibilité
+  mesurée/raccord imposé ; (3) « reste du site ». Le balayage de contraste
+  couvre désormais le repos **et** `:hover`/`:focus-visible` sur les 2
+  routes — 0 violation résiduelle connue des deux types. **Si Q5 est
+  tranchée avant le prochain cycle**, le candidat prioritaire redevient le
+  CLS de `/cv` (tablet-768 + FR, 0.1603 → cible < 0.1, cf. cycle 037), à
+  corriger en ajustant le chargement de police décidé par la réponse, avec
+  vérification avant/après sur les 4 viewports × 2 langues des deux
+  routes. Si Q5 reste ouverte, candidats P2 restants du backlog : bundle
+  JS 679,85 kB (226 kB gzip, warning Vite « chunk > 500kB ») ; mode
+  `--freeze-at=<ms>` pour `ui-gallery.mjs` ; mode dédié qui verrouille
+  `scrollY` avant de positionner une cible `viewport:` ; le contraste des
+  16 coches `<Check>` des cartes Capabilities plus claires que leur texte
+  (rotation A/D, `#capabilities` gelée — arbitrage d'icône, pas un
+  correctif de contraste au sens WCAG) ; la largeur de colonne de
+  `.capability-card` à 1024px (arbitrage de grille, `#capabilities`
+  gelée) ; la mesure de coût de rendu des animations (`longtask`, rotation
+  C, jamais faite).
+
+### Questions bloquantes ouvertes
+- **Q5** — écart entre la police de corps documentée (Inter,
+  MISSION-UI.md §1) et celle réellement chargée (Almarai, `body` dans
+  `src/index.css`) ; détermine la bonne réparation du CLS mesuré cycle 037.
+  Toujours ouverte, non tranchée par Axel à ce jour. Voir `QUESTIONS.md`.
+- Q1-Q4 résolues le 2026-09-12, voir `QUESTIONS.md`.
+
+---
+
 ## Cycle 039 — 2026-09-13 06:35
 
 **Zone travaillée** : hors zone prioritaire (§3, gelée sur toutes ses
