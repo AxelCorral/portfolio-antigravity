@@ -5,6 +5,17 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 038 — 2026-09-13 · Rythme vertical Education/Languages sur /cv (mobile)
+
+> Le gap vertical entre Education et Languages doublait (104px) le double margin-bottom + grid-gap au lieu du rythme de 56px du reste de la page, en dessous de 768px.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-038/cv-two-col-gap-390-avant.webp) | ![après 390](shots/cycle-038/cv-two-col-gap-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-038/cv-two-col-gap-1440-avant.webp) | ![après 1440](shots/cycle-038/cv-two-col-gap-1440-apres.webp) |
+
+`fd91727`
+
 ## Cycle 037 — 2026-09-13 · Outillage `/cv` (ui-audit.mjs, ui-evidence-probe.mjs) + CLS diagnostiqué
 
 > Pas de paire AVANT/APRÈS : le chantier de ce cycle est un ajout d'outillage
