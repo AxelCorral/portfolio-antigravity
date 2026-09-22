@@ -413,8 +413,11 @@ Compteur au 2026-09-12 (passes déjà consommées) :
 `zone`/`sections` **5/3 — gelées** · `language-toggle` **3/3 — gelée** (cycle 028 :
 `role="group"` → `role="navigation"`, correctif `region` axe-core) · `#contact` **1/3** ·
 `nav` **2/3** (cycle 027 : cibles tactiles `.city-contact`/`.pc-arrow` à 44px) ·
-`carousel-nav` (`.pc-*`, hors zone) **2/3** (cycle 028 : nom accessible unique par
-instance de `.pc-nav`, correctif `landmark-unique`) · `city-heading` (hero) **1/3**
+`carousel-nav` (`.pc-*`, hors zone) **3/3 — gelée** (cycle 028 : nom accessible
+unique par instance de `.pc-nav`, correctif `landmark-unique` ; cycle 044 :
+zone tactile de `.pc-dot` (role="tab" réel, 4×4/18×4px) étendue via pseudo-
+élément invisible à 8×44/22×44px, plafonnée par la densité de points — jusqu'à
+8 points sur ~100px à 390px — sans chevaucher le voisin) · `city-heading` (hero) **1/3**
 (cycle 028 : `aria-label` prohibé remplacé par un texte `sr-only`, correctif
 `aria-prohibited-attr`) · `hero-cta` (`.opening-primary`/`.opening-secondary`,
 hero) **1/3** (cycle 029 : CTA dupliqué vers `#selected-work` supprimé,

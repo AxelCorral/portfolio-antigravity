@@ -3802,6 +3802,7 @@ a {
 }
 
 .pc-dot {
+  position: relative;
   width: 4px;
   height: 4px;
   padding: 0;
@@ -3813,6 +3814,19 @@ a {
     width 240ms ease,
     background 240ms ease;
   flex-shrink: 0;
+}
+
+/* Invisible hit-area extension: the 4px (18px active) visual dot stays a slim
+   progress indicator by design, but as a real role="tab" control it needs a
+   bigger tap target. Vertical room is free (the nav row is already ≥44px tall
+   to fit .pc-arrow), so the inset goes to -20px there. Horizontal room is not
+   free — up to 8 dots share ~100px on a 390px viewport with only 4px of gap
+   between them — so each side only claims half that gap (-2px) to stay clear
+   of the neighbouring dot's own extended hit area. */
+.pc-dot::before {
+  content: "";
+  position: absolute;
+  inset: -20px -2px;
 }
 
 .pc-dot[aria-selected="true"] {
