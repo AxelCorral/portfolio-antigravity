@@ -6,6 +6,136 @@
 
 ---
 
+## Cycle 044 — 2026-09-22 13:47
+
+**Zone travaillée** : `.pc-dot` (`.pc-*`, carousel-nav — `src/index.css`, partagé
+par `ProjectCarousel.tsx` et `CarouselModal.tsx`), touche les projets 01/02/03/06
+— dont le projet 06 (Analyse vidéo football), un des trois chantiers prioritaires
+du §4 de ce run.
+**Rotation de questions** : **E — Mobile-first réel** (« Les zones tactiles
+font-elles ≥ 44 px ? »).
+
+### Note de continuité — cycle 043 clôturé, §4 revérifié avant d'ouvrir un nouveau chantier
+
+Ce run a d'abord trouvé le cycle 043 non journalisé : son travail (commits
+`38757b9`/`2e3108a`) était fait mais la mise à jour finale de
+`PROGRESS.md`/`BACKLOG.md`/`MISSION-UI.md` restait non commitée dans l'arbre de
+travail — exactement le cas que la mission qualifie de « cycle perdu ». Commitée
+en premier (`636d0e8`) avant toute nouvelle action.
+
+Conformément au point de reprise du cycle 043 et à la priorité absolue de ce run,
+le §4 a été revérifié interactivement (pas seulement par `grep`) avant d'ouvrir
+un nouveau chantier : test de clic Playwright sur les 6 cartes projet × 2 langues
+(1440px, "Open case study" → modale) — **0/12 échec**. Les correctifs des
+cycles 042/043 tiennent, aucune régression. Un run complet de `ui-audit.mjs`
+(8 combinaisons + 2 reduced-motion) a suivi : **0 overflow horizontal, 0 erreur
+console, 0 violation axe-core** (laptop-1440 et mobile-390), CLS ≤ 0.0012 partout
+sauf 0.0245 en reduced-motion (toujours largement sous le seuil de 0.1). Le §4
+n'ayant aucun défaut mesuré, le cycle retombe sur l'ordre de priorité normal
+(§2 phase 4) : §3 reste P2 gelée sans fait nouveau, donc "reste du site".
+
+### Constats d'audit
+
+- **P1/P2 mesuré — `.pc-dot` (bouton `role="tab"` réel, `onClick={() => goTo(i)}`,
+  navigation directe vers une diapo) mesuré à 4×4px (point inactif) / 18×4px
+  (point actif)**, très en dessous de la convention 44px appliquée partout
+  ailleurs dans ce projet (cycles 016/017/027/032/034) et du minimum WCAG 2.5.8
+  (24×24px, y compris avec l'exception d'espacement — l'espacement centre à
+  centre mesuré est ~12.5px sur le cas le plus dense, sous les 24px que
+  l'exception exige aussi). Découvert en testant les cibles tactiles des trois
+  chantiers prioritaires du §4 (rotation E), mais le composant `ProjectCarousel`/
+  `CarouselModal` est partagé par 4 projets (01/02/03/06) dans la carte comme
+  dans la modale étendue — `.pc-arrow` (les flèches prev/next) était déjà à
+  44px depuis le cycle 027, mais `.pc-dots` n'avait jamais reçu la même mesure.
+  Mesuré (Playwright, `boundingBox()`) : jusqu'à 8 points partagent ~100px de
+  large sur un viewport à 390px, avec seulement 4px de `gap` entre eux — un vrai
+  plafond géométrique, pas un oubli de valeur.
+
+### Changements livrés
+
+- `47bc024` — fix(carousel-nav): `.pc-dot` gagne `position: relative` et un
+  pseudo-élément `::before` invisible (`inset: -20px -2px`) qui étend la zone
+  cliquable à 8×44px (inactif) / 22×44px (actif) sans toucher au rendu visuel —
+  le point reste un indicateur de progression fin par design. Vertical : 44px
+  plein (aucune contrainte de voisinage, la ligne `.pc-nav` fait déjà ≥44px de
+  haut pour loger `.pc-arrow`). Horizontal : +2px de chaque côté seulement — la
+  moitié du `gap` de 4px entre points, pour ne jamais chevaucher la zone du
+  point voisin. **Plafond documenté, pas contourné** : atteindre 24px ou 44px
+  par point est géométriquement impossible à la densité actuelle (jusqu'à 8
+  points sur ~100px) sans élargir la barre de nav ou masquer des points — hors
+  du périmètre d'une retouche incrémentale, consigné dans `BACKLOG.md` pour
+  arbitrage futur.
+- `2f0db57` — ui-loop: galerie du cycle 044 (`.pc-nav`, aucun changement visuel
+  attendu — la preuve est dans la géométrie de clic, pas le rendu, même
+  précédent que le cycle 028 sur la même cible).
+- `97b766e` — chore(ui-loop): purge des audits `AUDIT-*.md` de plus de 24h
+  (cycles 031/032/033/034/037, oubliée depuis 9 cycles — garde-fou §6).
+- `ui-loop: journaliser cycle 044` (ce commit).
+
+### Vérification
+
+- Build : ✅ avant et après (`npm run build` vert, `tsc -b` sans sortie).
+- Test de non-chevauchement (Playwright, 3 clics à la limite exacte de la zone
+  étendue de `.pc-dot[2]` — bord gauche, bord droit, et 0.5px après la zone du
+  voisin `.pc-dot[1]`) : les **3 clics activent le point 2**, aucun ne mord sur
+  le point voisin — la zone étendue ne chevauche jamais la zone du point
+  adjacent, conforme au calcul (moitié du `gap` de chaque côté).
+- Géométrie résolue (`getComputedStyle(el, "::before")`) : `width: 8px`/`22px`,
+  `height: 44px`, `inset: -20px -2px` — conforme à l'intention.
+- axe-core scopé à `#project-01` (1440px, après scroll complet) : **0
+  violation**, avant comme après.
+- Modale (`project-06`, "Analyse vidéo football") : 7 points présents et
+  interactifs après ouverture — le correctif s'applique identiquement dans
+  `CarouselModal.tsx` (même classe CSS partagée).
+- Viewports vérifiés : 390 (mesure des cibles) / 1440 (axe-core, clics) — la
+  contrainte est structurelle (nombre de points × largeur de la barre), pas
+  dépendante du viewport au-delà de 768px où le layout change de colonne.
+- Langues : FR ✅ EN ✅ (le composant `.pc-dot` ne porte aucun texte, seul
+  `aria-label` change selon la langue — non affecté par ce correctif CSS).
+- reduced-motion : non concerné (aucune animation ajoutée ni modifiée).
+- Régression détectée : non.
+
+### Reverté
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024. Revérifié ce
+  cycle (clic CTA, 1440px EN+FR, 0 échec).
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025. Idem.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026. Idem,
+  et sa modale carousel (7 slides) a reçu directement le correctif de ce cycle.
+- **Le §4 de MISSION-UI.md reste intégralement traité pour la 19e fois
+  consécutive (cycles 026-044).** Revalidation de ce cycle plus légère que
+  celle du cycle 042 (1 seul viewport, 1440px, comme recommandé par le point de
+  reprise du cycle 043 tant qu'aucune régression n'apparaît) — 0/12 échec.
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Prochain cycle — point de reprise exact
+- Compteur §6 mis à jour : `carousel-nav` (`.pc-*`) passe **2/3 → 3/3, gelée**.
+  Toute nouvelle retouche sur `.pc-dot`/`.pc-arrow`/`.pc-nav` exige désormais une
+  dérogation écrite (§6).
+- Revalidation légère du §4 recommandée en ouverture de cycle (clic CTA, un seul
+  viewport suffit tant qu'aucune régression n'est trouvée) avant de rouvrir un
+  chantier ailleurs.
+- Candidat P2 nouveau (voir `BACKLOG.md`) : zone de clic de `.pc-dot` plafonnée à
+  8×44/22×44px par la densité de points (jusqu'à 8 points sur ~100px à 390px) —
+  atteindre 24px/44px pleins exigerait d'élargir `.pc-nav` ou de masquer des
+  points sur mobile (ex. ne garder que les flèches, déjà conformes 44px), un
+  arbitrage de densité visuelle hors du périmètre d'une retouche incrémentale.
+  Candidats P2 inchangés : coût main-thread de `reduce`-motion au chargement de
+  `CinematicOpening.tsx` (cycle 041) ; CLS de `/cv` (cycle 037, bloqué sur Q5) ;
+  bundle JS 679,86 kB (226 kB gzip) ; mode `--freeze-at=<ms>` pour
+  `ui-gallery.mjs` ; mode qui verrouille `scrollY` avant `viewport:` ; contraste
+  des coches `<Check>` de Capabilities (`#capabilities` gelée, arbitrage
+  d'icône) ; largeur de colonne `.capability-card` à 1024px (grille,
+  `#capabilities` gelée).
+
+### Questions bloquantes ouvertes
+- **Q5** — écart police de corps documentée (Inter) vs chargée (Almarai),
+  toujours ouverte, non tranchée par Axel. Voir `QUESTIONS.md`.
+
+---
+
 ## Cycle 043 — 2026-09-13 13:05
 
 **Zone travaillée** : `.project-case-study p`/`.project-key-takeaway p`

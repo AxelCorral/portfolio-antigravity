@@ -674,6 +674,27 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   était déjà plus étroite que la mesure). Compteur §6
   `project-detail-modal` : 2/3 → **3/3, gelée**.
 
+- [x] **`.pc-dot` (points de navigation du carousel projet, `role="tab"` réel,
+  partagé par 4 projets 01/02/03/06) mesuré à 4×4px (inactif) / 18×4px
+  (actif)** (cycle 044, rotation E). Sous la convention 44px du reste du site
+  et sous le minimum WCAG 2.5.8 (24×24px, même avec l'exception d'espacement —
+  l'espacement centre à centre mesuré, ~12.5px sur le carousel à 8 points,
+  est aussi sous les 24px que l'exception exige). Corrigé (commit `47bc024`) :
+  pseudo-élément `::before` invisible (`inset: -20px -2px`) portant la zone
+  cliquable à 8×44px/22×44px, sans changement visuel. Vérifié par 3 clics à la
+  limite exacte de la zone étendue (bord gauche, bord droit, 0.5px après la
+  zone du voisin) : aucun chevauchement, chaque clic active le bon point.
+  **Plafond géométrique documenté, non atteint par choix** : 24px ou 44px
+  pleins par point restent impossibles à la densité actuelle (jusqu'à 8 points
+  sur ~100px à 390px) sans élargir `.pc-nav` ou réduire le nombre de points
+  affichés — un arbitrage de densité visuelle, pas une valeur oubliée. Si Axel
+  veut aller plus loin : soit élargir la barre de nav (espace disponible à
+  vérifier aux 4 viewports), soit masquer les points sur les plus petits
+  viewports et ne garder que `.pc-arrow` (déjà conforme 44px) + la navigation
+  clavier (`ArrowLeft`/`ArrowRight` sur le `role="tablist"`, déjà en place) —
+  **P2, arbitrage de densité, pas bloquant**. Compteur §6 `carousel-nav`
+  (`.pc-*`) : 2/3 → **3/3, gelée**.
+
 ## Terminé
 
 - [x] Cycle 028 — §4 reconfirmé intégralement traité (code réel revérifié, pas
