@@ -418,12 +418,15 @@ instance de `.pc-nav`, correctif `landmark-unique`) · `city-heading` (hero) **1
 (cycle 028 : `aria-label` prohibé remplacé par un texte `sr-only`, correctif
 `aria-prohibited-attr`) · `hero-cta` (`.opening-primary`/`.opening-secondary`,
 hero) **1/3** (cycle 029 : CTA dupliqué vers `#selected-work` supprimé,
-rotation D) · `project-detail-modal` (`ProjectDetailModal.tsx`) **2/3**
-(cycle 032 : cible tactile des onglets 34→44px, mesure de lecture du
+rotation D) · `project-detail-modal` (`ProjectDetailModal.tsx`) **3/3 —
+gelée** (cycle 032 : cible tactile des onglets 34→44px, mesure de lecture du
 paragraphe overview via `--measure-lede`, `tabIndex` sur la zone de
 contenu scrollable — correctif `scrollable-region-focusable` ; cycle 033 :
 contraste des eyebrows/labels du case-study 4.28:1/4.02:1 → 5.46:1,
-partagé par les 6 projets) · `cv-page` (`src/pages/CVPage.tsx`,
+partagé par les 6 projets ; cycle 043 : paragraphes `.project-case-study
+p`/`.project-key-takeaway p` (blocs CONTEXT/PROBLEM, PIPELINE/METHOD,
+EVIDENCE/RESULT) plafonnés à `--measure-lede`, 99-108→70-77
+caractères/ligne, partagé par les 6 modales) · `cv-page` (`src/pages/CVPage.tsx`,
 `.cv-*` dans `src/index.css`) **3/3 — gelée** (cycle 034 : contraste de trois
 sélecteurs porté à ≥ 4.5:1, cibles tactiles des contacts à 44px, mesure
 de lecture des puces via `--measure-lede` ; cycle 035 : kicker

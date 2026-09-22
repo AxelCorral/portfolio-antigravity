@@ -6,6 +6,133 @@
 
 ---
 
+## Cycle 043 — 2026-09-13 13:05
+
+**Zone travaillée** : `.project-case-study p`/`.project-key-takeaway p`
+(`src/index.css`, `ProjectDetailModal.tsx`) — partagée par les 6 modales
+projet, y compris les trois chantiers prioritaires du §4 (Vers l'Élysée
+`04`, Ombrair `05`, Analyse vidéo football `06`).
+**Rotation de questions** : **B — Rythme & espace** (« la longueur de ligne
+dépasse-t-elle 75 caractères sur desktop ? »), appliquée hors zone
+prioritaire (§3, gelée) sur le "reste du site" (nav/hero/carousel/modale),
+après revérification interactive du §4.
+
+### Note de continuité — §4 revérifié interactivement, comme demandé par la priorité de ce run et le point de reprise du cycle 042
+
+Ce run précise que les trois chantiers du §4 restent la priorité absolue.
+Le journal (cycle 042) et le backlog confirment déjà les trois livrables
+(carte/page/démo) terminés pour Vers l'Élysée (cycle 024), Ombrair (cycle
+025) et Analyse vidéo football (cycle 026), reconfirmés 17 fois de suite
+(cycles 026-042) — la dernière fois (cycle 042) via un test de clic
+interactif, pas seulement `grep`, qui a trouvé et corrigé un vrai bug
+(CTA inatteignable). Avant de rouvrir un chantier ailleurs, ce cycle a
+rejoué ce même test de clic exhaustif (36 combinaisons : 6 projets × 3
+viewports [1024/1440/1920] × 2 langues) sur le build actuel : **0/36
+échec**, le correctif du cycle 042 tient. Les trois chantiers du §4
+n'ayant plus de défaut mesuré à corriger, ce cycle applique l'ordre de
+priorité normal (§2 phase 4) une fois cette revérification faite : §3
+reste P2 gelée sans fait nouveau, donc "reste du site" (hero, slides
+projets, nav — hors §3, qui inclut footer/contact/about/capabilities et
+reste gelée).
+
+### Constats d'audit
+
+- **P1/P2 mesuré — les paragraphes des blocs CONTEXT/PROBLEM, PIPELINE/
+  METHOD et EVIDENCE/RESULT des modales projet n'avaient aucun plafond de
+  mesure de lecture**, contrairement au paragraphe d'overview juste
+  au-dessus dans la même colonne (`.project-overview-grid > div > p`,
+  plafonné à `--measure-lede` au cycle 032). Mesuré par `canvas.
+  measureText()` sur le texte réel (pas une estimation visuelle) : 99-108
+  caractères/ligne à 1440 et 1920, EN et FR, sur les 4 projets qui ont un
+  `caseStudy` non vide (01/04/05/06 — 02/03 n'ont pas ce champ). 33-44%
+  au-dessus du plafond de 75 caractères que rotation B fixe. Défaut
+  identique dans les 6 instances de la modale puisqu'il vit dans une seule
+  règle CSS partagée — donc présent depuis l'introduction du composant
+  `caseStudy` (cycle antérieur à 032), jamais repéré parce que rotation B
+  n'avait jamais été posée sur `ProjectDetailModal` depuis (rotation B
+  précédente : cycle 032, mais scopée aux onglets/overview, pas au bloc
+  case-study lui-même). Touche directement les trois chantiers prioritaires
+  du §4 : la page détail de Vers l'Élysée, Ombrair et Analyse vidéo
+  football partage cette règle CSS avec Football Data Pipeline.
+
+### Changements livrés
+
+- `38757b9` — fix(project-detail-modal): `.project-case-study p`/
+  `.project-key-takeaway p` gagnent `max-width: var(--measure-lede)` (58ch,
+  même token déjà tranché pour ce cas de figure aux cycles 019/020/032/
+  034). Une seule règle CSS, effet sur les 6 modales.
+- `2e3108a` — ui-loop: galerie du cycle 043 (avant/après honnête,
+  `openmodal:` sur project-01, avant = `1fc2b50`).
+- `ui-loop: journaliser cycle 043` (ce commit).
+
+### Vérification
+
+- Build : ✅ avant et après (`tsc -b && vite build` vert ; CSS 87,29 →
+  87,32 kB, JS inchangé à l'octet près — delta cohérent avec une seule
+  déclaration ajoutée).
+- Mesure de ligne (canvas `measureText`, script jetable, supprimé après
+  usage) : **70-77 caractères/ligne** sur les 32 combinaisons mesurables (6
+  projets × 2 viewports [1440/1920] × 2 langues, hors 02/03 sans
+  `caseStudy`), contre 99-108 avant — dans la fourchette normale de
+  rotation B.
+- Test de clic Playwright exhaustif (36 combinaisons, identique au test du
+  cycle 042) rejoué après le correctif : **0/36 échec** — aucune régression
+  de clickabilité introduite par le rétrécissement du paragraphe.
+- axe-core scopé à `.project-detail-panel` : **0 violation** sur 16
+  combinaisons (4 projets [01/04/05/06] × 2 viewports [390/1440] × 2
+  langues).
+- Capture visuelle 390px (Ombrair, EN) : rendu mobile inchangé au pixel
+  près — la colonne y est déjà plus étroite que 58ch, donc `max-width` n'a
+  aucun effet à cette largeur (attendu, pas une coïncidence).
+- Viewports vérifiés : 390 / 1440 / 1920 (+ 1024 pour le test de clic).
+- Langues : FR ✅ EN ✅.
+- reduced-motion : non concerné (changement de mesure statique, aucune
+  animation touchée).
+- Régression détectée : non.
+
+### Reverté
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024. CTA de
+  carte revérifié cliquable ce cycle (0/36 échec, correctif cycle 042
+  tenu) ; mesure de lecture du case-study corrigée ce cycle (partage la
+  règle CSS commune aux 6 projets).
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025. Même
+  revérification, même correctif partagé.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026.
+  Même revérification, même correctif partagé.
+- **Le §4 de MISSION-UI.md reste intégralement traité pour la 18e fois
+  consécutive (cycles 026-043), cette fois avec un test de clic interactif
+  rejoué (pas seulement une reconfirmation de structure) et un nouveau
+  défaut de mesure de lecture partagé corrigé.**
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Prochain cycle — point de reprise exact
+- Le §4 n'a plus de défaut mesuré connu ; une revérification interactive
+  légère (test de clic, ~1 min) reste recommandée en début de cycle avant
+  de rouvrir un chantier ailleurs, mais une reprise systématique de zéro
+  n'est plus nécessaire tant qu'aucune régression n'est trouvée. Reprendre
+  l'ordre de priorité §2 phase 4 normal : §3 reste P2 gelée sauf
+  régression/bug bloquant/violation d'accessibilité mesurée/raccord imposé
+  par le §4 ; "reste du site" ensuite (hero/nav/carousel — rotation B a
+  couvert `project-detail-modal`, désormais gelé 3/3 ; candidats suivants :
+  rotation A/D/E sur `.city-nav`/`.pc-nav`/hero, jamais posées ensemble sur
+  ces cibles précises). Candidats P2 inchangés (voir `BACKLOG.md`) : coût
+  main-thread de `reduce`-motion au chargement de `CinematicOpening.tsx`
+  (cycle 041, sans correctif sûr identifié) ; CLS de `/cv` (cycle 037,
+  bloqué sur Q5) ; bundle JS 679,86 kB (226 kB gzip) ; mode
+  `--freeze-at=<ms>` pour `ui-gallery.mjs` ; mode qui verrouille `scrollY`
+  avant `viewport:` ; contraste des coches `<Check>` de Capabilities
+  (`#capabilities` gelée, arbitrage d'icône) ; largeur de colonne
+  `.capability-card` à 1024px (grille, `#capabilities` gelée).
+
+### Questions bloquantes ouvertes
+- **Q5** — écart police de corps documentée (Inter) vs chargée (Almarai),
+  toujours ouverte, non tranchée par Axel. Voir `QUESTIONS.md`.
+
+---
+
 ## Cycle 042 — 2026-09-13 11:40
 
 **Zone travaillée** : `.home-project-card`/`.home-project-copy`/

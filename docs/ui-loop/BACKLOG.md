@@ -651,6 +651,29 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   comprendre" — mais le chantier a été déclenché par la mesure de
   clickabilité, pas par une préférence esthétique.
 
+- [x] **`.project-case-study p`/`.project-key-takeaway p` (blocs
+  CONTEXT/PROBLEM, PIPELINE/METHOD, EVIDENCE/RESULT des 6 modales projet)
+  sans plafond de mesure, 99-108 caractères/ligne à 1440/1920, EN et FR**
+  (cycle 043, rotation B — "la longueur de ligne dépasse-t-elle 75
+  caractères sur desktop ?"). Le paragraphe d'overview juste au-dessus
+  (`.project-overview-grid > div > p`) avait déjà reçu `max-width:
+  var(--measure-lede)` au cycle 032, mais la règle voisine
+  `.project-case-study p`/`.project-key-takeaway p` — même colonne, même
+  genre de copie — ne l'a jamais reçu : mesuré 33-44% au-dessus du plafond
+  de rotation B sur les 4 projets à `caseStudy` non vide (01/04/05/06,
+  02/03 n'ont pas de champ `caseStudy`), aux 2 viewports desktop et aux 2
+  langues (canvas `measureText` sur le texte réel de chaque paragraphe, pas
+  une estimation à l'œil). Touche directement les trois chantiers
+  prioritaires du §4. Corrigé (commit `38757b9`) : même token
+  `--measure-lede` (58ch) déjà tranché pour ce cas de figure. Après :
+  70-77 caractères/ligne sur les 32 combinaisons (6 projets × 2 viewports ×
+  2 langues, hors 02/03 sans case study) — dans la fourchette normale,
+  contre 99-108 avant. Vérifié : 0 régression de clic (36/36 cartes),
+  **0 violation axe-core** sur le panneau après ouverture (4 projets × 2
+  viewports × 2 langues), rendu mobile (390px) inchangé (la colonne y
+  était déjà plus étroite que la mesure). Compteur §6
+  `project-detail-modal` : 2/3 → **3/3, gelée**.
+
 ## Terminé
 
 - [x] Cycle 028 — §4 reconfirmé intégralement traité (code réel revérifié, pas
