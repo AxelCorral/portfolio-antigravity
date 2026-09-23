@@ -187,7 +187,7 @@ export function CinematicOpening({ onOpenBuildMode }: { onOpenBuildMode: () => v
           }
         >
           <div className="max-w-3xl">
-            <p className="mb-5 text-xs uppercase tracking-[0.18em] text-primary/75">
+            <p className="mb-5 text-xs uppercase tracking-[0.18em] text-primary/75 [text-wrap:balance]">
               {t.hero.introLabel}
             </p>
             <p className="city-heading">
@@ -228,7 +228,7 @@ export function CinematicOpening({ onOpenBuildMode }: { onOpenBuildMode: () => v
           }
         >
           <div className="hero-title-column">
-            <p className="mb-5 text-xs tracking-[0.08em] text-primary/70 sm:text-sm">
+            <p className="mb-5 text-xs tracking-[0.08em] text-primary/70 sm:text-sm [text-wrap:balance]">
               {t.hero.role}
             </p>
             <h1 id="hero-title" className="hero-title">
