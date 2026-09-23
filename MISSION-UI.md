@@ -436,7 +436,12 @@ de lecture des puces via `--measure-lede` ; cycle 035 : kicker
 "Axel Corral" redondant avec le `<h1>` juste en dessous retiré,
 rotation A ; cycle 038 : gap vertical Education/Languages sous 768px
 104px→48px, `.cv-two-col > .cv-section { margin-bottom: 0 }`,
-rotation E)
+rotation E) · `hero-links` (`.subtle-link`, ligne View CV/Download/GitHub/
+Contact du hero, `src/components/CinematicOpening.tsx`) **1/3** (cycle 045 :
+`flex-wrap` sur le conteneur + `white-space: nowrap` sur `.subtle-link` —
+à 768px, `.hero-intro` (1/3 de large) faisait rétrécir un seul lien au lieu
+de renvoyer les liens suivants à la ligne, cassant "Voir mon CV" sur 3
+lignes en plein mot)
 
 Les sections gelées ne rouvrent que par dérogation écrite. Ce plafond existe parce
 que la boucle a produit 26 commits sur la zone basse pendant que les trois projets

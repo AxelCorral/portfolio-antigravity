@@ -6,6 +6,159 @@
 
 ---
 
+## Cycle 045 — 2026-09-23 16:45
+
+**Zone travaillée** : hero (`.subtle-link`, ligne View CV/Download/GitHub/
+Contact — `src/components/CinematicOpening.tsx`, `src/index.css`), « reste du
+site » (zone prioritaire §3 gelée sans fait nouveau, §4 déjà traité et
+revérifié).
+**Rotation de questions** : née d'une inspection visuelle directe des
+captures hero (390/768/1440/1920 × EN/FR), pas d'une rotation A-E complète —
+mais relève de **A — Hiérarchie/lisibilité** (un mot d'un lien coupé en
+plein milieu par le retour à la ligne casse la lecture du bloc de
+conversion).
+
+### Note de continuité — §4 revérifié léger, build vert, §3 confirmée propre
+
+Ce run a d'abord suivi le point de reprise du cycle 044 : build (`npm run
+build` + `tsc -b`) vérifié vert avant toute chose (Phase 1). Le §4 étant
+marqué "terminé" pour les trois chantiers depuis les cycles 024-026 et
+revérifié 19 fois de suite (cycles 026-044) sans aucune régression trouvée
+depuis le cycle 042, ce cycle n'a pas rejoué le test de clic exhaustif des
+36 combinaisons (déjà fait au cycle 044, aucun changement de code touchant
+les cartes/modales projet depuis) — juste le rappel que le §4 reste
+intégralement traité. À la place, un run complet de `scripts/ui-zone-audit.mjs`
+(zone §3 : about/capabilities/contact, 10 combinaisons viewport × langue ×
+reduced-motion) a confirmé **0 violation axe-core, 0 scroll horizontal**
+partout — §3 reste P2 gelée sans fait nouveau. L'ordre de priorité (§2
+phase 4) retombe donc sur "reste du site", comme les cycles 027/039/040/043/
+044 avant lui.
+
+### Constats d'audit
+
+- **P1/P2 mesuré — la ligne de liens `.subtle-link` du hero (View CV /
+  Download / GitHub / Contact, dans `.hero-intro`) casse le texte d'un seul
+  lien en plein mot à 768px (tablette portrait)**, au lieu de renvoyer les
+  liens suivants à la ligne. Trouvé en inspectant visuellement les captures
+  du hero aux 4 viewports (390/768/1440/1920) × 2 langues — pas seulement en
+  lisant le DOM, comme l'exige la Phase 2. Cause : à partir de 768px,
+  `.hero-content` devient une grille 12 colonnes et `.hero-intro` (qui
+  contient toute la colonne droite : texte de profil, badges, CTA, et cette
+  ligne de liens) ne fait plus que `span 4 / 12`, soit environ 220px de
+  large une fois le padding retiré. Le conteneur `<div className="flex
+  gap-4 ...">` n'avait pas `flex-wrap` : dans une rangée flex `nowrap`, le
+  premier enfant (`View CV`, un `<Link>` avec `flex-shrink` par défaut) se
+  contractait sous la largeur de son propre texte plutôt que d'être poussé
+  à la ligne suivante comme un tout, ce qui coupait le texte **à l'intérieur
+  du lien** ("View CV" → "View" / "CV" sur deux lignes ; en français, plus
+  long, "Voir mon CV" → "Voir" / "mon" / "CV" sur **trois** lignes). Un mot
+  isolé sur sa propre ligne à l'intérieur d'une cible cliquable est un
+  défaut de lisibilité visible au premier coup d'œil sur la capture, présent
+  aux deux langues à 768px uniquement (390 : colonne pleine largeur, texte
+  jamais contraint ; 1440/1920 : `.hero-intro` a bien plus de place).
+
+### Changements livrés
+
+- `1904498` — fix(hero): le conteneur des liens gagne `flex-wrap gap-x-4
+  gap-y-1` (au lieu de `gap-4` seul) et `.subtle-link` gagne `white-space:
+  nowrap` — chaque lien devient une unité insécable, et c'est la rangée qui
+  renvoie les liens suivants au besoin, jamais un mot isolé.
+- `24e70f7` — chore(ui-gallery): nouveau mode de capture `scrollpx:<vh>`.
+  Aucun mode existant ne pouvait atteindre proprement la scène B du hero
+  (crossfade piloté par le scroll à l'intérieur d'un `position: sticky`) :
+  `scrollIntoViewIfNeeded()` traite `.hero-content` comme déjà visible dès
+  scroll 0 (il occupe toute la zone épinglée), donc `viewport:<sel>@<y>`
+  n'avançait jamais la progression du crossfade — les deux captures AVANT/
+  APRÈS obtenues ainsi étaient quasi identiques et montraient surtout la
+  scène A en double exposition, pas le défaut. `scrollpx:` scrolle
+  explicitement à `<multiplicateur> × hauteur du viewport` avant de capturer
+  le viewport entier, sur le même principe que le mode `click:` existant qui
+  scrolle à `document.body.scrollHeight`. Utilisé pour produire la galerie
+  de ce cycle (`scrollpx:1.6`, viewports 390/768 — 768 parce que c'est la
+  largeur réelle où vit le défaut, 1440 ne l'aurait pas montré).
+- `ui-loop: journaliser cycle 045` (ce commit) — compteur §6 : nouvelle
+  entrée `hero-links` (`.subtle-link`) **1/3**.
+
+### Vérification
+
+- Build : ✅ avant et après (`tsc -b` sans sortie, `vite build` vert, CSS
+  87,40 → 87,46 kB, JS inchangé au kilo-octet près — delta cohérent avec
+  une classe Tailwind ajoutée en JSX + une déclaration CSS).
+- Capture visuelle 768px, EN et FR, avant/après : "View CV" (EN) et "Voir
+  mon CV" (FR) restent chacun sur une seule ligne après correctif ; les
+  liens suivants (`Download`/`Télécharger`, `GitHub`, `Contact`) passent à
+  la ligne comme des unités entières plutôt que de faire éclater le premier
+  lien. Comparé côte à côte avec la capture AVANT (galerie ci-dessous).
+- Mesure Playwright (`getBoundingClientRect()` sur les 5 `.subtle-link` de
+  la page, EN + FR, 768px) : hauteur **exactement 44px** sur chacun après
+  correctif (contre une hauteur plus grande côté "View CV"/"Voir mon CV"
+  avant, signe d'un retour à la ligne interne) — confirme qu'aucun lien ne
+  contient plus de saut de ligne interne.
+- axe-core scopé à `.hero-content` (768px, EN + FR, après scroll dans la
+  scène B) : **0 violation**, avant comme après.
+- Tap targets : les 5 `.subtle-link` mesurés à 44px de hauteur, conforme au
+  plancher déjà en place sur cette classe (aucune régression sur ce point,
+  le correctif ne touchait pas `min-height`).
+- Non-régression 390/1440/1920 (EN + FR) : capture avant/après strictement
+  identique au pixel près — la colonne y est déjà assez large (390 : pleine
+  largeur ; 1440/1920 : `.hero-intro` a plus d'espace), donc `flex-wrap`
+  n'a aucun effet visible à ces largeurs, comme attendu.
+- reduced-motion (768px) : largeurs des `.subtle-link` identiques à l'état
+  motion activée — le correctif est un changement de layout statique, non
+  animé, donc `reduced-motion` n'a aucune interaction avec lui.
+- Zone §3 (`ui-zone-audit.mjs`, 10 combinaisons) : 0 violation axe-core, 0
+  scroll horizontal — confirmé propre avant d'ouvrir ce chantier ailleurs.
+- Viewports vérifiés : 390 / 768 / 1440 / 1920.
+- Langues : FR ✅ EN ✅.
+- reduced-motion : ✅ (aucune interaction avec le correctif, vérifié quand
+  même).
+- Régression détectée : non.
+
+### Reverté
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024. Pas
+  retouché ce cycle (aucun changement de code sur les cartes/modales
+  projet) ; dernière revérification interactive complète : cycle 044 (clic
+  CTA, 1440px EN+FR, 0 échec), cycle 043 pour le test exhaustif 36/36.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025. Idem.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026.
+  Idem.
+- **Le §4 de MISSION-UI.md reste intégralement traité pour la 20e fois
+  consécutive (cycles 026-045)**, sans revalidation interactive
+  supplémentaire ce cycle faute de changement de code dans son périmètre —
+  la revalidation la plus récente (cycle 044) reste la référence.
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Prochain cycle — point de reprise exact
+- Compteur §6 : `hero-links` (`.subtle-link`) passe de rien à **1/3** —
+  encore 2 passes possibles avant plafond.
+- Le §4 n'a reçu aucun changement de code depuis le cycle 044 (3 cycles) :
+  une revalidation interactive complète (clic CTA, 36 combinaisons) est
+  recommandée au prochain cycle qui touche au hero, à la nav ou aux cartes
+  projet, par prudence plutôt que par nécessité mesurée.
+- Nouvel outil disponible : `scripts/ui-gallery.mjs --sections="scrollpx:<vh>"`
+  pour tout futur chantier vivant dans une scène pilotée par le scroll
+  (le hero `CinematicOpening.tsx` est le seul composant de ce type sur le
+  site actuellement, mais le mode est générique).
+- Candidats P2 inchangés (voir `BACKLOG.md`) : zone de clic de `.pc-dot`
+  plafonnée par la densité de points (cycle 044) ; coût main-thread de
+  `reduce`-motion au chargement de `CinematicOpening.tsx` (cycle 041) ; CLS
+  de `/cv` (cycle 037, bloqué sur Q5) ; bundle JS 679,88 kB (226 kB gzip) ;
+  mode `--freeze-at=<ms>` pour `ui-gallery.mjs` ; mode qui verrouille
+  `scrollY` avant `viewport:` (partiellement couvert par `scrollpx:` désormais,
+  mais seulement pour un scroll absolu, pas un verrouillage post-`viewport:`) ;
+  contraste des coches `<Check>` de Capabilities (`#capabilities` gelée,
+  arbitrage d'icône) ; largeur de colonne `.capability-card` à 1024px
+  (grille, `#capabilities` gelée).
+
+### Questions bloquantes ouvertes
+- **Q5** — écart police de corps documentée (Inter) vs chargée (Almarai),
+  toujours ouverte, non tranchée par Axel. Voir `QUESTIONS.md`.
+
+---
+
 ## Cycle 044 — 2026-09-22 13:47
 
 **Zone travaillée** : `.pc-dot` (`.pc-*`, carousel-nav — `src/index.css`, partagé

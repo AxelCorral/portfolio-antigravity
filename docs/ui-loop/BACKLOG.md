@@ -695,6 +695,27 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   **P2, arbitrage de densité, pas bloquant**. Compteur §6 `carousel-nav`
   (`.pc-*`) : 2/3 → **3/3, gelée**.
 
+- [x] **`.subtle-link` (ligne View CV/Download/GitHub/Contact du hero) casse
+  le texte d'un seul lien en plein mot à 768px** (cycle 045, trouvé par
+  inspection visuelle directe des captures hero, pas une rotation A-E
+  complète). À 768px, `.hero-intro` ne fait que `span 4/12` (~220px) et le
+  conteneur `flex gap-4` sans `flex-wrap` laissait le premier lien
+  (`View CV`/`Voir mon CV`) se rétrécir et casser son propre texte au lieu
+  de renvoyer les liens suivants à la ligne — "Voir mon CV" éclatait sur
+  3 lignes en français. Corrigé (commit `1904498`) : `flex-wrap` sur le
+  conteneur + `white-space: nowrap` sur `.subtle-link`, chaque lien devient
+  une unité insécable. Vérifié : hauteur exacte 44px sur les 5
+  `.subtle-link` après correctif (0 retour à ligne interne), 0 violation
+  axe-core scopée à `.hero-content`, aucune régression visuelle à
+  390/1440/1920 (la colonne y est déjà assez large, `flex-wrap` sans effet
+  par construction). Outillage : `scripts/ui-gallery.mjs` gagne le mode
+  `scrollpx:<multiplicateurVh>` (commit `24e70f7`), seul moyen de capturer
+  honnêtement une scène pilotée par le scroll à l'intérieur d'un
+  `position: sticky` — `viewport:<sel>@<y>` et `scrollIntoViewIfNeeded()`
+  traitent `.hero-content` comme déjà visible dès scroll 0 et n'avancent
+  jamais le crossfade vers la scène B. Compteur §6 : nouvelle entrée
+  `hero-links` (`.subtle-link`) **1/3**.
+
 ## Terminé
 
 - [x] Cycle 028 — §4 reconfirmé intégralement traité (code réel revérifié, pas
