@@ -742,6 +742,44 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   (fondu visuel confirmé strictement inchangé). Compteur §6 `hero-cta` :
   1/3 → **2/3**.
 
+- [x] **Cinq contrôles de la scène B du hero (`#profile`/`.hero-content` :
+  `.primary-cta` "View selected work", `.build-mode-trigger`, 4×
+  `.subtle-link` View CV/Download/GitHub/Contact — plus `.creator-hotspot`,
+  sibling indépendant) invisibles (opacité 0) avant `scrollYProgress > 0,3`
+  mais restés joignables et activables au clavier** (cycle 048, rotation C
+  par réapplication délibérée de la question déjà posée pour `.opening-primary`
+  cycles 046-047 — « le correctif ne serait-il pas incomplet ? » — plutôt que
+  de la supposer close). `pointer-events: none` ne bloque que la souris ;
+  un `<a>`/`<button>` reste dans l'ordre de tabulation et Entrée/Espace
+  l'active nativement quel que soit `pointer-events`. Vérifié par Tab réel
+  (Playwright) depuis le haut de page : 5 arrêts sur des contrôles à
+  `opacity: 0` confirmé (`getComputedStyle`), avant tout scroll. Corrigé
+  (commit `2830f0d`) : `.creator-hotspot` gagne `inert={!stateBActive}`
+  (bouton isolé, aucun contenu structurel à perdre) ; les cinq contrôles de
+  `#profile` gagnent un `tabIndex`/`aria-hidden` individuel plutôt qu'un
+  `inert` sur le conteneur — un premier essai avec `inert` sur `#profile`
+  a été **rejeté avant commit** : il masquait aussi le seul `<h1>` de la
+  page (`#hero-title`, imbriqué dans le même conteneur) à l'arbre
+  d'accessibilité pendant toute la scène A, détecté par axe-core
+  (`page-has-heading-one`, 0 → 1 violation) avant toute publication — leçon
+  d'outillage : `inert` est une solution correcte pour un élément isolé
+  (`.creator-hotspot`) mais pas pour un conteneur qui porte aussi du
+  contenu structurel non interactif devant rester découvrable. Revérifié
+  après correctif définitif : **0 violation axe-core** (1440/390 × EN/FR,
+  contre 1 avec le premier essai `inert`), Tab depuis le haut de page saute
+  directement de `.city-contact` à `.opening-primary` puis aux cartes
+  projet (0 arrêt invisible, EN et FR), les 7 contrôles de scène B restent
+  Tab-atteignables et cliquables une fois `scrollYProgress > 0,3` (0/7
+  régression), clic réel sur `.creator-hotspot` ouvre toujours le
+  "build mode", `reduced-motion` inchangé (`#profile` jamais `inert` dans ce
+  mode — c'est l'état statique toujours interactif que ce mode affiche à la
+  place du crossfade). Test de clic §4 ciblé (6 projets, 1440px) rejoué
+  après correctif : résultat identique au cycle 047 (4/6 modales, cause
+  confirmée par les données du projet, aucune régression). Compteur §6 :
+  `hero-links` (`.subtle-link`) 1/3 → **2/3** ; nouvelle entrée
+  `hero-scene-b-controls` (`.creator-hotspot`/`.primary-cta`/
+  `.build-mode-trigger`) **1/3**.
+
 ## Terminé
 
 - [x] Cycle 028 — §4 reconfirmé intégralement traité (code réel revérifié, pas

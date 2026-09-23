@@ -6,6 +6,199 @@
 
 ---
 
+## Cycle 048 — 2026-09-23 21:10
+
+**Zone travaillée** : hero (scène B — `#profile`/`.hero-content`,
+`.creator-hotspot`, `src/components/CinematicOpening.tsx`), « reste du
+site » (§3 gelée sans fait nouveau, §4 revalidé avant tout nouveau
+chantier, conformément à la priorité absolue de ce run).
+**Rotation de questions** : **C — Mouvement**, par réapplication délibérée
+de sa question déjà posée sur `.opening-primary` (cycles 046-047) — « le
+correctif d'un piège de focus clavier ne serait-il traité que sur UN
+contrôle, alors que le même mécanisme (opacité pilotée par
+`scrollYProgress` + `pointer-events` seul) existe ailleurs dans le même
+composant ? » — plutôt qu'une rotation A-E complète.
+
+### Note de continuité — écart de numérotation constaté et tranché, cycle non journalisé du run précédent retrouvé et clos sans perte
+
+Le dernier cycle réellement journalisé dans ce fichier au démarrage de ce
+run était le **cycle 047** (`cdc3975`) ; ce run se numérote donc **048**,
+et non 052 comme indiqué par la consigne de lancement — `git log` et ce
+journal font foi sur la numérotation, pas la consigne d'appel. Trouvé au
+passage : `docs/ui-loop/screenshots/hierarchy-cycle048-hero/report.json`,
+un run complet de `ui-hierarchy-probe.mjs` (8 sections × 4 viewports × 2
+langues, horodaté entre les cycles 046 et 047) déjà nommé "cycle048" par
+une tentative antérieure — un cycle commencé (audit rotation A sur
+hero/nav, exactement la piste que le point de reprise du cycle 047 pointait
+ensuite) puis jamais journalisé, conformément à l'avertissement de
+`MISSION-UI.md` §0 (« un cycle non journalisé est un cycle perdu »). Aucun
+commit ne s'y rattachait (`git log --all` propre) : rien n'a donc été
+perdu au sens strict, seule l'exploration l'a été. Les données de ce
+rapport ont été relues (niveaux typographiques de `city-nav`/`contact`/
+`footer`/`city-content`, tous ≤ 5 niveaux, contrastes tous > 4.5:1, aucune
+anomalie franche) avant d'être jugées non concluantes et le dossier
+supprimé (§6, sonde jetable).
+
+Phase 1 : `npm run build` (`tsc -b` + `vite build`) vérifié vert avant tout
+changement. Test de clic §4 ciblé (6 projets, 1440px) rejoué avant tout
+changement : 4/6 modales (01/04/05/06), identique aux 22 cycles précédents
+(026-047) — comportement confirmé voulu (`src/data/projects.ts`, 02/03
+sans champ `caseStudy`), pas une régression. §3 gelée sans fait nouveau —
+non retouchée.
+
+### Constats d'audit
+
+- **P0 mesuré — cinq contrôles interactifs de la scène B du hero restaient
+  invisibles (`opacity: 0`, confirmé par `getComputedStyle`) mais
+  focalisables et activables au clavier avant que l'utilisateur ait
+  scrollé au-delà de `scrollYProgress = 0,3`.** Un test de tabulation réel
+  (Playwright, 15 appuis `Tab` depuis `scrollY = 0`, sans mouvement de
+  souris) atterrissait successivement sur `.creator-hotspot` ("Personal
+  layer", `opacity: '0'`), `.primary-cta` ("View selected work"),
+  `.build-mode-trigger` ("Personal layer", second contrôle du même nom) et
+  les 4 `.subtle-link` (View CV/Download/GitHub/Contact) — tous avec
+  `pointer-events: none` mais **atteignables et activables**, puisque cette
+  propriété CSS ne bloque que la souris : un `<a>`/`<button>` natif reste
+  dans l'ordre de tabulation et Entrée/Espace l'active indépendamment du
+  pointeur. Exactement la même classe de défaut que celle déjà mesurée et
+  corrigée pour `.opening-primary` (cycles 046-047), non détectée à
+  l'époque parce que la question « le même correctif est-il nécessaire
+  ailleurs dans ce composant ? » n'avait pas été reposée explicitement une
+  fois le premier correctif livré. `#profile` (conteneur de 4 des 5
+  contrôles) mesuré à `opacity: 0` exact et `inert: false` au repos
+  (`scrollY = 0`) avant correctif.
+- **Investigué, pas retenu — un premier correctif (`inert` sur le
+  conteneur `#profile` entier) a été construit, testé, puis rejeté avant
+  tout commit** : il supprimait aussi le seul `<h1>` de la page
+  (`#hero-title`, imbriqué dans `#profile`) de l'arbre d'accessibilité
+  pendant toute la scène A, détecté par un axe-core scopé à la page de
+  chargement (`page-has-heading-one`, 0 → 1 violation avant tout scroll,
+  1440 et 390, EN et FR) — une régression mesurée avant publication, pas
+  après. Leçon d'outillage : `inert` est correct sur un élément isolé sans
+  contenu structurel propre (`.creator-hotspot`, conservé), mais pas sur un
+  conteneur qui porte aussi du texte non interactif devant rester
+  découvrable (titre de page) — le correctif définitif revient au motif
+  déjà validé cycles 046-047 (`tabIndex`/`aria-hidden` individuels par
+  contrôle interactif, rien sur le conteneur).
+
+### Changements livrés
+
+- `2830f0d` — fix(hero): `.creator-hotspot` gagne `inert={!stateBActive}` ;
+  `.primary-cta`, `.build-mode-trigger` et les 4 `.subtle-link` de
+  `#profile` gagnent chacun `tabIndex`/`aria-hidden` gatés par
+  `heroContentInteractive = reduceMotion || stateBActive` (nouvelle
+  constante, même fichier). `reduced-motion` explicitement exclu du gate
+  (`#profile` n'y est jamais inerte — état statique toujours interactif que
+  ce mode affiche à la place du crossfade, comportement inchangé et
+  reverifié).
+- `8e4e133` — ui-loop: galerie du cycle 048 (`scrollpx:1.6`, 390/1440,
+  avant/après identiques au pixel près — changement non visuel, même
+  convention que les galeries des cycles 046/047 pour un correctif de même
+  nature).
+- `ui-loop: journaliser cycle 048` (ce commit) — compteur §6 :
+  `hero-links` (`.subtle-link`) 1/3 → **2/3** ; nouvelle entrée
+  `hero-scene-b-controls` (`.creator-hotspot`/`.primary-cta`/
+  `.build-mode-trigger`) **1/3**. Nettoyage : dossier de sonde orpheline
+  `screenshots/hierarchy-cycle048-hero/` (run non journalisé du cycle
+  précédent, voir note de continuité) et 8 scripts `.tmp-*.mjs`/`.tmp-*.png`
+  jetables de ce cycle supprimés conformément au garde-fou §6.
+
+### Vérification
+
+- Build : ✅ avant et après (`tsc -b` sans sortie, `vite build` vert, JS
+  680,00 → 680,30 kB — delta cohérent avec ~65 lignes d'attributs JSX
+  ajoutés, aucune nouvelle dépendance).
+- Run complet `ui-audit.mjs` (10 combinaisons, 4 viewports × 2 langues +
+  2 passes `reduced-motion`) après correctif définitif : **0 violation
+  axe-core**, 0 overflow horizontal, 0 erreur console, 0 erreur de page.
+  CLS ≤ 0,0012 sur les 8 passes normales, ~0,0245 sur les 2 passes
+  `reduced-motion` — motif identique et stable depuis le cycle 001
+  (« positif, à ne pas régresser »), pas un fait nouveau.
+- Test de tabulation dédié (Playwright, 1440px, EN et FR) : depuis
+  `scrollY = 0`, Tab saute désormais directement de `.city-contact` à
+  `.opening-primary` puis aux cartes projet — **0 arrêt sur un contrôle
+  invisible** (contre 5 avant correctif), aux deux langues.
+- Test de non-régression scène B (Playwright, `scrollY = 1400`, au-delà du
+  seuil `stateBActive`) : les 7 contrôles (`.creator-hotspot`,
+  `.primary-cta`, `.build-mode-trigger`, 4× `.subtle-link`) restent
+  Tab-atteignables ; clic réel sur `.creator-hotspot` ouvre toujours le
+  "build mode" (vérifié par présence de `.build-mode-inner`/`.build-mode`
+  dans le DOM après clic).
+- Test `reduced-motion` dédié (Playwright, `reducedMotion: "reduce"`,
+  `scrollY = 0`) : `#profile` mesuré `inert: false`, opacité `1`,
+  `.primary-cta` `tabIndex: 0` et cliquable — comportement strictement
+  inchangé par rapport à avant ce cycle.
+- axe-core ciblé page de chargement (1440/390 × EN/FR, avant tout scroll) :
+  **0 violation** avec le correctif définitif (contre 1,
+  `page-has-heading-one`, avec le premier essai `inert`-sur-conteneur —
+  jamais commité).
+- Test de clic §4 ciblé (6 projets, 1440px) rejoué après correctif :
+  résultat identique à avant (4/6 modales, cause confirmée par les données
+  du projet) — le correctif ne touche pas les cartes projet.
+- Viewports vérifiés : 390 / 768 / 1440 / 1920 (`ui-audit.mjs`) + 1440
+  dédié (tests de tabulation, scène B, reduced-motion, axe ciblé).
+- Langues : FR ✅ EN ✅ (tabulation et axe-core revérifiés dans les deux).
+- reduced-motion : ✅ — `#profile` jamais `inert` dans ce mode, vérifié.
+- Régression détectée : non (une régression a été détectée et corrigée
+  **avant publication**, voir « Investigué, pas retenu » ci-dessus — la
+  distinction avec « régression détectée » au sens de cette rubrique est
+  qu'aucune version régressée n'a jamais été commitée ni journalisée comme
+  un correctif valide).
+
+### Reverté
+- Aucun commit reverté. Un premier essai de correctif (`inert` sur
+  `#profile` entier) a été **écarté avant tout commit** après avoir mesuré
+  sa régression (`page-has-heading-one`) — voir « Investigué, pas retenu ».
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024. Non retouché
+  ce cycle.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025. Non retouché ce
+  cycle.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026. Non
+  retouché ce cycle.
+- **Le §4 de MISSION-UI.md reste intégralement traité pour la 23e fois
+  consécutive (cycles 026-048)**, revalidé par un test de clic ciblé (4/6
+  modales, comportement attendu et confirmé identique avant/après ce
+  cycle) — le correctif de ce cycle touche `CinematicOpening.tsx` (hero,
+  hors §4) mais pas les cartes/modales projet.
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Prochain cycle — point de reprise exact
+- Compteur §6 : `hero-links` (`.subtle-link`) passe de 1/3 à **2/3** (une
+  passe restante avant gel). Nouvelle entrée `hero-scene-b-controls`
+  (`.creator-hotspot`/`.primary-cta`/`.build-mode-trigger`) à **1/3**.
+- Avec `hero-cta` gelée (3/3) et `hero-links`/`hero-scene-b-controls` sous
+  plafond mais désormais audités sous rotation C, le hero n'a plus de
+  piège de focus clavier connu. Candidats P2 inchangés (voir
+  `BACKLOG.md`) : coût main-thread de `reduce`-motion au chargement de
+  `CinematicOpening.tsx` (cycle 041, budget d'instrumentation dédié requis
+  avant tout correctif, risque de casser le calage du scroll-pin — non
+  retenté ce cycle après évaluation, jugé trop incertain sans mesure plus
+  fine que celle déjà faite cycle 041) ; CLS de `/cv` (cycle 037, bloqué
+  sur Q5) ; bundle JS 680,30 kB (226 kB gzip) ; mode `--freeze-at=<ms>`
+  pour `ui-gallery.mjs` ; contraste des coches `<Check>` de Capabilities
+  (`#capabilities` gelée, arbitrage d'icône) ; largeur de colonne
+  `.capability-card` à 1024px (grille, `#capabilities` gelée) ; plancher de
+  contraste du fondu de sortie du hero pour le texte non interactif
+  (`contentAOpacity`, cycle 022/046, P2, hors périmètre du correctif de ce
+  cycle qui ne portait que sur des contrôles interactifs).
+- Prochain chantier « reste du site » à envisager : `nav` (2/3, jamais
+  audité sous rotation A/B en tant que tel — D l'a couvert cycle 029,
+  E cycle 027, C cycle 040) ou `city-heading` (1/3). `#contact` **reste
+  hors limites sans fait nouveau** : il fait partie de la zone §3 gelée
+  (« jusqu'au bas de page inclus... contact »), contrairement à ce que le
+  point de reprise du cycle 047 laissait entendre en le citant parmi les
+  candidats « reste du site » — précision apportée ce cycle pour qu'un
+  futur cycle ne rouvre pas §3 par erreur de lecture de ce même point de
+  reprise.
+
+### Questions bloquantes ouvertes
+- **Q5** — écart police de corps documentée (Inter) vs chargée (Almarai),
+  toujours ouverte, non tranchée par Axel. Voir `QUESTIONS.md`.
+
+---
+
 ## Cycle 047 — 2026-09-23 18:05
 
 **Zone travaillée** : hero (`.opening-primary`, scène A du crossfade scroll-scrubé

@@ -443,11 +443,26 @@ de lecture des puces via `--measure-lede` ; cycle 035 : kicker
 rotation A ; cycle 038 : gap vertical Education/Languages sous 768px
 104px→48px, `.cv-two-col > .cv-section { margin-bottom: 0 }`,
 rotation E) · `hero-links` (`.subtle-link`, ligne View CV/Download/GitHub/
-Contact du hero, `src/components/CinematicOpening.tsx`) **1/3** (cycle 045 :
+Contact du hero, `src/components/CinematicOpening.tsx`) **2/3** (cycle 045 :
 `flex-wrap` sur le conteneur + `white-space: nowrap` sur `.subtle-link` —
 à 768px, `.hero-intro` (1/3 de large) faisait rétrécir un seul lien au lieu
 de renvoyer les liens suivants à la ligne, cassant "Voir mon CV" sur 3
-lignes en plein mot)
+lignes en plein mot ; cycle 048 : `tabIndex`/`aria-hidden` gagnés, gelés
+au même seuil `stateBActive` que leur `pointer-events` — voir
+`hero-scene-b-controls` ci-dessous, même commit) · `hero-scene-b-controls`
+(`.creator-hotspot`, `.primary-cta`, `.build-mode-trigger`, hero,
+`src/components/CinematicOpening.tsx`) **1/3** (cycle 048 : les quatre
+`.subtle-link` ci-dessus partagent ce correctif — invisibles/à opacité 0
+avant `scrollYProgress > 0.3` mais restés joignables et activables au
+clavier malgré `pointer-events: none`, qui ne bloque que la souris — même
+classe de piège de focus déjà corrigée pour `.opening-primary` cycles
+046-047, retrouvée sur ces cinq contrôles frères en retestant la prémisse
+de ce correctif plutôt qu'en la supposant unique. `.creator-hotspot` gagne
+`inert={!stateBActive}` ; les cinq contrôles de `#profile` gagnent un
+`tabIndex`/`aria-hidden` individuel plutôt qu'un `inert` sur le
+conteneur — `inert` sur `#profile` masquait aussi le seul `<h1>` de la
+page à l'arbre d'accessibilité pendant la scène A, régression détectée par
+axe-core (`page-has-heading-one`) avant publication, jamais livrée)
 
 Les sections gelées ne rouvrent que par dérogation écrite. Ce plafond existe parce
 que la boucle a produit 26 commits sur la zone basse pendant que les trois projets
