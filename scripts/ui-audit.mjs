@@ -265,17 +265,43 @@ async function capturePage({ lang, viewport, reducedMotion }) {
   return result;
 }
 
+// `shell: true` (required on Windows to resolve the `npx`/`vite` .cmd shims)
+// spawns cmd.exe, which spawns npx, which spawns the real vite.js — three
+// processes deep. `server.kill()` only signals the top cmd.exe; on Windows
+// that does not propagate to its descendants, so the actual dev server was
+// silently orphaned on every run, listening on DEV_PORT forever (the
+// recurring "orphan node/vite processes" hygiene note in cycles 049-051).
+// `taskkill /T` kills the whole tree by PID; plain `.kill()` is fine on
+// POSIX, where signals already propagate to the process group.
+function killServerTree(server) {
+  if (process.platform === "win32") {
+    spawn("taskkill", ["/pid", String(server.pid), "/T", "/F"], { stdio: "ignore" });
+  } else {
+    server.kill();
+  }
+}
+
 async function main() {
   await mkdir(OUT_DIR, { recursive: true });
 
-  console.log(`Starting Vite dev server on port ${DEV_PORT}...`);
-  const server = spawn(
-    "npx",
-    ["vite", "--port", String(DEV_PORT), "--strictPort"],
-    { cwd: ROOT, shell: true, stdio: "pipe" },
-  );
-  server.stdout.on("data", () => {});
-  server.stderr.on("data", (d) => process.stderr.write(d));
+  // --base-url points this run at a server the caller already started (the
+  // documented, common case — see the usage comment above): spawning a
+  // second, unused dev server on DEV_PORT here only wastes a boot and adds
+  // another process to leak if the run crashes. Only spawn our own server
+  // when the caller relies on the default BASE_URL.
+  const ownsServer = !args["base-url"];
+  const server = ownsServer
+    ? spawn("npx", ["vite", "--port", String(DEV_PORT), "--strictPort"], {
+        cwd: ROOT,
+        shell: true,
+        stdio: "pipe",
+      })
+    : null;
+  if (server) {
+    console.log(`Starting Vite dev server on port ${DEV_PORT}...`);
+    server.stdout.on("data", () => {});
+    server.stderr.on("data", (d) => process.stderr.write(d));
+  }
 
   try {
     await waitForServer(BASE_URL);
@@ -318,7 +344,7 @@ async function main() {
     console.log(`Axe violation groups found: ${totalAxeViolations}`);
     console.log(`Runs with horizontal overflow: ${overflowIssues.length}`);
   } finally {
-    server.kill();
+    if (server) killServerTree(server);
   }
 }
 
