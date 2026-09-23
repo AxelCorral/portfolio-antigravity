@@ -214,7 +214,7 @@ export function CinematicOpening({ onOpenBuildMode }: { onOpenBuildMode: () => v
                 </a>
               </Magnet>
               <button className="build-mode-trigger" type="button" onClick={onOpenBuildMode}>{t.hero.personalLayer}</button>
-              <div className="flex gap-4 text-xs text-primary/60">
+              <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-primary/60">
                 <Link className="subtle-link" to="/cv">
                   {t.hero.viewCV}
                 </Link>
