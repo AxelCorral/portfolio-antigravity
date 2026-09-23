@@ -5,6 +5,17 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 051 — 2026-09-23 · Poster de démo Vers l'Élysée fusionné avec sa légende
+
+> Le poster héritait d'un min-height générique (280px) plus grand que le cadre flex réel, débordait de ~55px sans être clipé et fusionnait visuellement avec le texte de légende en dessous.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-051/poster-de-demo-vers-l-elysee-fusionne-avec-sa-legende-390-avant.webp) | ![après 390](shots/cycle-051/poster-de-demo-vers-l-elysee-fusionne-avec-sa-legende-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-051/poster-de-demo-vers-l-elysee-fusionne-avec-sa-legende-1440-avant.webp) | ![après 1440](shots/cycle-051/poster-de-demo-vers-l-elysee-fusionne-avec-sa-legende-1440-apres.webp) |
+
+`60b29ae`
+
 ## Cycle 050 — 2026-09-23 · Chevauchement pastille/scroll-prompt du hero sur mobile
 
 > La pastille et le message de scroll de la scene A partageaient la meme ligne d'ancrage et se chevauchaient de 16-17px sous 768px.
