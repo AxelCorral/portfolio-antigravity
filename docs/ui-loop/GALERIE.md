@@ -5,6 +5,17 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 056 — 2026-09-23 · Libelle du hero (scenes A/B) equilibre au lieu d'un mot orphelin
+
+> Le libelle Axel Corral - France and international mobility (et son equivalent scene B) se coupait sur un mot seul en fin de ligne a 390/768px ; text-wrap:balance repartit la coupure a parts egales.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-056/libelle-du-hero-scenes-a-b-equilibre-au-lieu-d-un-mot-orphel-390-avant.webp) | ![après 390](shots/cycle-056/libelle-du-hero-scenes-a-b-equilibre-au-lieu-d-un-mot-orphel-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-056/libelle-du-hero-scenes-a-b-equilibre-au-lieu-d-un-mot-orphel-1440-avant.webp) | ![après 1440](shots/cycle-056/libelle-du-hero-scenes-a-b-equilibre-au-lieu-d-un-mot-orphel-1440-apres.webp) |
+
+`4a66ef6`
+
 ## Cycle 051 — 2026-09-23 · Poster de démo Vers l'Élysée fusionné avec sa légende
 
 > Le poster héritait d'un min-height générique (280px) plus grand que le cadre flex réel, débordait de ~55px sans être clipé et fusionnait visuellement avec le texte de légende en dessous.
