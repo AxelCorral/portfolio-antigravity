@@ -6,6 +6,145 @@
 
 ---
 
+## Cycle 047 — 2026-09-23 18:05
+
+**Zone travaillée** : hero (`.opening-primary`, scène A du crossfade scroll-scrubé
+— `src/components/CinematicOpening.tsx`), « reste du site » (§3 gelée sans fait
+nouveau, §4 revalidé avant tout nouveau chantier, conformément à la priorité
+absolue de ce run).
+**Rotation de questions** : née du point de reprise explicite du cycle 046
+(résidu mesuré, pas d'une rotation A-E complète) — relève de **C — Mouvement**
+(« le site est-il utilisable et élégant avec `reduced-motion`… y a-t-il du
+contenu qui reste invisible ») par symétrie : ici l'inverse, du contenu qui
+reste *présent dans l'arbre d'accessibilité* alors qu'il est déjà invisible et
+inerte.
+
+### Note de continuité — build vert, §4 revalidé (4/6 attendu, pas une régression), §3 confirmée gelée
+
+Phase 1 : `npm run build` (`tsc -b` + `vite build`) vérifié vert avant tout
+changement. Le §4 (Vers l'Élysée, Ombrair, Analyse vidéo football) étant
+marqué terminé et revalidé 21 fois de suite (cycles 026-046) sans régression,
+ce cycle n'a pas rejoué le test de clic exhaustif à 36 combinaisons ; un test
+de clic ciblé (6 projets, 1440px) a été utilisé deux fois — une fois en
+`stash` sur `HEAD` (avant tout changement de ce cycle) et une fois après le
+correctif — pour vérifier qu'aucune régression n'était introduite. Résultat
+identique aux deux révisions : **4/6 modales s'ouvrent, 2/6
+(`project-02` JobTrackr, `project-03` Retirement Sustainability Model)
+n'ont pas de bouton "Open case study"**. Vérifié dans `src/data/projects.ts` :
+ces deux projets n'ont jamais eu de champ `caseStudy` (seuls 01/04/05/06 en
+ont) — comportement voulu depuis l'origine (ces deux projets utilisent
+carrousel + liens démo/repo/rapport comme format de preuve, pas de case
+study), pas une régression de ce cycle ni d'un cycle antérieur. `ui-zone-audit.mjs`
+non relancé (§3 gelée, aucun fait nouveau depuis le cycle 045).
+
+### Constats d'audit
+
+- **P1 mesuré — `.opening-primary` restait dans l'arbre d'accessibilité (et
+  donc signalé par axe-core comme violation `color-contrast`) après que le
+  cycle 046 l'a rendu non-interactif (`pointer-events: none`, `tabIndex: -1`
+  dès `scrollYProgress > 0.10`).** Un run complet de `scripts/ui-audit.mjs`
+  (10 combinaisons) trouvait encore 1 violation `color-contrast` sur
+  `.opening-primary`, exactement comme prédit par le journal du cycle 046
+  (« le correctif rend l'élément non interactif… mais ne le rend pas
+  invisible »). Ce n'était pas un fait nouveau au sens strict — déjà anticipé
+  — mais une conséquence directe et mesurée du correctif précédent, sur le
+  même élément, à traiter avant d'ouvrir un chantier ailleurs plutôt que de
+  laisser une violation axe-core connue traîner. Distinction avec l'arbitrage
+  différé du cycle 022 (P2, plancher `REVEAL_FLOOR_OPACITY` pour tout le
+  texte non interactif de la scène A) : celui-ci concerne le **titre, le
+  paragraphe et le tag**, qui n'ont jamais été signalés par axe-core (leur
+  contraste de repos est plus haut, ils ne descendent jamais sous 4.5:1 aussi
+  vite que `.opening-primary` dont le texte `#080808` est strictement
+  identique au fond de page `#080808`) — ce cycle ne touche pas à ce
+  chantier plus large, resté hors périmètre comme documenté cycle 046.
+
+### Changements livrés
+
+- `6681a61` — fix(hero): `.opening-primary` gagne `aria-hidden={true}` dès que
+  `primaryCtaInteractive` passe à `false` (même seuil que `pointer-events`/
+  `tabIndex`, cycle 046) — même justification d'exclusion que `.pc-watermark`
+  (cycle 033) : un contrôle déjà non-cliquable et non-tabbable n'a pas besoin
+  de rester dans l'arbre d'accessibilité pour que son texte fanant respecte
+  WCAG 1.4.3. Le fondu visuel (`opacity`) n'est pas touché.
+- `ac253b9` — ui-loop: galerie du cycle 047 (avant/après identiques au pixel
+  près, changement non visuel — mêmes conventions que la galerie du cycle
+  046 pour un correctif de même nature).
+- `ui-loop: journaliser cycle 047` (ce commit) — compteur §6 : `hero-cta`
+  (`.opening-primary`/`.opening-secondary`) 2/3 → **3/3 — gelée**. Nettoyage :
+  6 sondes `.tmp-elysee-*`/`.tmp-dev.log` orphelines (antérieures à ce cycle,
+  gitignorées, jamais purgées) supprimées conformément au garde-fou §6.
+
+### Vérification
+
+- Build : ✅ avant et après (`tsc -b` sans sortie, `vite build` vert, JS
+  679,97 → 680,00 kB — delta cohérent avec un attribut JSX ajouté).
+- Run complet `ui-audit.mjs` (10 combinaisons, 4 viewports × 2 langues +
+  2 passes `reduced-motion`) : **0 violation axe-core** (contre 1 avant,
+  toujours sur `.opening-primary`), 0 overflow horizontal, 0 erreur console,
+  0 erreur de page.
+- Test dédié `aria-hidden` (Playwright, 2 langues, 1440px) : au repos
+  (`scrollY = 0`), `aria-hidden` absent et le lien reste visible et cliquable
+  (2/2) ; après scroll (`scrollY = 400`, bien au-delà du seuil 0.10),
+  `aria-hidden="true"` confirmé (2/2).
+- Test de clic §4 ciblé (6 projets, 1440px) rejoué sur `HEAD` (avant, via
+  `git stash`) et sur l'arbre de travail (après) : résultat **identique aux
+  deux révisions** (4/6, cause confirmée par les données du projet, pas une
+  régression) — le correctif de ce cycle ne touche pas les cartes projet.
+- Viewports vérifiés : 390 / 768 / 1440 / 1920 (`ui-audit.mjs`) + 1440 dédié
+  (tests aria-hidden et clic §4).
+- Langues : FR ✅ EN ✅.
+- reduced-motion : ✅ — inchangé, `.city-content` reste `display: none` sous
+  `reduce`, `.opening-primary` n'y est jamais peint ni focalisable (le
+  correctif ne change rien à ce chemin, vérifié par lecture de code).
+- Régression détectée : non.
+
+### Reverté
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024. Non retouché
+  ce cycle.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025. Non retouché ce
+  cycle.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026. Non
+  retouché ce cycle.
+- **Le §4 de MISSION-UI.md reste intégralement traité pour la 22e fois
+  consécutive (cycles 026-047)**, revalidé par un test de clic ciblé
+  (4/6 modales, comportement attendu et confirmé identique avant/après ce
+  cycle) plutôt que le test exhaustif à 36 combinaisons (dernière exécution
+  complète : cycle 046, aucun changement de code touchant les cartes/modales
+  projet depuis).
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Prochain cycle — point de reprise exact
+- Compteur §6 : `hero-cta` (`.opening-primary`/`.opening-secondary`) passe de
+  2/3 à **3/3 — gelée**. Ne plus y toucher sans dérogation écrite (fait
+  nouveau : régression mesurée, défaut d'accessibilité chiffré, ou raccord
+  imposé par un chantier §4).
+- Le chantier plus large resté ouvert au cycle 022/046 (plancher de contraste
+  pour le titre/paragraphe/tag de la scène A pendant tout le fondu de sortie,
+  `contentAOpacity`) reste en P2, non traité ce cycle (hors périmètre du
+  correctif ciblé livré ici, nécessite son propre budget de mesure par
+  élément — voir `BACKLOG.md`).
+- Candidats P2 inchangés (voir `BACKLOG.md`) : zone de clic de `.pc-dot`
+  plafonnée par la densité de points (cycle 044) ; coût main-thread de
+  `reduce`-motion au chargement de `CinematicOpening.tsx` (cycle 041) ; CLS
+  de `/cv` (cycle 037, bloqué sur Q5) ; bundle JS 680,00 kB (226 kB gzip) ;
+  mode `--freeze-at=<ms>` pour `ui-gallery.mjs` ; contraste des coches
+  `<Check>` de Capabilities (`#capabilities` gelée, arbitrage d'icône) ;
+  largeur de colonne `.capability-card` à 1024px (grille, `#capabilities`
+  gelée) ; plancher de contraste du fondu de sortie du hero (ci-dessus).
+  Avec `hero-cta` désormais gelée, le prochain chantier « reste du site » doit
+  regarder du côté de `nav` (2/3), `#contact` (1/3), `city-heading` (1/3) ou
+  `hero-links` (1/3) — les seules sections encore sous plafond hors zone
+  prioritaire gelée.
+
+### Questions bloquantes ouvertes
+- **Q5** — écart police de corps documentée (Inter) vs chargée (Almarai),
+  toujours ouverte, non tranchée par Axel. Voir `QUESTIONS.md`.
+
+---
+
 ## Cycle 046 — 2026-09-23 17:10
 
 **Zone travaillée** : hero (`.opening-primary`, scène A du crossfade scroll-scrubé
