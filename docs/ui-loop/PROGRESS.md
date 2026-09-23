@@ -6,6 +6,148 @@
 
 ---
 
+## Cycle 050 — 2026-09-23 22:20
+
+**Zone travaillée** : hero, scène A (`.city-tag`, `.transition-prompt`,
+`src/index.css`) ; §4 revalidé avant tout nouveau chantier, conformément à
+la priorité absolue de ce run.
+**Rotation de questions** : aucune rotation A-E complète posée ce cycle — le
+défaut a été trouvé par lecture visuelle directe de la première capture du
+run `ui-audit.mjs` (`mobile-390_en/00-top.png`), avant même de choisir un
+angle de rotation. Relève malgré tout de la question générale du §2 : « y
+a-t-il du contenu qui reste invisible ? » (rotation C) — ici, rendu
+illisible par un chevauchement, pas par une animation.
+
+### Note de continuité — numérotation, hygiène de session, §4 revalidé
+
+`git log`/`PROGRESS.md` confirment le cycle 049 (`a9d395a`) comme dernière
+entrée journalisée ; ce run se numérote donc **050**, pas 054 comme indiqué
+par la consigne de lancement — même règle que les cycles 048/049 (le
+journal fait foi). Phase 1 : cinq processus `node`/`vite` orphelins de
+cycles antérieurs, occupant les ports 5173-5175, arrêtés avant de démarrer
+un serveur de dev propre sur 5183 — même classe d'hygiène de session que la
+note d'exploitation du cycle 049, qui recommandait de vérifier ces
+processus avant de soupçonner une régression. `npm run build` (`tsc -b` +
+`vite build`) vérifié vert avant tout changement. Le §4 (Vers l'Élysée,
+Ombrair, Analyse vidéo football) reste marqué terminé ; aucune section du
+§4 n'a été touchée ce cycle. Les trois chantiers imposés par la consigne de
+lancement de ce run (§4, dans l'ordre Vers l'Élysée → Ombrair → Analyse
+vidéo football) ont chacun leurs trois livrables depuis les cycles 024-026
+et sont revalidés pour la 25e fois consécutive sans régression détectée
+(revue visuelle des captures pleine page + run complet `ui-audit.mjs`, voir
+Vérification) — la priorité de ce run est donc satisfaite sans qu'aucun
+code du §4 n'ait besoin d'être touché ; le travail du cycle porte sur le
+reste du site (hero), conformément à l'ordre de priorité de MISSION-UI.md
+§2 phase 4 une fois le §4 confirmé intégralement traité.
+
+### Constats d'audit
+
+- **`.city-tag`/`.transition-prompt` (scène A du hero) se chevauchaient
+  réellement de 16-17px sur toute la largeur mobile, 320-767px, EN et FR**
+  — **P1, contenu rendu illisible.** Trouvé en regardant la capture
+  `mobile-390_en/00-top.png` du premier run `ui-audit.mjs` du cycle : le
+  message "SCROLL TO MOVE FROM CONTEXT TO CRAFT" semblait peint à
+  l'intérieur du bas de la pastille "Business Intelligence. Data
+  Engineering. Analysis.". Mesuré par `getBoundingClientRect()` (sonde
+  Playwright ad hoc, supprimée après usage) : sous 768px, `.city-tag`
+  devient le dernier enfant du flux à une colonne de `.city-content` et
+  finit flush contre le padding bas du conteneur — exactement la même
+  ligne "32px au-dessus du bas du viewport" que `.transition-prompt`,
+  positionné indépendamment via `position: absolute; bottom: 2rem`.
+  Chevauchement vertical réel 16-17px, horizontal jusqu'à 336px (quasi
+  toute la largeur de la pastille), confirmé par un recadrage de capture
+  zoomé. Invisible à axe-core (chevauchement de deux textes lisibles
+  indépendamment, pas un défaut de contraste — même angle mort documenté
+  pour la collision `.language-toggle` du cycle 019).
+- **`.transition-prompt` tronqué des deux côtés en français sous ~430px de
+  large** — **P1, contenu invisible**, trouvé en creusant le même
+  composant. `white-space: nowrap` sur un texte français ("Faites défiler
+  pour passer du contexte au savoir-faire") plus large que l'écran :
+  mesuré débordant de 10px de chaque côté à 390px, coupé net par
+  `.intro-sticky { overflow: hidden }` — donc 0 débordement horizontal de
+  page (invisible à `ui-audit.mjs`), mais bien un texte amputé du "F"
+  initial et de la fin de "savoir-faire" à l'écran.
+- **Confirmation, pas une régression — run complet `ui-audit.mjs` après
+  correctif (10/10 combinaisons, 2 routes non, 4 viewports × 2 langues +
+  2 passes reduced-motion) : 0 débordement horizontal, 1 violation axe-core
+  isolée.** La violation (`color-contrast` sur `.opening-primary`,
+  `laptop-1440_en` uniquement, absente de la même combinaison en français)
+  ne s'est pas reproduite sur 5 relectures ciblées immédiates au repos —
+  cohérent avec l'instabilité de lecture axe-core déjà documentée pour cet
+  élément aux cycles 046-047 ("violations intermittentes"), pas un effet de
+  ce chantier (`.opening-primary` n'a reçu aucune modification). Run
+  complet `ui-contrast-sweep.mjs` (2 routes × 4 viewports × 2 langues) : 0
+  violation.
+
+### Changements livrés
+
+- `eb9069e` — fix(hero): stop the scene-A info tag and scroll prompt from
+  overlapping on mobile. `.city-tag` gagne `margin-bottom: 3rem` sous
+  768px (remis à 0 dans le bloc `@media (min-width: 768px)` existant, où
+  `.city-tag` passe dans sa propre colonne de grille) ; `.transition-prompt`
+  perd `white-space: nowrap` au profit de `width: max-content` +
+  `max-width: calc(100vw - 3rem)` (le `width: max-content` est nécessaire :
+  sans lui, un élément `position: absolute` ancré seulement par
+  `left: 50%` se dimensionne par défaut sur "largeur du bloc englobant
+  moins l'offset `left`", pas sur la largeur du viewport entier, et le
+  texte anglais plus court se serait mis à passer à la ligne lui aussi).
+- `9a609d3` — ui-loop: galerie du cycle 050.
+
+### Vérification
+
+- Build : ✅ avant et après (`tsc -b` sans sortie, `vite build` vert).
+- Mesure de collision (sonde Playwright ad hoc, supprimée après usage) :
+  0 chevauchement de 320 à 767px de large (marge ≥ 15px mesurée), dans les
+  deux langues, avant/après comparés côte à côte. 768/1440/1920 :
+  strictement inchangés (le point de contact à 1px déjà présent avant tout
+  changement à 768px+ reste identique — pas une régression, vérifié par
+  capture avant/après pixel-identiques à 1440 dans `GALERIE.md`).
+- Texte français du prompt : 0 débordement à 390px après correctif (passe
+  sur deux lignes centrées, entièrement dans le viewport avec marge),
+  contre débordement de 10px de chaque côté avant.
+- axe-core scopé à `.intro-sequence` : 0 violation sur 12 combinaisons (3
+  viewports × 2 langues × 2 préférences de mouvement).
+- Run complet `ui-audit.mjs` : 0 débordement horizontal sur 10/10, 1
+  violation isolée non reproduite (voir Constats d'audit).
+- Run complet `ui-contrast-sweep.mjs` : 0 violation sur 16 combinaisons.
+- Viewports vérifiés : 390 / 768 / 1440 / 1920.
+- Langues : FR ✅ EN ✅.
+- reduced-motion : ✅ (`.city-content`/`.transition-prompt` passent en
+  `display: none` sous ce mode — le correctif ne s'applique qu'à l'état
+  animé normal, vérifié sans effet sous reduced-motion par le run complet).
+- Régression détectée : non.
+
+### Reverté
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024. Non
+  retouché ce cycle, revalidé par la revue visuelle et le run complet
+  `ui-audit.mjs`.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025. Idem.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026.
+  Idem.
+- **Le §4 de MISSION-UI.md reste intégralement traité pour la 25e fois
+  consécutive (cycles 026-050)**, sans régression détectée.
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Prochain cycle — point de reprise exact
+- Revalider le §4 (routine désormais établie), puis poursuivre l'audit du
+  reste du site avec une rotation A-E complète non encore posée par écrit
+  sur le hero scène A/B (`.city-content`, `#profile`) — seule rotation B
+  (rythme & espace) n'a jamais été appliquée formellement au hero ni au nav
+  (cycle 049 l'a notée manquante sur le nav ; ce cycle n'a pas non plus
+  comblé ce manque, le défaut trouvé venant d'une lecture visuelle directe,
+  pas d'une rotation B systématique). Le CLS 0.16 sur `/cv` (tablet-768 +
+  FR, cycle 037) reste le candidat P1 le plus mûr mais bloqué sur
+  `QUESTIONS.md` Q5 (police de corps Inter vs Almarai) — ne pas deviner,
+  attendre l'arbitrage d'Axel.
+
+### Questions bloquantes ouvertes
+- `QUESTIONS.md` Q5 (police de corps documentée « Inter » vs police
+  réellement chargée « Almarai ») — toujours ouverte, non rouverte ce
+  cycle faute de fait nouveau.
+
 ## Cycle 049 — 2026-09-23 21:45
 
 **Zone travaillée** : outillage (`scripts/ui-gallery.mjs`) ; « reste du site »
