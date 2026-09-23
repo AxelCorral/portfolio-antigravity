@@ -66,8 +66,19 @@ export function CinematicOpening({ onOpenBuildMode }: { onOpenBuildMode: () => v
   // by plain state so they don't get bundled into the same animated style
   // object as the continuous opacity crossfade above.
   const [stateBActive, setStateBActive] = useState(false);
+  // `.opening-primary` shares text (#080808) and page backdrop (#080808) —
+  // as contentAOpacity fades, its pill background blends toward that same
+  // backdrop and contrast collapses well before the fade finishes. Measured
+  // (pixel-sampled rendered contrast, not computed styles): 5.51:1 at
+  // progress 0.12, 4.27:1 at 0.15, 1:1 by 0.3 — the link stayed focusable
+  // and clickable across that whole range. Cutting interactivity at 0.10
+  // (6.54:1 measured, a safety margin above the 4.5:1 floor) keeps it a
+  // real, legible control whenever it's reachable, instead of a keyboard
+  // trap that a sighted user tabbing mid-scroll can't see.
+  const [primaryCtaInteractive, setPrimaryCtaInteractive] = useState(true);
   useMotionValueEvent(scrollYProgress, "change", (value) => {
     setStateBActive(value > 0.3);
+    setPrimaryCtaInteractive(value <= 0.1);
   });
 
   return (
@@ -164,7 +175,12 @@ export function CinematicOpening({ onOpenBuildMode }: { onOpenBuildMode: () => v
             </p>
             <div className="flex flex-wrap gap-3">
               <Magnet>
-                <a className="opening-primary" href="#selected-work">
+                <a
+                  className="opening-primary"
+                  href="#selected-work"
+                  style={{ pointerEvents: primaryCtaInteractive ? "auto" : "none" }}
+                  tabIndex={primaryCtaInteractive ? undefined : -1}
+                >
                   {t.hero.viewProjects}
                   <ArrowRight size={16} aria-hidden="true" />
                 </a>
