@@ -847,6 +847,56 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   cycle qui trouve un run d'audit anormalement lent ou silencieux devrait
   vérifier les processus `node`/`vite` avant de soupçonner une régression.
 
+- [x] **`.city-tag`/`.transition-prompt` (scène A du hero, `src/index.css`)
+  se chevauchaient réellement de 16-17px sur toute la largeur mobile,
+  pire en français où le message "Scroll to..." était en plus tronqué des
+  deux côtés** (cycle 050, trouvé par lecture visuelle directe des captures
+  `mobile-390_en/00-top.png` du run `ui-audit.mjs` — pas une rotation A-E
+  complète, une anomalie visible dès la première image regardée). Sous
+  768px, `.city-content` passe en une seule colonne : `.city-tag` (la
+  pastille "Business Intelligence. Data Engineering. Analysis.") devient le
+  dernier enfant du flux et se retrouve flush contre le padding bas du
+  conteneur — exactement la même ligne "32px au-dessus du bas du viewport"
+  que `.transition-prompt` ("Scroll to move..."), positionné indépendamment
+  via `position: absolute; bottom: 2rem`. Mesuré par `getBoundingClientRect()`
+  aux largeurs 320 à 767px, EN et FR : `y`-overlap de 16 à 17px, `x`-overlap
+  jusqu'à 336px (quasi toute la largeur de la pastille) — confirmé
+  visuellement par un recadrage de capture, le texte du prompt se peignait
+  littéralement à l'intérieur du bas de la pastille noire. En creusant la
+  même zone, second défaut trouvé : `.transition-prompt` portait
+  `white-space: nowrap`, et le texte français ("Faites défiler pour passer
+  du contexte au savoir-faire") est plus large que l'écran sous ~430px —
+  mesuré débordant de 10px de chaque côté à 390px, coupé net par
+  `.intro-sticky { overflow: hidden }` (pas de débordement horizontal de
+  page, donc invisible à `ui-audit.mjs`, mais bien un texte tronqué des
+  deux côtés à l'écran). Ni l'un ni l'autre défaut n'est vu par axe-core
+  (chevauchement de deux textes lisibles indépendamment, pas un défaut de
+  contraste — même angle mort que la collision `.language-toggle` du cycle
+  019). Corrigé (`src/index.css`) : `.city-tag` gagne `margin-bottom: 3rem`
+  sous 768px (remis à 0 dans le bloc `@media (min-width: 768px)` existant,
+  où `.city-tag` passe dans sa propre colonne de grille et ne partage plus
+  la ligne du prompt) ; `.transition-prompt` perd `white-space: nowrap` au
+  profit de `width: max-content` + `max-width: calc(100vw - 3rem)` (le
+  `width: max-content` est nécessaire : sans lui, un élément `position:
+  absolute` ancré seulement par `left: 50%` se dimensionne par défaut sur
+  "largeur du bloc englobant moins l'offset `left`", pas sur la largeur du
+  viewport entier, et le texte anglais plus court se serait mis à passer à
+  la ligne lui aussi alors qu'il tient déjà sur une seule). Revérifié :
+  0 chevauchement mesuré de 320 à 767px (marge ≥ 15px) dans les deux
+  langues, `768/1440/1920` inchangés (le point de contact à 1px déjà
+  présent avant tout changement à 768px reste identique — pas une
+  régression), 0 débordement horizontal, 0 violation axe-core scopée à
+  `.intro-sequence` (3 viewports × 2 langues × 2 préférences de mouvement,
+  12 combinaisons), run complet `ui-contrast-sweep.mjs` (2 routes × 4
+  viewports × 2 langues) 0 violation. Un run complet `ui-audit.mjs` après
+  correctif a signalé 1 violation `color-contrast` isolée sur
+  `.opening-primary` à `laptop-1440_en` — élément non touché par ce
+  chantier, dont l'instabilité de lecture axe-core est déjà documentée
+  (cycles 046-047, « violations intermittentes ») ; 0/5 sur une reprise
+  ciblée immédiate au repos, cohérent avec le comportement déjà connu, pas
+  une régression de ce correctif. Compteur §6 : nouvelle entrée `city-tag`/
+  `transition-prompt` **1/3**.
+
 ## Terminé
 
 - [x] Cycle 028 — §4 reconfirmé intégralement traité (code réel revérifié, pas

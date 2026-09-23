@@ -440,6 +440,15 @@ a {
 .city-tag {
   position: relative;
   max-width: 21rem;
+  /* Below 768px .city-content stacks in one column and this is the last
+     child, flush against the container's bottom padding — the exact same
+     32px-from-viewport-bottom line that .transition-prompt is independently
+     anchored to (position: absolute; bottom: 2rem). Without this margin the
+     two collide: measured 16-17px of real vertical overlap from 320 to
+     767px wide, worse in French where the tag can wrap to two lines. Reset
+     to 0 once .city-tag moves into its own grid column at 768px, where it
+     no longer shares the prompt's line. */
+  margin-bottom: 3rem;
   border-radius: 1rem;
   padding: 1rem 1.1rem;
   color: rgba(225, 224, 204, 0.82);
@@ -481,8 +490,20 @@ a {
   bottom: 2rem;
   left: 50%;
   z-index: 10;
+  /* At narrow viewports the French copy ("Faites défiler pour passer du
+     contexte au savoir-faire") is wider than the screen; `white-space:
+     nowrap` used to clip it on both edges instead of wrapping it — measured
+     cut on both sides at 390px wide. Wrapping, centered, is the honest
+     behaviour; `max-width` keeps a safe margin from the viewport edges.
+     `width: max-content` is required too: without it, an absolutely
+     positioned box anchored only by `left` shrink-fits against "containing
+     block width minus left offset" (here 50%) instead of the full
+     viewport, which wraps the shorter English copy as well even though it
+     already fits on one line. */
+  width: max-content;
+  max-width: calc(100vw - 3rem);
   transform: translateX(-50%);
-  white-space: nowrap;
+  text-align: center;
   color: rgba(225, 224, 204, 0.66);
   font-size: 0.6875rem;
   letter-spacing: 0.12em;
@@ -2887,6 +2908,7 @@ a {
 
   .city-tag {
     align-self: end;
+    margin-bottom: 0;
   }
 
   .hero-content {

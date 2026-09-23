@@ -462,7 +462,22 @@ de ce correctif plutôt qu'en la supposant unique. `.creator-hotspot` gagne
 `tabIndex`/`aria-hidden` individuel plutôt qu'un `inert` sur le
 conteneur — `inert` sur `#profile` masquait aussi le seul `<h1>` de la
 page à l'arbre d'accessibilité pendant la scène A, régression détectée par
-axe-core (`page-has-heading-one`) avant publication, jamais livrée)
+axe-core (`page-has-heading-one`) avant publication, jamais livrée) ·
+`city-tag`/`transition-prompt` (pastille "Business Intelligence..." et
+message "Scroll to move..." de la scène A du hero, `src/index.css`) **1/3**
+(cycle 050 : les deux éléments partageaient la même ligne d'ancrage —
+32px au-dessus du bas du viewport, l'un via le padding du conteneur,
+l'autre via son propre `bottom: 2rem` — et se chevauchaient réellement de
+16 à 17px de haut sur toute la largeur mobile où `.city-tag` reste dans le
+flux à une seule colonne (320-767px), pire en français où la pastille
+peut passer sur deux lignes ; trouvé par capture d'écran, pas par
+axe-core, qui ne voit pas ce type de collision. `.city-tag` gagne
+`margin-bottom: 3rem` sous 768px, remis à 0 au-dessus où la pastille passe
+dans sa propre colonne de grille. Corrigé dans le même commit : le message
+"Scroll to..." était aussi tronqué des deux côtés en français sous ~430px
+(`white-space: nowrap` sur un texte plus large que l'écran) — remplacé par
+`width: max-content` + `max-width: calc(100vw - 3rem)` sans `nowrap`, qui
+passe sur deux lignes centrées au lieu d'être coupé)
 
 Les sections gelées ne rouvrent que par dérogation écrite. Ce plafond existe parce
 que la boucle a produit 26 commits sur la zone basse pendant que les trois projets
