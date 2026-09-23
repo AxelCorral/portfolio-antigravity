@@ -6,6 +6,148 @@
 
 ---
 
+## Cycle 051 — 2026-09-23 22:47
+
+**Zone travaillée** : `LiveDemoEmbed` (`.demo-embed*`, `src/index.css`,
+`src/components/LiveDemoEmbed.tsx`) — démo de Vers l'Élysée (§4.1) et Ombrair
+(§4.2). §4 revalidé avant tout nouveau chantier, conformément à la priorité
+absolue de ce run.
+**Rotation de questions** : rotation B (rythme & espace) engagée sur le hero/
+nav comme prévu par le point de reprise du cycle 050, mais le défaut réel a
+été trouvé par lecture visuelle directe d'une capture `ui-audit.mjs` avant
+que la rotation B n'aboutisse à un constat exploitable sur le hero lui-même
+(voir « Constats d'audit »/rotation C ci-dessous — même schéma que le cycle
+050).
+
+### Note de continuité — numérotation, hygiène de session, §4 revalidé
+
+`git log`/`PROGRESS.md` confirment le cycle 050 (`8a9f20b`) comme dernière
+entrée journalisée ; ce run se numérote donc **051**, pas 055 comme indiqué
+par la consigne de lancement — même règle que les cycles précédents (le
+journal fait foi). Phase 1 : `npm run build` (`tsc -b` + `vite build`)
+vérifié vert avant tout changement ; aucun processus `node`/`vite` orphelin
+détecté au démarrage cette fois. Le §4 (Vers l'Élysée, Ombrair, Analyse
+vidéo football) a été revérifié directement dans le code (`grep` sur
+`political-destiny`, `ombrair.vercel`, `RESERVED SLOT`) et par revue visuelle
+complète des captures `ui-audit.mjs` (cartes projet 04/05/06, cases study,
+carousel schémas football) : les trois chantiers restent intégralement
+traités, aucune régression. C'est en revalidant visuellement la démo de Vers
+l'Élysée que le défaut ci-dessous a été repéré — donc directement dans le
+périmètre §4, pas une dérive vers la rotation B du hero prévue en point de
+reprise.
+
+### Constats d'audit
+
+- **`.demo-embed-poster` (poster de démo cliquer-pour-charger, composant
+  `LiveDemoEmbed`) débordait de son cadre et se fondait visuellement avec le
+  texte de `.demo-embed-caption` juste en dessous — P1, contenu rendu
+  illisible (rotation C : « y a-t-il du contenu qui reste invisible/confus
+  ? »).** Trouvé en regardant `mobile-390_en/scroll-19-y7600.png` du run
+  `ui-audit.mjs` du cycle : le bouton "Comment fonctionne la simulation ?",
+  qui appartient au vrai screenshot de la page d'accueil de Vers l'Élysée
+  utilisé comme poster, semblait imprimé à l'intérieur du texte de légende
+  "You're looking at the live simulator…". Mesuré (`getBoundingClientRect()`
+  via sonde Playwright ad hoc, supprimée après usage) : `.demo-embed-frame`
+  fait 224.8px de haut sur mobile-390, mais `.demo-embed-poster` rendait à
+  280px — exactement le `min-height: 280px` de la règle générique
+  `.home-project-proof img` (partagée avec les carrousels de captures des
+  autres projets), qui l'emportait sur le `height: 100%` propre du poster
+  faute d'une spécificité suffisante pour le contredire. `.demo-embed-frame`
+  n'ayant pas de `overflow: hidden`, les ~55px en trop débordaient sans être
+  clipés, directement dans la boîte de `.demo-embed-caption` juste en
+  dessous (qui commence exactement là où le cadre est censé finir). Confirmé
+  par échantillonnage de pixels (`sharp`, sonde ad hoc supprimée après
+  usage) : texte blanc du bouton source à ~200/255 de luminosité au milieu
+  de la zone de légende, avant correctif. Invisible à `ui-audit.mjs`
+  (0 débordement horizontal — le débordement est vertical et interne à une
+  carte, pas de la page) et à axe-core (deux textes lisibles indépendamment
+  superposés, pas un défaut de contraste — même angle mort déjà documenté
+  pour `.language-toggle` cycle 019 et `.city-tag`/`.transition-prompt`
+  cycle 050). Ne se voyait que sur Vers l'Élysée car son poster est un vrai
+  screenshot de page contenant un élément d'UI qui tombe pile dans la bande
+  débordée ; le poster d'Ombrair (vue produit sans UI de page en bas de
+  cadre) ne révélait pas le bug à l'œil, mais héritait bien du même défaut
+  de dimensionnement (vérifié par la même mesure de rect).
+
+### Changements livrés
+
+- `60b29ae` — fix(demo-embed): stop live-demo posters from bleeding into
+  their caption. `.demo-embed-frame` gagne `overflow: hidden` (frontière de
+  clip réelle, indépendante de ce qu'une règle générique impose à une image
+  descendante) ; le sélecteur du poster passe de `.demo-embed-poster` à
+  `.demo-embed-frame .demo-embed-poster` pour que son `min-height: 0`
+  l'emporte enfin sur `.home-project-proof img` (deux classes battent une
+  classe + un type en spécificité CSS) ; le dégradé de `.demo-embed-launch`
+  gagne un palier à 0.97 d'opacité à 100% (au lieu d'un unique dégradé
+  plafonnant à 0.72), défense supplémentaire pour que tout contenu de poster
+  qui finirait près de la couture reste illisible quelle que soit la hauteur
+  du cadre ou le poster utilisé à l'avenir.
+- `bb2e9a6` — ui-loop: galerie du cycle 051.
+
+### Vérification
+
+- Build : ✅ avant et après (`tsc -b` sans sortie, `vite build` vert, deux
+  fois).
+- Mesure de rect (sonde Playwright ad hoc, supprimée après usage) : poster
+  et cadre strictement identiques en hauteur après correctif (224.8px tous
+  les deux sur mobile-390), contre 280px vs 224.8px avant — confirmé aux 4
+  viewports (390/768/1440/1920) et dans les 2 langues par capture ciblée de
+  `.demo-embed` (Vers l'Élysée et Ombrair), comparées avant/après côté à
+  côte : plus aucun texte de poster visible dans la bande de légende sur
+  aucune des 16 combinaisons.
+- Run complet `ui-audit.mjs` avant ET après correctif : 0 débordement
+  horizontal sur 10/10, CLS inchangé, 1 violation axe-core isolée
+  (`color-contrast` sur `.opening-primary`, `laptop-1440_en` uniquement,
+  absente en français) — non reproduite sur relecture immédiate,
+  strictement identique à l'instabilité déjà documentée cycles 046-047-050
+  et antérieure à ce chantier (`.opening-primary` n'a reçu aucune
+  modification cycle 051).
+- Viewports vérifiés : 390 / 768 / 1440 / 1920.
+- Langues : FR ✅ EN ✅.
+- reduced-motion : ✅ (le composant `LiveDemoEmbed` ne dépend d'aucune
+  animation ; non affecté par `prefers-reduced-motion`, vérifié par le run
+  complet).
+- Régression détectée : non.
+
+### Reverté
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024. Démo
+  corrigée ce cycle (défaut de superposition poster/légende), pas de
+  changement de statut.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025. Même défaut de
+  dimensionnement présent dans le CSS partagé, corrigé par le même commit ;
+  pas de manifestation visible détectée sur son poster actuel (vérifié aux
+  4 viewports/2 langues).
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026.
+  Non concerné (pas de `LiveDemoEmbed`, Q4 tranchée).
+- **Le §4 de MISSION-UI.md reste intégralement traité pour la 26e fois
+  consécutive (cycles 026-051)**, avec un vrai correctif appliqué à sa
+  couche démo cette fois plutôt qu'une simple revalidation sans changement.
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Prochain cycle — point de reprise exact
+- Revalider le §4 (routine désormais établie), puis reprendre la rotation B
+  (rythme & espace) sur le hero scène A/B (`.city-content`, `#profile`) et
+  le nav — toujours non posée par écrit de façon systématique malgré deux
+  cycles consécutifs (050, 051) où elle était prévue en point de reprise :
+  dans les deux cas, une lecture visuelle directe d'une capture a fait
+  surface un défaut plus urgent avant que la rotation B n'aboutisse. Si le
+  prochain cycle ne trouve rien d'aussi urgent en ouverture, il doit
+  dérouler la rotation B jusqu'au bout sur le hero/nav avant de chercher
+  ailleurs, pour ne pas la reporter indéfiniment. Le CLS 0.16 sur `/cv`
+  (tablet-768 + FR, cycle 037) reste le candidat P1 le plus mûr mais bloqué
+  sur `QUESTIONS.md` Q5 (police de corps Inter vs Almarai) — ne pas deviner,
+  attendre l'arbitrage d'Axel.
+
+### Questions bloquantes ouvertes
+- `QUESTIONS.md` Q5 (police de corps documentée « Inter » vs police
+  réellement chargée « Almarai ») — toujours ouverte, non rouverte ce
+  cycle faute de fait nouveau.
+
+---
+
 ## Cycle 050 — 2026-09-23 22:20
 
 **Zone travaillée** : hero, scène A (`.city-tag`, `.transition-prompt`,

@@ -106,6 +106,20 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   l'iframe est bloquée, descends d'un niveau"), on reste au carrousel de
   captures annotées déjà en place (format 3). Décision définitive, rien à
   coder.
+- [x] **`LiveDemoEmbed` (Vers l'Élysée, Ombrair) : le poster de démo débordait
+  du cadre et fusionnait visuellement avec sa légende** — trouvé cycle 051
+  par lecture visuelle d'une capture `mobile-390_en` du run `ui-audit.mjs`
+  (`.demo-embed-poster` héritait `min-height: 280px` de la règle générique
+  `.home-project-proof img`, plus grand que le cadre flex réel ~225px sur
+  mobile ; `.demo-embed-frame` en `overflow: visible` laissait les ~55px en
+  trop déborder tel quel dans `.demo-embed-caption` en dessous, visible
+  uniquement sur Vers l'Élysée car son poster est un vrai screenshot de page
+  avec un bouton "Comment fonctionne la simulation ?" qui tombe pile dans la
+  zone débordée). Corrigé cycle 051 (commit `60b29ae`) : `overflow: hidden`
+  sur `.demo-embed-frame`, spécificité relevée sur le sélecteur du poster
+  pour que son `min-height: 0` gagne, et un palier quasi opaque ajouté au
+  dégradé de `.demo-embed-launch` en défense supplémentaire. Vérifié aux 4
+  viewports et dans les 2 langues (voir PROGRESS.md cycle 051).
 
 ## P1 — Crédibilité de la zone "Capabilities"
 
