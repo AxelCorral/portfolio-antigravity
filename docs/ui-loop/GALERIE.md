@@ -5,6 +5,17 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 050 — 2026-09-23 · Chevauchement pastille/scroll-prompt du hero sur mobile
+
+> La pastille et le message de scroll de la scene A partageaient la meme ligne d'ancrage et se chevauchaient de 16-17px sous 768px.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-050/chevauchement-pastille-scroll-prompt-du-hero-sur-mobile-390-avant.webp) | ![après 390](shots/cycle-050/chevauchement-pastille-scroll-prompt-du-hero-sur-mobile-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-050/chevauchement-pastille-scroll-prompt-du-hero-sur-mobile-1440-avant.webp) | ![après 1440](shots/cycle-050/chevauchement-pastille-scroll-prompt-du-hero-sur-mobile-1440-apres.webp) |
+
+`eb9069e`
+
 ## Cycle 048 — 2026-09-23 · Les controles de la scene B (View selected work, Personal layer, View CV/Download/GitHub/Contact) n'etaient plus des pieges de focus clavier invisibles
 
 > Tabuler depuis le haut de page atterrissait sur 5 controles a opacite 0 (activables au clavier malgre pointer-events:none) ; aucun changement visuel attendu, la correction porte sur tabIndex/aria-hidden/inert.
