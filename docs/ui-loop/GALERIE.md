@@ -5,6 +5,17 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 045 — 2026-09-23 · Lien CV/Download/GitHub/Contact du hero, texte casse en milieu de mot a 768px
+
+> La colonne .hero-intro n'est large que d'1/3 du viewport a 768px ; sans flex-wrap, un seul lien retrecissait et son propre texte se coupait en plein mot au lieu que les liens passent a la ligne comme un tout.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-045/lien-cv-download-github-contact-du-hero-texte-casse-en-milie-390-avant.webp) | ![après 390](shots/cycle-045/lien-cv-download-github-contact-du-hero-texte-casse-en-milie-390-apres.webp) |
+| **768** | ![avant 768](shots/cycle-045/lien-cv-download-github-contact-du-hero-texte-casse-en-milie-768-avant.webp) | ![après 768](shots/cycle-045/lien-cv-download-github-contact-du-hero-texte-casse-en-milie-768-apres.webp) |
+
+`1904498`
+
 ## Cycle 044 — 2026-09-22 · Zone tactile des points de navigation du carousel projet
 
 > Les points .pc-dot (role=tab reel) mesuraient 4x4/18x4px ; zone de clic etendue a 8x44/22x44px via pseudo-element invisible, aucun changement visuel attendu.

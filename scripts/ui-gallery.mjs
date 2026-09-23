@@ -31,7 +31,16 @@
  *                      `hover:<selecteurSurvol>[|<selecteurCapture>]` pour un
  *                      chantier qui ne se voit qu'au survol (survol réel via
  *                      Playwright, capture le second sélecteur si fourni,
- *                      sinon le premier).
+ *                      sinon le premier). Ou `scrollpx:<multiplicateurVh>` pour
+ *                      un chantier vivant dans une scène pilotée par le scroll
+ *                      (crossfade `framer-motion`/GSAP à l'intérieur d'un
+ *                      conteneur `position: sticky`) : `scrollIntoViewIfNeeded`
+ *                      n'y sert à rien, l'élément est déjà « visible » dès
+ *                      scroll 0. On scrolle à `<multiplicateurVh> * hauteur du
+ *                      viewport` (ex. `scrollpx:1.6`) puis on capture le
+ *                      viewport entier — reproductible d'une révision à
+ *                      l'autre tant que la hauteur totale de la scène ne change
+ *                      pas entre AVANT et APRÈS.
  *   --label="..."      intitulé du chantier (défaut : dérivé du sujet du dernier commit)
  *   --why="..."        légende d'une ligne (obligatoire)
  *   --slug=...         nom de fichier (défaut : dérivé du label)
@@ -295,6 +304,14 @@ async function captureState(baseUrl) {
           } catch {
             out[key] = null;
           }
+          continue;
+        }
+
+        if (id.startsWith("scrollpx:")) {
+          const multiplier = Number(id.slice("scrollpx:".length));
+          await page.evaluate((y) => window.scrollTo(0, y), viewport.height * multiplier);
+          await page.waitForTimeout(SETTLE);
+          out[key] = await page.screenshot();
           continue;
         }
 
