@@ -6,6 +6,177 @@
 
 ---
 
+## Cycle 049 — 2026-09-23 21:45
+
+**Zone travaillée** : outillage (`scripts/ui-gallery.mjs`) ; « reste du site »
+audité sous rotation A sur `.city-nav`/`#profile`/`#city-content` (aucun
+correctif retenu) ; §3 gelée sans fait nouveau ; §4 revalidé avant tout
+nouveau chantier, conformément à la priorité absolue de ce run (les trois
+chantiers du §4 étant déjà terminés depuis les cycles 024-026 et revalidés
+23 fois de suite, ce cycle continue la vérification plutôt que de rouvrir un
+chantier déjà livré).
+**Rotation de questions** : **A — Hiérarchie**, première fois posée par écrit
+sur `.city-nav` (D l'avait couvert cycle 029 sur `.city-content`, C cycle 040
+sur `.city-contact:hover`, E cycle 027 sur les cibles tactiles — jamais A ni
+B sur le nav lui-même).
+
+### Note de continuité — numérotation, build vert, §4 et §3 revalidés
+
+`git log`/`PROGRESS.md` confirment le cycle 048 (`c8e5052`) comme dernière
+entrée journalisée ; ce run se numérote donc **049**, pas 053 comme indiqué
+par la consigne de lancement — même règle que le cycle 048 (le journal fait
+foi, pas la consigne d'appel). Phase 1 : `npm run build` (`tsc -b` + `vite
+build`) vérifié vert avant tout changement (JS 680,30 kB inchangé). Le §4
+(Vers l'Élysée, Ombrair, Analyse vidéo football) reste marqué terminé et n'a
+reçu aucune nouvelle régression détectée dans la revue visuelle en pleine
+page de ce cycle (capture `01-fullpage.png`, 1440 et 390 EN) ni dans le run
+`ui-audit.mjs` complet (voir plus bas). §3 gelée sans fait nouveau — non
+retouchée.
+
+### Constats d'audit
+
+- **`.city-nav` audité sous rotation A pour la première fois — rien à
+  corriger.** `scripts/ui-hierarchy-probe.mjs` (déjà étendu au hero/nav
+  cycles 029-030) : 2 niveaux typographiques à 390px, 3 à 768/1440/1920 —
+  sous le seuil de bruit de 4 niveaux, 0 near-duplicate. Le nav lui-même est
+  propre.
+- **Investigué, pas retenu — near-duplicate à 390px entre le rôle du hero et
+  le libellé "Personal layer".** Le même probe signalait `#profile` à 8
+  niveaux avec 1 near-dup à 390 uniquement (12px/400, luminance à 0.036
+  d'écart) entre "Analytics Engineer · Junior Data Engineer · France" et
+  "Personal layer" (`.build-mode-trigger`). Lecture du JSX/CSS
+  (`CinematicOpening.tsx`, `index.css:599`) : les deux textes sont
+  spatialement séparés (colonne du nom vs rangée de CTA sous le paragraphe
+  d'intro) et visuellement distingués (le déclencheur porte un soulignement
+  pointillé et `min-height: 44px`, c'est un vrai bouton) — coïncidence de
+  métriques de police entre deux éléments sans rapport de contenu, pas une
+  duplication d'information à corriger.
+- **Investigué, pas retenu — classement de salience de `#city-content`
+  contre-intuitif.** Le même run plaçait le sous-titre (paragraphe entier)
+  devant les glyphes du titre "Data systems built for clarity." au classement
+  de salience du probe. Écarté comme artefact d'outillage après vérification
+  visuelle (capture `00-top.png`, le titre domine réellement l'écran) : le
+  titre est découpé en spans par caractère (`CharacterLines`), donc chaque
+  span porte individuellement une salience minuscule face à un `<p>` mesuré
+  comme un seul bloc — pas un défaut d'interface, une limite du probe déjà
+  documentée sous une autre forme (cycle 021, comptage par nœud plutôt que par
+  composant visuel).
+- **Investigué, pas retenu — `.city-nav-links` masqué sous 768px.** Vérifié
+  que ce n'est pas une perte d'information : toutes les ancres de page
+  (`#profile`, `#selected-work`, `#capabilities`) restent atteignables par le
+  scroll naturel sur mobile, et `/cv` reste joignable via `.subtle-link` "View
+  CV" du hero. Seule perte réelle : le raccourci direct vers `/cv#experience`
+  depuis le nav mobile — une perte de commodité de navigation, pas de contenu
+  accessible nulle part ailleurs. Non retenu comme défaut.
+- **Confirmation, pas une régression — run complet `ui-contrast-sweep.mjs`
+  (2 routes × 4 viewports × 2 langues, 16 combinaisons) : 0 violation.**
+  Aucune régression de contraste depuis les correctifs hero des cycles
+  041-048.
+- **Confirmation, pas une régression — run complet `ui-audit.mjs` : 0
+  violation axe-core, 0 débordement horizontal sur 9/10 combinaisons.** La
+  10e (`laptop-1440/fr/reduced-motion`) a expiré sur `networkidle` — cause
+  identifiée après coup (voir note d'exploitation ci-dessous), pas un défaut
+  du site.
+- **Note d'exploitation — serveurs `vite dev`/`vite preview` orphelins sur le
+  port 5183, laissés vivants par des cycles antérieurs jamais arrêtés,
+  causant la contention ci-dessus.** `scripts/ui-audit.mjs` tente de démarrer
+  son propre serveur sur ce port et échoue silencieusement en cas de
+  conflit ; quatre processus Node orphelins identifiés (`Get-CimInstance
+  Win32_Process`) et arrêtés. Un futur cycle qui observe un audit
+  anormalement lent ou un timeout isolé devrait vérifier les processus
+  `node`/`vite` avant de soupçonner une régression du site.
+
+### Changements livrés
+
+- `d59d985` — chore(ui-gallery): nouveau mode `--freeze-at=<ms>` pour
+  `scripts/ui-gallery.mjs`. Corrige le défaut d'outillage documenté cycle 022
+  (`BACKLOG.md`) : `scrollIntoViewIfNeeded()` peut déclencher l'observateur de
+  révélation d'une cible avant que le compte à rebours `--settle` ne démarre,
+  rendant le délai relatif à un instant inconnu plutôt qu'au début réel de
+  l'animation. Le nouveau mode arme un `IntersectionObserver` témoin sur la
+  cible avant tout scroll, attend son déclenchement réel
+  (`page.waitForFunction`), puis compte `<ms>` à partir de cet instant précis.
+  Aucune section UI retouchée par ce commit (fichier `scripts/` seul) — pas
+  d'entrée de galerie pour ce chantier, conformément à MISSION-UI.md §7bis
+  (une galerie documente un chantier UI visible, pas un changement d'outil).
+
+### Vérification
+
+- Build : ✅ avant et après (`tsc -b` sans sortie, `vite build` vert, JS
+  680,30 kB strictement inchangé — le changement ne touche aucun fichier
+  bundlé).
+- Mécanisme `--freeze-at` vérifié en deux temps : (1) script Playwright
+  autonome confirmant que l'observateur, armé avant
+  `scrollIntoViewIfNeeded()`, reste à `false` avant le scroll et ne se
+  déclenche qu'après ; (2) run réel de bout en bout
+  (`--cycle=999 --before=HEAD --sections=capabilities --prescroll=no
+  --freeze-at=300 --viewports=1440`, worktree + deux serveurs Vite, chemin de
+  code identique à un run de production) produisant une paire d'images
+  valide. Cycle 999 et son bloc `GALERIE.md` de test supprimés après
+  vérification (`git checkout -- docs/ui-loop/GALERIE.md`, `rm -rf
+  docs/ui-loop/shots/cycle-999`) — aucun chantier UI ne justifiait de les
+  garder.
+- Run complet `ui-contrast-sweep.mjs` : 0 violation sur 16 combinaisons (voir
+  Constats d'audit).
+- Run complet `ui-audit.mjs` : 0 violation axe-core, 0 débordement horizontal
+  sur 9/10 combinaisons (voir Constats d'audit et note d'exploitation).
+- Revue visuelle directe des captures `00-top.png`/`01-fullpage.png`
+  (1440/390, EN) : nav, hero, cartes projet, Analytical profile, Capabilities,
+  contact et footer visuellement cohérents, aucune rupture ni régression
+  visible.
+- Viewports vérifiés : 390 / 768 / 1440 / 1920 (`ui-audit.mjs` +
+  `ui-hierarchy-probe.mjs`).
+- Langues : FR ✅ EN ✅ (`ui-contrast-sweep.mjs` et `ui-hierarchy-probe.mjs`
+  couvrent les deux).
+- reduced-motion : ✅ (couvert par `ui-audit.mjs`, 1 timeout isolé expliqué
+  par la contention de port, pas par le mode lui-même — la même combinaison
+  en EN a réussi dans le même run).
+- Régression détectée : non.
+
+### Reverté
+- Bloc de test `GALERIE.md` (cycle 999, généré pour vérifier `--freeze-at` de
+  bout en bout) retiré avant tout commit — pas le revert d'un chantier livré,
+  le nettoyage d'un test délibéré. Détail dans « Vérification » ci-dessus.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024. Non retouché
+  ce cycle, revalidé par la revue visuelle et les audits complets.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025. Idem.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026. Idem.
+- **Le §4 de MISSION-UI.md reste intégralement traité pour la 24e fois
+  consécutive (cycles 026-049)**, sans qu'aucun test de clic exhaustif n'ait
+  été rejoué ce cycle (aucune section §4 touchée, revue visuelle et audits
+  automatiques suffisants pour confirmer l'absence de régression).
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Prochain cycle — point de reprise exact
+- `nav` reste à **2/3** (aucune retouche ce cycle, seulement un audit —
+  §6 ne compte que les retouches). Rotation A désormais posée par écrit sur ce
+  composant : ne pas la redemander sans fait nouveau.
+- Candidats P2 « reste du site » inchangés et non entamés faute de mesure
+  suffisante ou de budget dédié : coût main-thread de `reduce`-motion au
+  chargement de `CinematicOpening.tsx` (cycle 041, budget d'instrumentation
+  dédié requis) ; CLS de `/cv` (cycle 037, bloqué sur Q5) ; bundle JS
+  680,30 kB (226 kB gzip) ; contraste des coches `<Check>` de Capabilities et
+  largeur de colonne `.capability-card` à 1024px (`#capabilities` gelée,
+  arbitrage requis avant toute dérogation) ; plancher de contraste du fondu de
+  sortie du hero pour le texte non interactif (`contentAOpacity`, cycle
+  022/046, P2).
+- `city-heading` (1/3) reste le seul élément du hero sous plafond n'ayant reçu
+  aucune rotation complète — candidat naturel pour un prochain cycle qui
+  cherche un chantier « reste du site » côté hero plutôt que nav (déjà audité
+  ce cycle) ou les contrôles déjà 2/3-3/3.
+- Sonde jetable nettoyée ce cycle (§6) :
+  `docs/ui-loop/screenshots/hierarchy-cycle049-nav/`, ainsi que trois
+  dossiers de captures antérieurs à 24h (`2026-09-13T02-53-32-415Z`,
+  `2026-09-22T11-18-38-338Z`, `hierarchy-cycle030`).
+
+### Questions bloquantes ouvertes
+- **Q5** — écart police de corps documentée (Inter) vs chargée (Almarai),
+  toujours ouverte, non tranchée par Axel. Voir `QUESTIONS.md`.
+
+---
+
 ## Cycle 048 — 2026-09-23 21:10
 
 **Zone travaillée** : hero (scène B — `#profile`/`.hero-content`,

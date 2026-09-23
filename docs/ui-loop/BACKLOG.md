@@ -282,17 +282,28 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   12 combinaisons. Variante `prefers-reduced-motion` : escamotage sans
   translation ni transition — l'évitement est une correction de lisibilité, pas
   une décoration, il ne se désactive donc pas.
-- [ ] **`ui-gallery.mjs` ne sait pas figer une revelation d'une demi-seconde**
+- [x] **`ui-gallery.mjs` ne sait pas figer une revelation d'une demi-seconde**
   (cycle 022). Avec `--prescroll=no`, le script appelle `scrollIntoViewIfNeeded()`
   **avant** de caler la cible a son `@y`, si bien que l'observateur declenche
   pendant ce premier scroll : le `--settle` demande ne compte pas a partir du
   debut de l'animation mais d'un instant inconnu, plus tard. Concretement, il a
   fallu quatre essais (`600`, `180`, `420`, puis `0` ms avec `@560`) pour obtenir
   une paire AVANT/APRES ou la cascade des cartes est encore visible — les trois
-  premiers montraient deux images identiques, donc une preuve nulle. Piste :
-  un mode `--freeze-at=<ms>` qui arme un `IntersectionObserver` temoin sur la
-  cible, cale la page, **puis** compte le delai a partir du declenchement reel.
-  **P2 — outillage.**
+  premiers montraient deux images identiques, donc une preuve nulle. **Corrigé
+  cycle 049** (commit `d59d985`) : nouveau mode `--freeze-at=<ms>`, appliqué aux
+  cibles sans préfixe spécial (id/sélecteur/`viewport:`) — arme un
+  `IntersectionObserver` témoin sur la cible avant tout scroll, attend son
+  déclenchement réel (`page.waitForFunction`), **puis** compte `<ms>` à partir
+  de cet instant précis. Vérifié en deux temps : un script autonome confirmant
+  que l'observateur, armé avant `scrollIntoViewIfNeeded()`, ne se déclenche
+  qu'après (donc capture le vrai instant plutôt qu'un état déjà `revealed` par
+  effet de bord du scroll) ; puis un run réel de bout en bout
+  (`--cycle=999 --before=HEAD --sections=capabilities --prescroll=no
+  --freeze-at=300`, worktree + deux serveurs, comme en production) qui produit
+  bien une paire d'images — cycle 999 et son bloc `GALERIE.md` supprimés après
+  vérification, aucun chantier UI ne justifiait de les garder. Pas de section
+  UI retouchée par ce commit (fichier `scripts/` seul), donc pas d'entrée de
+  galerie pour ce chantier lui-même.
 
 - [ ] **Tout fondu d'entree traverse le bas du plancher de contraste** (rotation C,
   cycle 022). Le cycle 022 a ramene le pire temps passe sous 4,5:1 par une carte
@@ -779,6 +790,62 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   `hero-links` (`.subtle-link`) 1/3 → **2/3** ; nouvelle entrée
   `hero-scene-b-controls` (`.creator-hotspot`/`.primary-cta`/
   `.build-mode-trigger`) **1/3**.
+
+- [x] **`nav` (`.city-nav`) audité sous rotation A pour la première fois — rien
+  retenu, deux pistes creusées et écartées avec preuve** (cycle 049).
+  `scripts/ui-hierarchy-probe.mjs` (déjà étendu au hero/nav cycles 029/030) :
+  `.city-nav` mesure 2 niveaux typographiques à 390px, 3 à 768/1440/1920 —
+  sous le seuil de bruit de 4 niveaux (§2 rotation A), 0 near-dup. Deux pistes
+  adjacentes investiguées avant de conclure : (1) `#profile` (scène B du hero)
+  mesuré à 8 niveaux avec 1 near-dup à 390 uniquement, entre le rôle
+  "Analytics Engineer · Junior Data Engineer · France" et le libellé
+  "Personal layer" du `.build-mode-trigger` (même 12px/400, luminance à 0.036
+  d'écart) — **écarté** après lecture du JSX/CSS : les deux textes sont
+  spatialement séparés (colonne du nom vs rangée de CTA sous le paragraphe
+  d'intro) et visuellement distingués (`.build-mode-trigger` porte un
+  soulignement pointillé et `min-height: 44px`, un vrai bouton, pas du texte
+  courant) — coïncidence de métriques de police, pas une duplication
+  d'information ; (2) le classement de salience de `#city-content` plaçait le
+  sous-titre (paragraphe entier) devant les glyphes du titre `Data systems
+  built for clarity.` — **écarté comme artefact d'outillage, pas un défaut
+  d'interface** : le titre est découpé en spans par caractère
+  (`CharacterLines`), donc chaque span porte une salience individuelle
+  minuscule face à un `<p>` mesuré comme un seul bloc ; la capture d'écran
+  confirme que le titre domine réellement l'écran. Complété par un run complet
+  `scripts/ui-contrast-sweep.mjs` (16 combinaisons, 2 routes × 4 viewports ×
+  2 langues) — **0 violation**, confirmant l'absence de régression de
+  contraste depuis les correctifs hero des cycles 041-048 — et un run complet
+  `scripts/ui-audit.mjs` — **0 violation axe-core, 0 débordement horizontal**
+  sur 9/10 combinaisons (la 10e a expiré sur `networkidle`, cause identifiée :
+  conflit de port avec un serveur de prévisualisation orphelin d'un cycle
+  antérieur jamais arrêté — note d'exploitation ci-dessous, pas un défaut
+  d'interface). Troisième piste jugée non actionnable sans mesure
+  supplémentaire : `.city-nav-links` (Profile/Projects/Skills/Experience/CV)
+  passe en `display: none` sous 768px — vérifié que ce n'est pas une perte
+  d'information (toutes les ancres de la page s'atteignent par le scroll
+  naturel, `/cv` reste joignable via `.subtle-link` "View CV" du hero), juste
+  une perte de raccourci direct vers `/cv#experience` sur mobile — non
+  retenu. **Aucun code retouché dans `.city-nav`** — un audit qui ne trouve
+  rien à corriger ne consomme pas de passe (§6 compte les retouches, pas les
+  audits) : compteur `nav` inchangé à **2/3**. La rotation A est désormais
+  posée par écrit sur ce composant et ne devra pas être redemandée sans fait
+  nouveau.
+
+- [x] **Note d'exploitation — serveurs `vite dev`/`vite preview` orphelins sur
+  le port 5183 depuis des cycles antérieurs, jamais arrêtés, causant un audit
+  bloqué** (cycle 049). En amorçant ce cycle, le serveur de développement
+  démarré manuellement partageait le port avec au moins deux autres processus
+  Node (un `vite preview` et un second `vite dev`) laissés vivants par des
+  sessions précédentes — `scripts/ui-audit.mjs` tente de démarrer son propre
+  serveur sur ce même port, échoue silencieusement ("Port already in use") et
+  la dernière combinaison du run (`laptop-1440/fr/reduced-motion`) a expiré au
+  bout de 30s sur `networkidle`, probablement gênée par la contention. Les
+  quatre processus orphelins ont été arrêtés (`Stop-Process`) après
+  diagnostic ; 9/10 combinaisons du même run avaient déjà produit des données
+  exploitables (0 violation, 0 débordement) avant l'expiration. Pas un défaut
+  du site ni de l'outillage — une hygiène de session à surveiller : un futur
+  cycle qui trouve un run d'audit anormalement lent ou silencieux devrait
+  vérifier les processus `node`/`vite` avant de soupçonner une régression.
 
 ## Terminé
 
