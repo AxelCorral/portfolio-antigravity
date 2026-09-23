@@ -5,6 +5,17 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 046 — 2026-09-23 · CTA hero desactive avant de devenir illisible au scroll
+
+> Le lien 'View projects'/'Voir les projets' restait cliquable et tabbable pendant tout le fondu de sortie (contraste mesure 6.54:1 a 10% du fondu, 1:1 a 30%) ; aucun changement visuel attendu, la correction porte sur pointer-events/tabIndex, confirme par ces captures identiques.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-046/cta-hero-desactive-avant-de-devenir-illisible-au-scroll-390-avant.webp) | ![après 390](shots/cycle-046/cta-hero-desactive-avant-de-devenir-illisible-au-scroll-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-046/cta-hero-desactive-avant-de-devenir-illisible-au-scroll-1440-avant.webp) | ![après 1440](shots/cycle-046/cta-hero-desactive-avant-de-devenir-illisible-au-scroll-1440-apres.webp) |
+
+`a9c6c04`
+
 ## Cycle 045 — 2026-09-23 · Lien CV/Download/GitHub/Contact du hero, texte casse en milieu de mot a 768px
 
 > La colonne .hero-intro n'est large que d'1/3 du viewport a 768px ; sans flex-wrap, un seul lien retrecissait et son propre texte se coupait en plein mot au lieu que les liens passent a la ligne comme un tout.

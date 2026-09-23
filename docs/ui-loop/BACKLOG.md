@@ -716,6 +716,32 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   jamais le crossfade vers la scène B. Compteur §6 : nouvelle entrée
   `hero-links` (`.subtle-link`) **1/3**.
 
+- [x] **`.opening-primary` (CTA "View projects"/"Voir les projets", scène A
+  du hero) restait cliquable et atteignable au clavier pendant tout le fondu
+  de sortie de la scène, alors que son contraste réel s'effondre bien avant
+  la fin de ce fondu** (cycle 046, trouvé par un run `ui-audit.mjs`,
+  rotation C — « du contenu qui reste invisible... un bug critique »).
+  Texte (`#080808`) et fond de page (`#080808`) partagent la même teinte ;
+  comme `opacity` est un compositing et non un changement de couleur, le
+  fond du bouton (`#e1e0cc`) se fond visuellement vers ce même fond sombre
+  au fil de `scrollYProgress` 0→0,3. Mesuré par échantillonnage de pixels
+  réels (capture recadrée, `sharp`, déjà présent au projet) : 14,09:1 à
+  progress=0, 6,54:1 à 0,10, **4,27:1 à 0,15** (sous le plancher WCAG AA),
+  1:1 à 0,30 — et le lien restait focalisable/cliquable sur toute cette
+  plage, un piège de focus clavier, pas seulement un fondu inesthétique
+  (distinct de l'arbitrage déjà différé cycle 022 sur le texte non
+  interactif). axe-core s'est montré peu fiable pour objectiver ce défaut
+  précis (violations intermittentes, couleurs rapportées ne correspondant à
+  aucune couleur réelle du bouton) — la mesure de référence retenue est
+  l'échantillonnage de pixels direct. Corrigé (commit `a9c6c04`) :
+  `pointer-events`/`tabIndex` coupés dès `scrollYProgress > 0,10` (6,54:1,
+  marge de sécurité) au lieu d'attendre 0,3 (1:1) ; le fondu visuel
+  lui-même est inchangé. Vérifié : 0/36 régression sur les cartes projet du
+  §4, 0/6 échec de clic sur le CTA au repos (3 viewports × 2 langues),
+  pixel réel de la capture de galerie cohérent avec l'opacité théorique
+  (fondu visuel confirmé strictement inchangé). Compteur §6 `hero-cta` :
+  1/3 → **2/3**.
+
 ## Terminé
 
 - [x] Cycle 028 — §4 reconfirmé intégralement traité (code réel revérifié, pas

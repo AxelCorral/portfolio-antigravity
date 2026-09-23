@@ -420,8 +420,11 @@ zone tactile de `.pc-dot` (role="tab" réel, 4×4/18×4px) étendue via pseudo-
 8 points sur ~100px à 390px — sans chevaucher le voisin) · `city-heading` (hero) **1/3**
 (cycle 028 : `aria-label` prohibé remplacé par un texte `sr-only`, correctif
 `aria-prohibited-attr`) · `hero-cta` (`.opening-primary`/`.opening-secondary`,
-hero) **1/3** (cycle 029 : CTA dupliqué vers `#selected-work` supprimé,
-rotation D) · `project-detail-modal` (`ProjectDetailModal.tsx`) **3/3 —
+hero) **2/3** (cycle 029 : CTA dupliqué vers `#selected-work` supprimé,
+rotation D ; cycle 046 : interactivité coupée à `scrollYProgress > 0.10`
+au lieu de 0.3 — le CTA restait cliquable/tabbable pendant tout le fondu de
+sortie alors que son contraste réel s'effondre à 4.27:1 dès 0.15 puis 1:1 à
+0.3, un piège de focus clavier mesuré par échantillonnage de pixels) · `project-detail-modal` (`ProjectDetailModal.tsx`) **3/3 —
 gelée** (cycle 032 : cible tactile des onglets 34→44px, mesure de lecture du
 paragraphe overview via `--measure-lede`, `tabIndex` sur la zone de
 contenu scrollable — correctif `scrollable-region-focusable` ; cycle 033 :

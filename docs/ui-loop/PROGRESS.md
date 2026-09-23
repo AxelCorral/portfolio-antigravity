@@ -6,6 +6,167 @@
 
 ---
 
+## Cycle 046 — 2026-09-23 17:10
+
+**Zone travaillée** : hero (`.opening-primary`, scène A du crossfade scroll-scrubé
+— `src/components/CinematicOpening.tsx`), « reste du site » (§3 gelée sans fait
+nouveau, §4 revalidé interactivement avant tout nouveau chantier, conformément
+à la priorité absolue de ce run).
+**Rotation de questions** : née d'un run d'outillage (`ui-audit.mjs`) plutôt
+que d'une rotation A-E complète, mais relève de **C — Mouvement** (« Y a-t-il
+du contenu qui reste invisible... C'est un bug critique, pas un détail »).
+
+### Note de continuité — §4 revalidé interactivement (0/36+6), build vert avant tout
+
+Ce run a d'abord suivi le point de reprise du cycle 045 : build (`npm run
+build` + `tsc -b`) vérifié vert, puis un test de clic Playwright exhaustif
+(6 cartes projet × 3 viewports desktop × 2 langues = 36 combinaisons) —
+**0 échec**, confirmant pour la 21e fois consécutive (cycles 026-046) que le
+§4 (Vers l'Élysée, Ombrair, Analyse vidéo football) reste intégralement
+fonctionnel. Cette revalidation était recommandée par le point de reprise du
+cycle 045 (3 cycles sans changement de code dans le périmètre §4). Le §4
+n'ayant aucun défaut mesuré et le §3 restant gelé (aucun fait nouveau), le
+cycle est retombé sur l'ordre de priorité normal (§2 phase 4) : « reste du
+site ».
+
+### Constats d'audit
+
+- **P0/P1 mesuré — `.opening-primary` (CTA "View projects"/"Voir les
+  projets", scène A du hero, `src/components/CinematicOpening.tsx`) restait
+  `pointer-events: auto` et dans l'ordre de tabulation pendant tout le fondu
+  de sortie de la scène A (`scrollYProgress` 0 → 0,3), alors que son
+  contraste réel s'effondre bien avant la fin du fondu.** Trouvé via un run
+  complet de `scripts/ui-audit.mjs` : 1 violation axe-core `color-contrast`
+  sur `.opening-primary` à `laptop-1440/en`, absente aux autres combinaisons
+  — signature d'un défaut dépendant de la position de scroll au moment du
+  scan (le script tabule 25 fois après le passage de survol, ce qui peut
+  laisser la page scrollée à une position intermédiaire de la scène A avant
+  de lancer axe-core). Cause : `.opening-primary` a pour texte `#080808` et
+  la page a pour fond `#080808` — exactement la même couleur. Comme
+  `.city-content` (le parent) anime son `opacity` de 1 à 0 sur cette plage,
+  et que l'`opacity` CSS est un compositing (pas un changement de couleur),
+  le texte se fond visuellement vers le fond de page (même teinte) tandis
+  que le fond du bouton (`#e1e0cc`) se fond vers ce même fond sombre — le
+  contraste s'effondre mécaniquement. **Mesuré par échantillonnage de pixels
+  réels** (capture recadrée sur le bouton, `sharp`, déjà une dépendance du
+  projet — pas de nouvelle librairie) à 12 points de progression : 14.09:1 à
+  progress=0, 9.92:1 à 0.05, **6.54:1 à 0.10**, **5.51:1 à 0.12**, **4.27:1 à
+  0.15** (sous le plancher WCAG AA), 2.59:1 à 0.20, 1:1 à 0.30. Le lien
+  restait cliquable et **atteignable au clavier** (Tab) sur toute cette
+  plage : un utilisateur clavier qui tabule pendant que la page est scrollée
+  à ce point atterrit sur un lien qu'il ne peut pas voir — un piège de
+  focus, pas seulement un défaut cosmétique de fondu (déjà documenté et
+  volontairement différé pour le texte non interactif, `BACKLOG.md` cycle
+  022, rotation C : « tout fondu d'entrée traverse le bas du plancher de
+  contraste »). La distinction : ce fondu-ci gouverne un **contrôle
+  interactif focalisable**, pas seulement du texte statique — un cas plus
+  grave que celui déjà tranché en P2.
+  - **axe-core s'est révélé peu fiable pour mesurer précisément ce
+    phénomène** : sur des relances répétées à progress identique, il
+    signalait tantôt 0 tantôt 1 violation, et ses `fgColor`/`bgColor`
+    rapportés (ex. `#373632`/`#9b9a8d`) ne correspondaient à aucune couleur
+    réelle du bouton (`#080808`/`#e1e0cc` déclarés, confirmés par
+    `getComputedStyle`) — cohérent avec le point déjà consigné cycle 021
+    (« axe-core ne juge pas le contraste de cette page » de façon fiable
+    dans les cas de compositing). La mesure de référence retenue est donc
+    l'échantillonnage de pixels direct, conforme à l'exigence du garde-fou
+    §6 (« mesuré, pas estimé »).
+
+### Changements livrés
+
+- `a9c6c04` — fix(hero): `.opening-primary` gagne un état
+  `primaryCtaInteractive` (`pointer-events`/`tabIndex`, dérivé du même
+  `scrollYProgress` déjà utilisé pour `stateBActive`) qui coupe
+  l'interactivité à progress > 0,10 (6,54:1 mesuré, marge de sécurité
+  confortable au-dessus du plancher 4,5:1) au lieu d'attendre 0,3 (fin du
+  fondu, 1:1). Le fondu visuel lui-même n'est pas modifié — seule la fenêtre
+  d'interactivité est raccourcie. Vérifié : `getComputedStyle` confirme
+  `pointer-events: none` et `tabIndex: -1` dès `progress > 0.10`, clic
+  Playwright réussi sur toute la plage encore interactive (0/0,05/0,10),
+  timeout de clic (comportement attendu, `pointer-events: none`) au-delà.
+- `ui-loop: journaliser cycle 046` (ce commit) — compteur §6 : `hero-cta`
+  (`.opening-primary`/`.opening-secondary`) 1/3 → **2/3**.
+
+### Vérification
+
+- Build : ✅ avant et après (`tsc -b` sans sortie, `vite build` vert, JS
+  679,88 → 679,97 kB — delta cohérent avec ~15 lignes de logique d'état
+  ajoutées, aucune nouvelle dépendance).
+- Test de clic exhaustif §4 (6 projets × 3 viewports desktop × 2 langues) :
+  **0/36 échec**, avant et après le changement (le changement ne touche pas
+  les cartes projet).
+- Test de clic + interactivité du CTA hero lui-même (6 combinaisons
+  supplémentaires, 3 viewports × 2 langues, au repos scroll=0) : **0/6
+  échec** — le clic fonctionne toujours normalement quand la page est en
+  haut, seul le comportement mi-scroll change.
+- Échantillonnage de pixels avant/après sur la capture de galerie
+  (`sharp`, résolution du pixel réel du bouton à progress=0,15) : couleur
+  mesurée `(109,111,101)`, cohérente avec le calcul théorique d'un fondu à
+  opacité 0,5 sur fond `#080808` — confirme que le fondu visuel est
+  **strictement inchangé** par le correctif (seule l'interactivité change).
+- Run complet `ui-audit.mjs` après correctif (10 combinaisons) : **0
+  overflow horizontal, 0 erreur console, 0 erreur de page**, CLS ≤ 0,0012
+  partout. 1 violation axe-core résiduelle sur `.opening-primary` à
+  `laptop-1440/fr` (au lieu de `/en` avant) — cohérent avec le
+  fait que le correctif rend l'élément **non interactif** au-delà de
+  progress 0,10 mais ne le rend pas invisible ; le texte non interactif
+  qui continue de s'estomper reste couvert par l'arbitrage déjà différé
+  (cycle 022, P2, "tout fondu d'entrée traverse le bas du plancher de
+  contraste") — non retenu ici, hors périmètre de ce chantier ciblé sur le
+  piège de focus.
+- Viewports vérifiés : 390 / 768 / 1440 / 1920 (via `ui-audit.mjs`) + 1024 /
+  1440 / 1920 (via le test de clic dédié).
+- Langues : FR ✅ EN ✅.
+- reduced-motion : ✅ — `.city-content` passe en `display: none` sous
+  `reduce`, `.opening-primary` n'est jamais peint ni focalisable dans ce
+  mode ; le correctif ne change rien à ce chemin (vérifié par lecture de
+  code, `reduceMotion ? { display: "none" } : {...}`).
+- Régression détectée : non.
+
+### Reverté
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024. Revalidé
+  interactivement ce cycle (36/36 clics réussis), aucun changement de code
+  dans son périmètre.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025. Idem.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026.
+  Idem.
+- **Le §4 de MISSION-UI.md reste intégralement traité pour la 21e fois
+  consécutive (cycles 026-046)**, revalidé interactivement ce cycle (test de
+  clic complet, pas seulement une lecture du journal).
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Prochain cycle — point de reprise exact
+- Compteur §6 : `hero-cta` (`.opening-primary`/`.opening-secondary`) passe de
+  1/3 à **2/3** — encore 1 passe possible avant plafond.
+- Le fondu de sortie de la scène A (`contentAOpacity`, `CinematicOpening.tsx`)
+  reste un candidat pour l'arbitrage de direction artistique déjà documenté
+  (cycle 022, P2) : un plancher d'opacité façon `REVEAL_FLOOR_OPACITY`
+  (`PortfolioMotion.tsx`) éviterait au texte non interactif (titre,
+  paragraphe, tag) de continuer à traverser le plancher de contraste après
+  que le CTA a été neutralisé — mais recalibrer ce fondu (déjà finement
+  calé, cascade cycle 022) mérite son propre budget de vérification dédié,
+  pas une greffe en fin de cycle. Ne pas reproduire l'erreur d'estimation :
+  mesurer par échantillonnage de pixels, pas par lecture d'axe-core seul
+  (peu fiable sur cet élément, voir constat ci-dessus).
+- Candidats P2 inchangés (voir `BACKLOG.md`) : zone de clic de `.pc-dot`
+  plafonnée par la densité de points (cycle 044) ; coût main-thread de
+  `reduce`-motion au chargement de `CinematicOpening.tsx` (cycle 041) ; CLS
+  de `/cv` (cycle 037, bloqué sur Q5) ; bundle JS 679,97 kB (226 kB gzip) ;
+  mode `--freeze-at=<ms>` pour `ui-gallery.mjs` ; contraste des coches
+  `<Check>` de Capabilities (`#capabilities` gelée, arbitrage d'icône) ;
+  largeur de colonne `.capability-card` à 1024px (grille, `#capabilities`
+  gelée) ; plancher de contraste du fondu de sortie du hero (ci-dessus,
+  nouveau).
+
+### Questions bloquantes ouvertes
+- **Q5** — écart police de corps documentée (Inter) vs chargée (Almarai),
+  toujours ouverte, non tranchée par Axel. Voir `QUESTIONS.md`.
+
+---
+
 ## Cycle 045 — 2026-09-23 16:45
 
 **Zone travaillée** : hero (`.subtle-link`, ligne View CV/Download/GitHub/
