@@ -3364,14 +3364,33 @@ a {
   position: relative;
   flex: 1 1 auto;
   min-height: 0;
+  /* .home-project-proof img sets min-height: 280px for the carousel/static
+     proof panels elsewhere in this file; .demo-embed-poster inherits that
+     generic rule too (same ancestor, plain `img` selector), which used to
+     win over its own height: 100% whenever the flex-computed frame height
+     dropped below 280px (routinely true on mobile-390, ~225px). The poster
+     rendered at the 280px floor instead of the frame's real height, and
+     since nothing here clipped it, the extra ~55px bled straight past
+     .demo-embed-caption below and visually fused with its text — found by
+     sampling caption-row pixel brightness against a poster asset for Vers
+     l'Élysée that happens to have real page UI ("Comment fonctionne la
+     simulation ?") sitting in that overflowed band. overflow: hidden makes
+     this frame an actual clip boundary regardless of what any descendant
+     image rule sets. */
+  overflow: hidden;
 }
 
 .demo-embed-frame iframe,
-.demo-embed-poster {
+.demo-embed-frame .demo-embed-poster {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+  /* Two classes here outrank the generic `.home-project-proof img` rule's
+     one-class-one-type specificity, so this min-height: 0 actually wins —
+     see the overflow: hidden comment on .demo-embed-frame above for why
+     that generic 280px floor was reaching this image at all. */
+  min-height: 0;
   border: 0;
 }
 
@@ -3387,7 +3406,25 @@ a {
   display: grid;
   place-items: center;
   border: 0;
-  background: linear-gradient(180deg, rgba(9, 10, 10, 0.1), rgba(9, 10, 10, 0.72));
+  /* Poster images are raw full-page screenshots of the live deployment
+     (e.g. hero-preview.webp for Vers l'Élysée), cropped by object-fit: cover
+     to whatever height .demo-embed-frame happens to have at a given
+     viewport. Whatever UI the source page had right at that crop line is
+     arbitrary and uncontrolled — on Vers l'Élysée it lands on a real
+     "Comment fonctionne la simulation ?" button, which the previous flat
+     0.72 max darkening left legible enough to visually fuse with
+     .demo-embed-caption directly below it (measured on mobile-390: both
+     read as one jumbled dark text block). The added 100% stop pushes near-
+     opaque exactly at the seam, independent of container height, so
+     whatever poster content ends up at the bottom edge is hidden rather
+     than merely dimmed, while the earlier stops keep the screenshot
+     legible everywhere above it. */
+  background: linear-gradient(
+    180deg,
+    rgba(9, 10, 10, 0.1) 0%,
+    rgba(9, 10, 10, 0.72) 65%,
+    rgba(9, 10, 10, 0.97) 100%
+  );
   cursor: pointer;
 }
 
