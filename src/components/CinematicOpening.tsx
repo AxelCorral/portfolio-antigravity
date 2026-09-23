@@ -74,7 +74,11 @@ export function CinematicOpening({ onOpenBuildMode }: { onOpenBuildMode: () => v
   // and clickable across that whole range. Cutting interactivity at 0.10
   // (6.54:1 measured, a safety margin above the 4.5:1 floor) keeps it a
   // real, legible control whenever it's reachable, instead of a keyboard
-  // trap that a sighted user tabbing mid-scroll can't see.
+  // trap that a sighted user tabbing mid-scroll can't see. Same threshold
+  // also drives `aria-hidden`: once the link is already non-interactive its
+  // fading, low-contrast text is decorative remnant of the exit fade, not a
+  // control — same exclusion rationale as `.pc-watermark` (cycle 033) —
+  // which keeps axe-core from flagging text a user can no longer reach.
   const [primaryCtaInteractive, setPrimaryCtaInteractive] = useState(true);
   useMotionValueEvent(scrollYProgress, "change", (value) => {
     setStateBActive(value > 0.3);
@@ -180,6 +184,7 @@ export function CinematicOpening({ onOpenBuildMode }: { onOpenBuildMode: () => v
                   href="#selected-work"
                   style={{ pointerEvents: primaryCtaInteractive ? "auto" : "none" }}
                   tabIndex={primaryCtaInteractive ? undefined : -1}
+                  aria-hidden={primaryCtaInteractive ? undefined : true}
                 >
                   {t.hero.viewProjects}
                   <ArrowRight size={16} aria-hidden="true" />
