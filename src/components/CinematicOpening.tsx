@@ -84,6 +84,17 @@ export function CinematicOpening({ onOpenBuildMode }: { onOpenBuildMode: () => v
     setStateBActive(value > 0.3);
     setPrimaryCtaInteractive(value <= 0.1);
   });
+  // `#profile` (`.hero-content`) and `.creator-hotspot` are invisible
+  // (opacity 0) until state B, exactly like `.opening-primary` above, but
+  // their `pointer-events: none` only blocks the mouse — a link/button
+  // stays keyboard-focusable and Enter/Space still activates it natively.
+  // Gate `tabIndex`/`aria-hidden` on every descendant control by the same
+  // `stateBActive` flag that already drives their pointer-events, so a
+  // sighted keyboard user tabbing before scrolling can't land on (or
+  // activate) something they cannot see. Always interactive under reduced
+  // motion: that mode skips the crossfade and shows this content as the
+  // page's one static, always-usable state (unchanged behavior).
+  const heroContentInteractive = reduceMotion || stateBActive;
 
   return (
     <section ref={ref} className="intro-sequence" id="opening" aria-label="Intro">
@@ -148,6 +159,15 @@ export function CinematicOpening({ onOpenBuildMode }: { onOpenBuildMode: () => v
             ...(reduceMotion ? { opacity: 1 } : { opacity: cliffOpacity }),
             pointerEvents: stateBActive ? "auto" : "none",
           }}
+          // `pointer-events: none` only blocks the mouse — a button stays
+          // keyboard-focusable and Enter/Space still activates it natively.
+          // Before state B is reached this control is invisible (opacity 0
+          // under normal motion) or not yet meant to be usable (reduced
+          // motion), so `inert` removes it from the tab order and the a11y
+          // tree in lockstep with the same `stateBActive` gate that already
+          // drives its pointer-events — same class of keyboard trap as
+          // `.opening-primary` (cycles 046-047), found on this sibling.
+          inert={!stateBActive}
           onClick={onOpenBuildMode}
           aria-label={t.hero.openPersonalLayer}
         >
@@ -227,25 +247,63 @@ export function CinematicOpening({ onOpenBuildMode }: { onOpenBuildMode: () => v
             </div>
             <div className="mt-6 flex flex-wrap items-center gap-5">
               <Magnet>
-                <a className="primary-cta group" href="#selected-work">
+                <a
+                  className="primary-cta group"
+                  href="#selected-work"
+                  tabIndex={heroContentInteractive ? undefined : -1}
+                  aria-hidden={heroContentInteractive ? undefined : true}
+                >
                   <span>{t.hero.viewSelectedWork}</span>
                   <span className="cta-icon">
                     <ArrowRight size={17} strokeWidth={1.8} aria-hidden="true" />
                   </span>
                 </a>
               </Magnet>
-              <button className="build-mode-trigger" type="button" onClick={onOpenBuildMode}>{t.hero.personalLayer}</button>
+              <button
+                className="build-mode-trigger"
+                type="button"
+                onClick={onOpenBuildMode}
+                tabIndex={heroContentInteractive ? undefined : -1}
+                aria-hidden={heroContentInteractive ? undefined : true}
+              >
+                {t.hero.personalLayer}
+              </button>
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-primary/60">
-                <Link className="subtle-link" to="/cv">
+                <Link
+                  className="subtle-link"
+                  to="/cv"
+                  tabIndex={heroContentInteractive ? undefined : -1}
+                  aria-hidden={heroContentInteractive ? undefined : true}
+                >
                   {t.hero.viewCV}
                 </Link>
-                <a className="subtle-link" href="/cv-axel-corral.pdf" download="cv-axel-corral.pdf">
+                <a
+                  className="subtle-link"
+                  href="/cv-axel-corral.pdf"
+                  download="cv-axel-corral.pdf"
+                  tabIndex={heroContentInteractive ? undefined : -1}
+                  aria-hidden={heroContentInteractive ? undefined : true}
+                >
                   {t.hero.downloadCV}
                 </a>
-                <a className="subtle-link" href="https://github.com/AxelCorral" target="_blank" rel="noreferrer">
+                <a
+                  className="subtle-link"
+                  href="https://github.com/AxelCorral"
+                  target="_blank"
+                  rel="noreferrer"
+                  tabIndex={heroContentInteractive ? undefined : -1}
+                  aria-hidden={heroContentInteractive ? undefined : true}
+                >
                   GitHub
                 </a>
-                <a className="subtle-link" href="#contact">{t.nav.contact}</a>
+                <a
+                  className="subtle-link"
+                  href="#contact"
+                  tabIndex={heroContentInteractive ? undefined : -1}
+                  aria-hidden={heroContentInteractive ? undefined : true}
+                >
+                  {t.nav.contact}
+                </a>
               </div>
             </div>
           </div>
