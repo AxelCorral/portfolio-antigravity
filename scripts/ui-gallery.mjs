@@ -54,6 +54,21 @@
  *   --settle=<ms>      délai avant la capture, une fois la cible calée
  *                      (défaut 500). Avec --prescroll=no, c'est l'instant de
  *                      l'entrée que l'on fige.
+ *   --freeze-at=<ms>   ne s'applique qu'aux cibles sans préfixe spécial
+ *                      (id/sélecteur/`viewport:`), avec --prescroll=no. Sans
+ *                      cette option, `scrollIntoViewIfNeeded()` déclenche déjà
+ *                      l'observateur de révélation *avant* que le compte à
+ *                      rebours de `--settle` ne démarre : le délai ne se
+ *                      compte donc pas depuis le début de l'animation mais
+ *                      depuis un instant inconnu, plus tard (cycle 022,
+ *                      quatre essais à l'aveugle pour obtenir une paire
+ *                      AVANT/APRÈS où la cascade était encore visible).
+ *                      `--freeze-at` arme un `IntersectionObserver` témoin sur
+ *                      la cible avant de caler la page, attend son
+ *                      déclenchement réel, puis compte `<ms>` à partir de cet
+ *                      instant précis — reproductible d'une révision à
+ *                      l'autre tant que le point de déclenchement de la
+ *                      section ne change pas.
  */
 import { chromium } from "playwright";
 import sharp from "sharp";
@@ -83,6 +98,7 @@ const LANG = args.lang ?? "en";
 const WHY = args.why ?? "";
 const PRESCROLL = args.prescroll !== "no";
 const SETTLE = Number(args.settle ?? 500);
+const FREEZE_AT = args["freeze-at"] !== undefined ? Number(args["freeze-at"]) : null;
 // La galerie ne visitait jamais que "/" : tout chantier vivant sur une autre
 // route (`/cv`) ne pouvait pas avoir de paire AVANT/APRÈS. `--path=/cv`
 // ajoute la route à l'URL de base, sans toucher au reste de la capture.
@@ -338,6 +354,38 @@ async function captureState(baseUrl) {
           out[key] = null;
           continue;
         }
+
+        if (FREEZE_AT !== null) {
+          // Arme le témoin *avant* de bouger la page : si l'observateur est
+          // posé après `scrollIntoViewIfNeeded()`, ce scroll peut lui-même
+          // avoir déjà fait franchir le seuil d'intersection, et on rate le
+          // déclenchement réel.
+          await locator.evaluate((el) => {
+            window.__uiGalleryRevealed = false;
+            const observer = new IntersectionObserver(
+              (entries) => {
+                if (entries.some((e) => e.isIntersecting)) {
+                  window.__uiGalleryRevealed = true;
+                  observer.disconnect();
+                }
+              },
+              { threshold: 0 },
+            );
+            observer.observe(el);
+          });
+          await locator.scrollIntoViewIfNeeded();
+          await page.waitForFunction(() => window.__uiGalleryRevealed === true, {
+            timeout: 5000,
+          });
+          await page.waitForTimeout(FREEZE_AT);
+          try {
+            out[key] = asViewport ? await page.screenshot() : await locator.screenshot();
+          } catch {
+            out[key] = null;
+          }
+          continue;
+        }
+
         await locator.scrollIntoViewIfNeeded();
         await page.waitForTimeout(PRESCROLL ? 500 : 0);
         try {
