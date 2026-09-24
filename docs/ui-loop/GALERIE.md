@@ -5,6 +5,25 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 059 — 2026-09-24 · Coût main-thread de `reduce`-motion au chargement du hero : régression close, sans correctif
+
+> Pas de paire AVANT/APRÈS : aucun fichier `src/` modifié ce cycle, la
+> capture visuelle serait identique. Preuve mesurable, non une image : le
+> P2 ouvert depuis le cycle 041 (`reduce`-motion mesuré ~150-250ms plus
+> coûteux que `no-preference` au chargement de `CinematicOpening.tsx`,
+> TBT ~380-450ms contre ~200-250ms à 1440) ne reproduit plus. 4 runs
+> indépendants de `scripts/ui-longtask-probe.mjs` (3× à 1440 seul, 1× sur
+> les 4 viewports × 2 langues, 16 combinaisons) sur l'état actuel du code :
+> `reduce` est désormais égal ou moins coûteux que `no-preference` partout
+> (ex. 1440/EN : 100ms contre 115ms ; 390/EN : 84ms contre 118ms). Aucun
+> correctif de ce chantier n'a jamais été livré (jugé trop risqué sans
+> budget dédié, cycle 041) — l'écart a disparu comme effet de bord d'un ou
+> plusieurs des commits hero ultérieurs (044-058), sans qu'un commit
+> précis en soit identifié comme la cause. `BACKLOG.md` mis à jour, item
+> fermé.
+
+_(aucun commit de code — voir `docs(backlog)` dans PROGRESS.md)_
+
 ## Cycle 058 — 2026-09-24 · Carte projet 06 qui recouvrait le bouton de pied de section sur mobile
 
 > Le décalage top/z-index des cartes projet (scrollytelling) s'appliquait aussi sous 1024px en position relative, où il ne fait que peindre la boîte plus bas sans réserver l'espace : la carte 06 recouvrait le bouton Discover the personal layer, inatteignable au clic.
