@@ -6,6 +6,149 @@
 
 ---
 
+## Cycle 056 — 2026-09-24 03:10
+
+**Zone travaillée** : `/cv` (`.cv-hook`, rythme vertical de `CVPage.tsx`) — §4
+revalidé avant tout nouveau chantier, conformément à la priorité absolue
+rappelée par la consigne de lancement de ce run.
+
+**Rotation de questions** : rotation B (rythme & espace) sur `/cv` — jamais
+posée par écrit sur cette route (A : cycle 035, D : cycle 036, E : cycle 038 ;
+B et C manquaient), exactement le point de reprise laissé par le cycle 054.
+
+### Note de continuité — numérotation, §4 revalidé
+
+`git log`/`PROGRESS.md` confirment le cycle 055 (`9b6ea05`) comme dernière
+entrée journalisée ; ce run se numérote donc **056**, pas 61 comme indiqué par
+la consigne de lancement — même règle documentée à chaque cycle depuis
+plusieurs dizaines d'itérations (le journal fait foi, pas le numéro fourni au
+lancement). La consigne de lancement de ce run réaffirme mot pour mot la
+priorité absolue déjà écrite dans `MISSION-UI.md` §4 (Vers l'Élysée → Ombrair →
+Analyse vidéo football, un chantier par cycle, trois livrables) puis s'arrête
+au milieu d'une phrase (« La zone sous Analytical » sans suite) — traité comme
+un rappel tronqué du §3/§4 déjà en vigueur, pas comme une instruction nouvelle
+à deviner. `npm run build` (`tsc -b` + `vite build`) vérifié vert avant tout
+changement. Le §4 a été revalidé par lecture visuelle directe de
+`section-project-slides.png` (captures `laptop-1440_en` et `mobile-390_fr` du
+run `ui-audit.mjs` ci-dessous) : les trois cartes 04/05/06 (Vers l'Élysée,
+Ombrair, Analyse vidéo football), leurs case studies et leurs démos
+(`LiveDemoEmbed`) sont intégralement en place aux deux viewports, aucune
+régression — **32e cycle consécutif (026-056)** où le §4 est confirmé
+intégralement traité sans changement requis.
+
+### Constats d'audit
+
+- **Rotation B mesurée sur `/cv` par sonde Playwright ad hoc** (créée puis
+  supprimée après usage, `scripts/.tmp-cv-rhythm-probe.mjs`) : gaps encre-à-
+  encre entre les 8 blocs de la page (`.cv-topbar` → `.cv-header` →
+  `.cv-hook` → `#experience` → `#projects` → `.cv-two-col` → dernier
+  `.cv-section` (Skills) → `.cv-print-note`), aux 4 viewports × 2 langues.
+  Résultat : **48 / 40 / 56 / 56 / 56 / 56 / 56px, identique aux 8
+  combinaisons sans exception** — tous multiples de 8px, aucune respiration
+  inégale. Premier essai avec un mauvais sélecteur pour le bloc Skills
+  (`.cv-skills-groups`, le grid interne, au lieu de la section qui l'englobe)
+  avait produit un faux signal de 97/96px — corrigé en pointant le sélecteur
+  sur `.cv-shell > .cv-section:last-of-type` (la section réelle, kicker
+  compris) avant de conclure ; leçon déjà documentée cycles 017/018/019/020
+  sous une autre forme : une mesure qui saute l'élément qui porte le premier
+  encre du bloc ne mesure pas le bloc. Longueur de ligne : `.cv-hook`
+  (`max-width: 56ch` en dur, pas le token `--measure-lede`) compose **73
+  caractères/ligne en anglais, 77 en français**, aux 3 viewports ≥ 768px, sans
+  variation. Les 77 caractères dépassent nominalement le plafond de 75 de la
+  rotation B, mais restent dans la fourchette **70-77** déjà mesurée et
+  qualifiée « normale » au cycle 043 pour `--measure-lede` (58ch) sur les 6
+  modales projet — le même ordre de grandeur, pas un fait nouveau. `.cv-hook`
+  utilise une valeur `56ch` propre plutôt que le token `--measure-lede`
+  (58ch), mais l'harmoniser aurait **élargi** la colonne et donc **aggravé**
+  l'écart au plafond de 75 (56ch→58ch pousserait le FR au-delà de 77) pour un
+  bénéfice de cohérence purement interne, sans aucun gain de lisibilité
+  mesurable — et `/cv` (compteur `cv-page`) est **gelée à 3/3** depuis le
+  cycle 038 : toute retouche exige une dérogation écrite justifiée par un fait
+  nouveau (régression, bug d'accessibilité chiffré, ou raccord §4), qu'aucune
+  des deux observations ci-dessus ne constitue. **Aucun code retouché** — un
+  audit qui ne trouve rien d'actionnable ne consomme pas de passe (§6).
+  Rotations désormais posées par écrit sur `/cv` : A (035), B (ce cycle), D
+  (036), E (038) — il ne reste que **C (mouvement)**, jamais appliquée à cette
+  route.
+- **Run complet `ui-audit.mjs` (10 combinaisons viewport×langue×
+  reduced-motion, couverture axe-core intégrale depuis le correctif du cycle
+  055) : 0 violation axe-core, 0 débordement horizontal, 0 erreur console/page
+  sur les 10 combinaisons.**
+- **Revue visuelle directe** des captures pleine page et par section à
+  390/1440, EN/FR : hero (scène A), `#about`, `#capabilities`,
+  `#contact`/footer et les 6 cartes projet — aucun défaut visuel relevé. La
+  capture `section-project-slides.png` à 1440 montre un grand vide noir entre
+  le titre de section et les cartes, avec le bouton "Skip to content" flottant
+  au milieu : artefact déjà documenté au cycle 019 (un élément
+  `position: fixed` se peint à sa position de document, pas d'écran, dans une
+  capture d'élément dont la hauteur dépasse le viewport — la section est très
+  haute à cause de l'empilement `position: sticky` des cartes), pas un défaut
+  de mise en page réel — confirmé par la capture mobile équivalente, où les 6
+  cartes s'enchaînent sans aucun vide anormal.
+
+### Changements livrés
+
+- Aucun. Un audit qui ne trouve rien à corriger ne consomme pas de passe de
+  retouche (§6) — même schéma que les cycles 049, 053, 054 et 055.
+
+### Vérification
+
+- Build : ✅ (`tsc -b` sans sortie, `vite build` vert, avant tout le cycle).
+- Run complet `ui-audit.mjs` (10 combinaisons) : 0 violation axe-core, 0
+  débordement horizontal, 0 erreur console/page, aucun processus orphelin sur
+  le port 5183 après coup (vérifié `netstat`, seules des connexions
+  `TIME_WAIT` résiduelles).
+- Viewports vérifiés : 390 / 768 / 1440 / 1920.
+- Langues : FR ✅ EN ✅.
+- reduced-motion : ✅ (2 des 10 combinaisons du run, 0 violation).
+- Régression détectée : non.
+- Hygiène : dossier `docs/ui-loop/screenshots/` de cycle précédent (055)
+  supprimé après exploitation (jetable, gitignoré) ; seul le run de ce cycle
+  est conservé sur disque. Sonde ad hoc `.tmp-cv-rhythm-probe.mjs` supprimée
+  après usage.
+
+### Reverté
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024. Revalidé ce
+  cycle, aucun changement.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025. Revalidé ce
+  cycle, aucun changement.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026.
+  Revalidé ce cycle, aucun changement.
+- **Le §4 de MISSION-UI.md reste intégralement traité pour la 32e fois
+  consécutive (cycles 026-056)**, revalidé sans aucun changement requis.
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Dérogation au plafond de retouche
+- Aucune (aucune section retouchée ce cycle ; `cv-page` reste gelée à 3/3,
+  aucun fait nouveau ne justifiait de la rouvrir — voir constats d'audit).
+
+### Prochain cycle — point de reprise exact
+- `/cv` a désormais reçu quatre des cinq rotations par écrit (A cycle 035, B
+  ce cycle, D cycle 036, E cycle 038) sans rien trouver d'actionnable : il ne
+  reste que **rotation C (mouvement)** à y appliquer — candidat naturel du
+  prochain cycle si aucune régression P0 n'apparaît d'ici là (probablement peu
+  de matière : `/cv` n'a pas d'animation scroll-scrubée comme le hero, surtout
+  des transitions `:hover`/`:focus` déjà couvertes par la règle globale
+  `reduced-motion`). `nav`/`#contact` restent clos sur les cinq rotations sans
+  fait nouveau (cycles 049/052-054) : ne pas les rouvrir. Candidats P2 restants
+  hors zone gelée (§3) : la piste `reduce`-motion plus coûteuse que
+  `no-preference` au chargement du hero (`CinematicOpening.tsx`, cycle 041,
+  non corrigée — nécessite un budget d'instrumentation dédié, risque de
+  régression sur un composant scroll-pin finement calé) et le mode
+  `viewport:<cible>@<y>` de `ui-gallery.mjs` (cycle 029, contournable via
+  `scrollpx:<multiplicateurVh>` depuis le cycle 045, jamais corrigé à la
+  source faute de besoin réel).
+
+### Questions bloquantes ouvertes
+- `QUESTIONS.md` Q5 (police de corps documentée « Inter » vs police
+  réellement chargée « Almarai ») — toujours ouverte, non rouverte ce
+  cycle faute de fait nouveau.
+
+---
+
 ## Cycle 055 — 2026-09-24 03:45
 
 **Zone travaillée** : outillage `scripts/ui-audit.mjs` (pas une section UI) —

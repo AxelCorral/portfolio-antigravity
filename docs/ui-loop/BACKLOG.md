@@ -953,6 +953,24 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   audit qui ne trouve rien à corriger ne consomme pas de passe (§6) :
   compteurs inchangés, `#contact` **1/3**, `nav` **2/3**.
 
+- [x] **`/cv` audité sous rotation B (rythme & espace) pour la première fois —
+  rien retenu, quatre des cinq rotations sont désormais posées par écrit sur
+  cette route** (cycle 056). Sonde Playwright ad hoc (supprimée après usage) :
+  les 7 écarts encre-à-encre entre les 8 blocs de la page valent **48 / 40 /
+  56 / 56 / 56 / 56 / 56px, identiques aux 8 combinaisons** (4 viewports × 2
+  langues) — tous multiples de 8px, aucune respiration inégale. `.cv-hook`
+  compose 73 caractères/ligne en anglais et 77 en français (`max-width: 56ch`
+  en dur) : dépasse nominalement le plafond de 75 de la rotation B, mais reste
+  dans la fourchette 70-77 déjà qualifiée « normale » au cycle 043 pour le
+  token `--measure-lede` (58ch) — pas un fait nouveau. `.cv-hook` réutilise
+  une valeur `56ch` propre plutôt que `--measure-lede`, mais l'harmoniser
+  aurait élargi la colonne et donc aggravé (pas réduit) l'écart au plafond,
+  pour un bénéfice de cohérence interne sans gain de lisibilité mesurable —
+  et `cv-page` (compteur §6) est **gelée à 3/3** depuis le cycle 038, donc
+  hors dérogation écrite qu'aucune de ces deux observations ne justifie.
+  **Aucun code retouché**. Rotations désormais posées par écrit sur `/cv` : A
+  (035), B (ce cycle), D (036), E (038) — il ne reste que **C (mouvement)**.
+
 ## Terminé
 
 - [x] Cycle 028 — §4 reconfirmé intégralement traité (code réel revérifié, pas
