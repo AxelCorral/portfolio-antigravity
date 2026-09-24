@@ -6,6 +6,144 @@
 
 ---
 
+## Cycle 054 — 2026-09-24 03:10
+
+**Zone travaillée** : `nav` (`.city-nav a:hover`) et `#contact`
+(`.contact-links a:hover`) — §4 revalidé avant tout nouveau chantier,
+conformément à la priorité absolue rappelée par la consigne de lancement de ce
+run (déjà intégralement traitée, voir plus bas).
+
+**Rotation de questions** : rotation C (mouvement) — exactement le point de
+reprise laissé par le cycle 053, seule rotation jamais posée par écrit sur ces
+deux composants après B (052/053), A (`nav`, 049) et D/E (incidemment, 053).
+
+### Note de continuité — numérotation, hygiène de session, §4 revalidé
+
+`git log`/`PROGRESS.md` confirment le cycle 053 (`6c5ab67`) comme dernière
+entrée journalisée ; ce run se numérote donc **054**, pas 059 comme indiqué
+par la consigne de lancement — même règle documentée à chaque cycle depuis
+plusieurs dizaines d'itérations (le journal fait foi, pas le numéro fourni au
+lancement). La consigne de lancement de ce run réaffirme mot pour mot la
+priorité absolue déjà écrite dans `MISSION-UI.md` §4 (Vers l'Élysée → Ombrair →
+Analyse vidéo football, un chantier par cycle, trois livrables) puis s'arrête
+au milieu d'une phrase (« La zone sous Analytical » sans suite) — traité comme
+un rappel tronqué du §3/§4 déjà en vigueur, pas comme une instruction nouvelle
+à deviner. `npm run build` (`tsc -b` + `vite build`) vérifié vert avant tout
+changement. Le §4 a été revalidé par lecture visuelle directe de
+`section-project-slides` (capture `laptop-1440_en` du run `ui-audit.mjs`
+ci-dessous) : les trois cartes 04/05/06 (Vers l'Élysée, Ombrair, Analyse vidéo
+football), leurs case studies et leurs démos (`LiveDemoEmbed`) sont
+intégralement en place, aucune régression — **30e cycle consécutif (026-054)**
+où le §4 est confirmé intégralement traité sans changement requis.
+
+### Constats d'audit
+
+- **Rotation C mesurée sur `.city-nav a:hover:not(.city-contact)` (transition
+  `color` 200ms) et `.contact-links a:hover` (transition `border-color`/
+  `background`/`transform: translateY(-2px)` 180ms) — sonde Playwright ad hoc
+  (supprimée après usage), aucun défaut trouvé.** Les trois questions de la
+  rotation C : (1) chaque animation justifie-t-elle son coût ? Oui — feedback
+  d'affordance standard au survol, coût de rendu négligeable (une seule
+  propriété composée `color`/`transform`+`background`, pas de reflow). (2) Le
+  site est-il utilisable et élégant sous `reduced-motion` ? Mesuré
+  directement : `getComputedStyle(el).transitionDuration` passe de
+  `0.2s`/`0.18s` à **`0.00001s`** sur les deux règles sous
+  `reducedMotion: 'reduce'` (Playwright `newContext`), grâce à la règle
+  globale déjà en place (`index.css:3295`,
+  `*, *::before, *::after { transition-duration: 0.01ms !important }` sous
+  `@media (prefers-reduced-motion: reduce)`) — le survol reste fonctionnel et
+  bascule instantanément au lieu de glisser, sans qu'aucune règle spécifique à
+  ces deux composants n'ait jamais été nécessaire. (3) Y a-t-il du contenu qui
+  reste invisible si l'animation ne se déclenche pas ? Non : ce sont des états
+  `:hover` purement décoratifs, jamais la seule voie d'accès à une information
+  (contrairement aux reveals `AnimatedLetter`/cartes déjà traités cycles
+  017/022). **Aucun code retouché** — un audit qui ne trouve rien à corriger
+  ne consomme pas de passe de retouche (§6) : compteurs inchangés, `#contact`
+  **1/3**, `nav` **2/3**. Les cinq rotations A-E sont désormais posées par
+  écrit sur ces deux composants (A : cycle 049 pour `nav` ; B : cycles
+  052-053 pour les deux ; C : ce cycle pour les deux ; D/E : incidemment cycle
+  053) et ne devront pas être redemandées sans fait nouveau.
+- **Run complet `ui-audit.mjs` (10 combinaisons viewport×langue×
+  reduced-motion, serveur propre lancé par le script lui-même) : 0 violation
+  axe-core, 0 débordement horizontal, 0 erreur console/page sur les 10
+  combinaisons** (contre 1 violation `color-contrast` intermittente sur
+  `.opening-primary` relevée dans le run précédent du cycle 053 conservé sur
+  disque — déjà documentée comme un faux positif d'instabilité de lecture
+  axe-core aux cycles 046-047-050, retrouvée absente sur ce nouveau run,
+  cohérent avec ce diagnostic). CLS mesuré ≤ 0.0025 sur 9/10 combinaisons ;
+  `laptop-1440_fr_reduced-motion` à 0.0246, plus élevé que les autres mais
+  très en dessous du seuil « good » (0.1) de Core Web Vitals — bruit, pas une
+  régression. Aucun processus `vite`/port 5183 laissé en écoute après le run
+  (vérifié `netstat`/`tasklist` immédiatement après, comme les cycles
+  précédents).
+- **Revue visuelle directe** (pas seulement le DOM) des captures pleine page
+  et par section à 390/1440, EN/FR : hero (scène A), `#about`, `#capabilities`,
+  `#contact`/footer et les 6 cartes projet — aucun défaut visuel relevé,
+  cohérent avec les correctifs déjà livrés (chevauchement pastille/prompt
+  cycle 050, poster de démo cycle 051, libellé hero cycle 052).
+
+### Changements livrés
+
+- Aucun. Un audit qui ne trouve rien à corriger ne consomme pas de passe de
+  retouche (§6) — même schéma que les cycles 049 et 053.
+
+### Vérification
+
+- Build : ✅ (`tsc -b` sans sortie, `vite build` vert, avant tout le cycle).
+- Run complet `ui-audit.mjs` (10 combinaisons) : 0 violation axe-core, 0
+  débordement horizontal, 0 erreur console/page, aucun processus orphelin
+  après coup.
+- Viewports vérifiés : 390 / 768 / 1440 / 1920 (captures + mesures).
+- Langues : FR ✅ EN ✅.
+- reduced-motion : ✅ (mesure directe `transitionDuration` + run complet
+  ci-dessus).
+- Régression détectée : non.
+
+### Reverté
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024. Revalidé ce
+  cycle, aucun changement.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025. Revalidé ce
+  cycle, aucun changement.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026.
+  Revalidé ce cycle, aucun changement.
+- **Le §4 de MISSION-UI.md reste intégralement traité pour la 30e fois
+  consécutive (cycles 026-054)**, revalidé sans aucun changement requis.
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Dérogation au plafond de retouche
+- Aucune (aucune section retouchée ce cycle).
+
+### Prochain cycle — point de reprise exact
+- `nav` et `#contact` ont désormais reçu les cinq rotations A-E par écrit sans
+  rien trouver de neuf : ne pas les rouvrir sans fait nouveau. `/cv` n'a en
+  revanche jamais reçu de rotation B ni C posées explicitement (A : cycle 035,
+  D : cycle 036, E : cycle 038 — le CLS du cycle 037 est un constat de
+  performance, pas une rotation B au sens de la mission) : c'est le candidat
+  naturel du prochain cycle si aucune régression P0 n'apparaît d'ici là.
+  Sinon, candidats P2 restants hors zone gelée (§3) : la piste `reduce`-motion
+  plus coûteuse que `no-preference` au chargement du hero
+  (`CinematicOpening.tsx`, cycle 041, non corrigée — nécessite un budget
+  d'instrumentation dédié avant toute tentative, risque de régression sur un
+  composant scroll-pin finement calé) et le mode `viewport:<cible>@<y>` de
+  `ui-gallery.mjs` qui suppose à tort qu'un scroll ne déplace que sa cible
+  (cycle 029, contournable au cas par cas via `scrollpx:<multiplicateurVh>`
+  depuis le cycle 045, jamais corrigé à la source faute de besoin réel). Le
+  CLS 0.16 sur `/cv` (cycle 037) reste le candidat P1 le plus mûr mais bloqué
+  sur `QUESTIONS.md` Q5 — ne pas deviner, attendre l'arbitrage d'Axel.
+  Hygiène de session : les trois runs `docs/ui-loop/screenshots/` antérieurs à
+  ce cycle ont été supprimés (dossier jetable, gitignored, 553 Mo libérés) —
+  seul le run de ce cycle est conservé sur disque.
+
+### Questions bloquantes ouvertes
+- `QUESTIONS.md` Q5 (police de corps documentée « Inter » vs police
+  réellement chargée « Almarai ») — toujours ouverte, non rouverte ce
+  cycle faute de fait nouveau.
+
+---
+
 ## Cycle 053 — 2026-09-24 02:30
 
 **Zone travaillée** : `nav` (`.city-nav`, `.city-nav-links`, `.city-contact`) et

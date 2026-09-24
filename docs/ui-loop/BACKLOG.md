@@ -940,6 +940,19 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   **C (mouvement)**, jamais posée sur `.city-nav a:hover`/
   `.contact-links a:hover`.
 
+- [x] **`.city-nav a:hover`/`.contact-links a:hover` audités sous rotation C
+  (mouvement) — rien retenu, les cinq rotations A-E sont désormais posées par
+  écrit sur les deux composants** (cycle 054). Mesure directe
+  (`getComputedStyle(el).transitionDuration` via Playwright `newContext`) :
+  les deux transitions (`color` 200ms sur `.city-nav a`, `border-color`/
+  `background`/`transform` 180ms sur `.contact-links a`) tombent à
+  **0.00001s** sous `reducedMotion: 'reduce'`, grâce à la règle globale déjà
+  en place (`index.css:3295`) — aucune règle spécifique à ces composants
+  n'a jamais été nécessaire. Ni l'un ni l'autre n'est la seule voie d'accès à
+  une information (états `:hover` décoratifs). **Aucun code retouché** — un
+  audit qui ne trouve rien à corriger ne consomme pas de passe (§6) :
+  compteurs inchangés, `#contact` **1/3**, `nav` **2/3**.
+
 ## Terminé
 
 - [x] Cycle 028 — §4 reconfirmé intégralement traité (code réel revérifié, pas
