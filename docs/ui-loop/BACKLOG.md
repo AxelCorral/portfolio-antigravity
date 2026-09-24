@@ -616,41 +616,24 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   langues) : 0 violation résiduelle. axe-core scopé à `.home-project-card` :
   0 violation aux 4 combinaisons 390/1440 × EN/FR.
 
-- [ ] **`reduce`-motion coûte PLUS de temps main-thread au chargement que
-  `no-preference`, `CinematicOpening.tsx`** (cycle 041, nouvel outil
-  `scripts/ui-longtask-probe.mjs`, rotation C). Premier balayage
-  (PerformanceObserver `longtask`, seuil Core Web Vitals 50ms, 4 viewports ×
-  2 langues × 2 préférences de mouvement) sur `/` : à 1440, `no-preference`
-  charge avec 1-2 tâches longues (TBT ~200-250ms), `reduce` en charge 4-5
-  (TBT ~380-450ms) — reproduit identique sur 4 runs indépendants (§ leçon
-  cycle 037 : ne jamais retenir une seule mesure). Aucune tâche longue au
-  scroll dans les deux cas (0 partout). Isolé par profil CPU (CDP
-  `Profiler.start/stop`, script jetable supprimé après usage) : sous
-  `reduce`, la fonction interne `measure()` de framer-motion
-  (`useScroll`, lecture forcée de `offsetLeft`/`offsetTop`/`clientHeight`
-  en remontant la chaîne `offsetParent`) passe de 5.5ms à 224ms de temps
-  propre, et le `measure()` local de `CinematicOpening.tsx`
-  (`useLayoutEffect`, lecture de `ref.current.offsetHeight`) passe de
-  ~143ms à ~238ms cumulés. `.city-content` passe à `display: 'none'` sous
-  `reduce` (`CinematicOpening.tsx`), mais `.city-content` est
-  `position: absolute` dans `.intro-sequence` (`height: 240vh` fixe,
-  `src/index.css:450`) — son affichage ne change donc pas la hauteur du
-  conteneur scrollable, hypothèse de départ (layout shift du pin)
-  **infirmée**. Cause exacte non tranchée : les deux lectures de layout
-  forcées (la nôtre + celle de framer-motion) semblent se payer plus cher
-  l'une l'autre quand les styles `reduce` sont appliqués en écriture React
-  synchrone au lieu de valeurs animées framer-motion (batchées en RAF) —
-  hypothèse plausible, non prouvée au niveau du commit exact. **Aucun
-  correctif livré** : la piste la plus évidente (différer le `measure()`
-  de `CinematicOpening.tsx` hors de `useLayoutEffect`) risquerait un flash
-  de mauvais calibrage du scroll-pin au premier frame sur un composant
-  hero central déjà finement calé (cascade cycle 022) — pas assez sûr pour
-  être tenté sans budget de vérification dédié. Impact réel mesuré :
-  ~150-250ms supplémentaires une seule fois au chargement, avant toute
-  interaction de scroll (TBT au scroll = 0 dans les deux cas) ; aucun défaut
-  visible (opacité/contraste déjà vérifiés conformes sous `reduce` par
-  `ui-motion-probe.mjs`, cycles antérieurs). Candidat P2 pour un futur cycle
-  avec budget dédié à l'instrumentation fine de `CinematicOpening.tsx`.
+- [x] **`reduce`-motion coûte PLUS de temps main-thread au chargement que
+  `no-preference`, `CinematicOpening.tsx`** (cycle 041, TBT ~380-450ms sous
+  `reduce` contre ~200-250ms sous `no-preference` à 1440, reproduit sur 4
+  runs). **Reverifié cycle 059, ne reproduit plus.** `scripts/ui-longtask-
+  probe.mjs` relancé 4 fois indépendamment (3× à 1440 seul, 1× sur les 4
+  viewports × 2 langues, 16 combinaisons au total) sur l'état actuel du
+  code (aucun fichier touché avant la mesure) : `reduce` est désormais
+  systématiquement **égal ou moins coûteux** que `no-preference` partout
+  (ex. 1440/EN : 100ms contre 115ms ; 390/EN : 84ms contre 118ms ; pire cas
+  768/FR : 108ms contre 100ms, écart de 8ms, sans commune mesure avec les
+  ~150-250ms mesurés cycle 041). Aucun correctif de ce chantier n'a jamais
+  été livré (§ cycle 041 : trop risqué sans budget dédié) — la disparition
+  de l'écart est un effet de bord d'un ou plusieurs des commits hero
+  ultérieurs (044/045/046/047/048/050/051/052/058 ont tous touché
+  `CinematicOpening.tsx` ou `index.css` autour de ce composant), cause
+  exacte non attribuée à un commit précis (non nécessaire : l'effet mesuré
+  a disparu, pas seulement une de ses causes possibles). Fermé — plus un
+  candidat P2, voir `PROGRESS.md` cycle 059.
 
 - [x] **`.home-project-actions` (bouton "Open case study"/lien démo/lien repo)
   couvert et inatteignable au clic sur 4 des 6 cartes projet, presque partout
