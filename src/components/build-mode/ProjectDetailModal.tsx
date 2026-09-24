@@ -96,6 +96,10 @@ export function ProjectDetailModal({
   }, [project]);
 
   useEffect(() => {
+    setActiveTab("overview");
+  }, [project?.id]);
+
+  useEffect(() => {
     if (!project) return;
     const mainEl = document.getElementById("main");
     const previousOverflow = document.body.style.overflow;
