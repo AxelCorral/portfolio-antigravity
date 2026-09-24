@@ -108,7 +108,7 @@ async function setLanguage(page, lang) {
   );
 }
 
-async function capturePage({ lang, viewport, reducedMotion }) {
+async function capturePage({ lang, viewport, reducedMotion }, browserRef) {
   const tag = `${viewport.name}_${lang}${reducedMotion ? "_reduced-motion" : ""}`;
   const dir = path.join(OUT_DIR, tag);
   await mkdir(dir, { recursive: true });
@@ -119,6 +119,7 @@ async function capturePage({ lang, viewport, reducedMotion }) {
   // crashed") a few captures in. One browser per call costs a few seconds of launch
   // time but survives the full run instead of losing every capture after the crash.
   const browser = await chromium.launch();
+  if (browserRef) browserRef.browser = browser;
   const context = await browser.newContext({
     viewport: { width: viewport.width, height: viewport.height },
     reducedMotion: reducedMotion ? "reduce" : "no-preference",
@@ -269,6 +270,35 @@ async function capturePage({ lang, viewport, reducedMotion }) {
   return result;
 }
 
+// cycle 062 found a run stuck ~15 minutes on one capture with no crash and no
+// error — distinct from the documented "Target crashed" flake (cycle 027),
+// which at least throws. Without a hard ceiling, one hung page blocks the
+// whole matrix indefinitely instead of costing a single flake entry, breaking
+// the existing "one crash must not discard every capture already on disk"
+// guarantee below. `browserRef` lets the timeout force-close the browser this
+// specific job launched even though `capturePage` owns that reference.
+async function capturePageWithTimeout(job, timeoutMs = 90000) {
+  const browserRef = { browser: null };
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(async () => {
+      if (browserRef.browser) {
+        try {
+          await browserRef.browser.close();
+        } catch {
+          // already closing/closed — the capture path below will also no-op.
+        }
+      }
+      reject(new Error(`Capture timed out after ${timeoutMs}ms (browser force-closed)`));
+    }, timeoutMs);
+  });
+  try {
+    return await Promise.race([capturePage(job, browserRef), timeout]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 // `shell: true` (required on Windows to resolve the `npx`/`vite` .cmd shims)
 // spawns cmd.exe, which spawns npx, which spawns the real vite.js — three
 // processes deep. `server.kill()` only signals the top cmd.exe; on Windows
@@ -331,7 +361,7 @@ async function main() {
       const label = `${job.viewport.name} / ${job.lang}${job.reducedMotion ? " / reduced-motion" : ""}`;
       console.log(`Capturing ${label}...`);
       try {
-        runs.push(await capturePage(job));
+        runs.push(await capturePageWithTimeout(job));
       } catch (err) {
         // One crashed Chromium target must not discard every capture already on disk —
         // record the failure and keep going with the remaining viewport/language combos.
