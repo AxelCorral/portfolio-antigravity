@@ -6,6 +6,134 @@
 
 ---
 
+## Cycle 055 — 2026-09-24 03:45
+
+**Zone travaillée** : outillage `scripts/ui-audit.mjs` (pas une section UI) —
+§4 revalidé avant tout nouveau chantier, conformément à la priorité absolue
+rappelée par la consigne de lancement de ce run.
+
+**Rotation de questions** : aucune rotation A-E de plus posée sur `nav`/
+`#contact` (déjà closes les cinq, cycles 049/052-054) — ce cycle porte sur la
+fiabilité de l'audit lui-même (Phase 2 de la boucle), pas sur une section.
+
+### Note de continuité — numérotation, §4 revalidé
+
+`git log`/`PROGRESS.md` confirment le cycle 054 (`eed2ee1`) comme dernière
+entrée journalisée ; ce run se numérote donc **055**, pas 060 comme indiqué
+par la consigne de lancement — même règle documentée à chaque cycle depuis
+plusieurs dizaines d'itérations (le journal fait foi, pas le numéro fourni au
+lancement). La consigne de lancement réaffirme mot pour mot la priorité
+absolue déjà écrite dans `MISSION-UI.md` §4 puis s'arrête au milieu d'une
+phrase (« La zone sous Analytical » sans suite) — traité comme un rappel
+tronqué du §3/§4 déjà en vigueur, pas comme une instruction nouvelle à
+deviner. `npm run build` (`tsc -b` + `vite build`) vérifié vert avant tout
+changement. Le §4 a été revalidé par un run complet `ui-audit.mjs` (voir
+constats) : les trois cartes 04/05/06, leurs case studies et leurs démos
+(`LiveDemoEmbed`) sont intégralement en place, 0 violation axe-core, 0
+débordement horizontal — **31e cycle consécutif (026-055)** où le §4 est
+confirmé intégralement traité sans changement requis.
+
+### Constats d'audit
+
+- **`scripts/ui-audit.mjs` ne scannait l'accessibilité (axe-core) que sur 4
+  des 10 combinaisons viewport×langue×motion capturées — `tablet-768`,
+  `desktop-1920` et les deux runs `reduced-motion` n'étaient jamais passés à
+  `AxeBuilder`, en contradiction avec MISSION-UI.md §2 phase 2 (« Lancer un
+  scan d'accessibilité... et logger les violations », sans restriction de
+  viewport).** Trouvé en lisant `report.json` directement plutôt qu'en se
+  fiant au résumé terminal : `axeViolations` valait `undefined` (pas `[]`)
+  sur 6 des 10 entrées, alors que le total affiché en fin de run
+  (`runs.reduce((sum, r) => sum + (r.axeViolations?.length ?? 0), 0)`)
+  traduisait silencieusement cet `undefined` en 0 — un run qui n'a jamais
+  scanné une combinaison rapportait le même « 0 violation » qu'un run qui
+  l'a scannée et n'a rien trouvé. La restriction était documentée dans un
+  commentaire du code (« once per language at laptop viewport
+  (representative) and once at mobile ») comme un compromis de temps
+  d'exécution assumé, mais jamais confrontée à l'exigence explicite de la
+  mission de couvrir la matrice complète — un vrai angle mort d'outillage,
+  pas un défaut du site lui-même : `tablet-768`/`desktop-1920`/
+  `reduced-motion` n'avaient statistiquement jamais été vérifiés pour des
+  violations `color-contrast`/`aria-*`/cibles tactiles spécifiques à ces
+  états depuis la création du script.
+- **Revue visuelle directe** des captures hover (`hover-discover-personal-
+  cta.png`, `hover-contact-link.png`) et `section-contact-footer.png` à
+  768/1440, EN/FR — aucun défaut relevé, cohérent avec l'historique récent
+  (§4, `nav`, `#contact` déjà exhaustivement audités cycles 049-054).
+
+### Changements livrés
+
+- `7cf4a6f` — chore(ui-audit): scan accessibility on every viewport/lang/
+  motion combo. Condition `!reducedMotion && (viewport === "laptop-1440" ||
+  viewport === "mobile-390")` supprimée ; `AxeBuilder` tourne désormais sur
+  les 10 combinaisons. Coût : le run complet passe d'environ 4 à 6-7 minutes
+  (6 scans axe-core supplémentaires, quelques secondes chacun) — accepté,
+  la mission ne fixe pas de budget de temps d'exécution et une matrice
+  d'accessibilité à moitié couverte est un risque plus coûteux qu'un run
+  plus long.
+
+### Vérification
+
+- Build : ✅ (`tsc -b` sans sortie, `vite build` vert, avant et après le
+  changement).
+- `node --check scripts/ui-audit.mjs` : syntaxe valide.
+- Run complet `ui-audit.mjs` relancé après le correctif (10 combinaisons) :
+  **les 10 entrées de `report.json` portent désormais `axeViolations: []`**
+  (contre 6 `undefined` avant), confirmant que le scan tourne réellement sur
+  `tablet-768`, `desktop-1920` et les deux runs `reduced-motion` — 0
+  violation trouvée sur les 10, donc aucun défaut d'accessibilité nouveau
+  révélé par la couverture élargie. 0 débordement horizontal sur les 10.
+- Viewports vérifiés : 390 / 768 / 1440 / 1920.
+- Langues : FR ✅ EN ✅.
+- reduced-motion : ✅ (désormais aussi passé au scan axe-core, pas seulement
+  capturé visuellement).
+- Régression détectée : non.
+- Hygiène : port 5183 libéré après le run (processus tué explicitement,
+  vérifié par `netstat`) ; les deux runs `docs/ui-loop/screenshots/`
+  antérieurs à ce cycle supprimés (dossier jetable, gitignored, ~460 Mo
+  libérés) — seul le run final (avec la couverture axe-core complète) est
+  conservé sur disque.
+
+### Reverté
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024. Revalidé ce
+  cycle, aucun changement.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025. Revalidé ce
+  cycle, aucun changement.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026.
+  Revalidé ce cycle, aucun changement.
+- **Le §4 de MISSION-UI.md reste intégralement traité pour la 31e fois
+  consécutive (cycles 026-055)**, revalidé sans aucun changement requis.
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Dérogation au plafond de retouche
+- Aucune (chantier d'outillage, aucune section UI retouchée — le plafond de
+  retouche du §6 s'applique aux sections du site, pas à `scripts/ui-audit.mjs`).
+
+### Prochain cycle — point de reprise exact
+- La matrice d'accessibilité est désormais couverte à 100 % (10/10 combos) ;
+  si un run futur trouve enfin une violation sur `tablet-768`/`desktop-1920`/
+  `reduced-motion` qu'aucun cycle n'a pu voir jusqu'ici, la traiter en P0
+  (§2 phase 4) avant tout chantier §3/§4. `nav`/`#contact` restent clos sur
+  les cinq rotations sans fait nouveau (cycles 049/052-054) : ne pas les
+  rouvrir. `/cv` reste gelée à 3/3 (§6) : le CLS 0.16 (cycle 037) reste
+  bloqué sur `QUESTIONS.md` Q5, ne pas deviner. Candidats P2 restants hors
+  zone gelée (§3) : la piste `reduce`-motion plus coûteuse que
+  `no-preference` au chargement du hero (`CinematicOpening.tsx`, cycle 041,
+  non corrigée — nécessite un budget d'instrumentation dédié, risque de
+  régression sur un composant scroll-pin finement calé) et le mode
+  `viewport:<cible>@<y>` de `ui-gallery.mjs` (cycle 029, contournable via
+  `scrollpx:<multiplicateurVh>` depuis le cycle 045, jamais corrigé à la
+  source faute de besoin réel).
+
+### Questions bloquantes ouvertes
+- `QUESTIONS.md` Q5 (police de corps documentée « Inter » vs police
+  réellement chargée « Almarai ») — toujours ouverte, non rouverte ce
+  cycle faute de fait nouveau.
+
+---
+
 ## Cycle 054 — 2026-09-24 03:10
 
 **Zone travaillée** : `nav` (`.city-nav a:hover`) et `#contact`
