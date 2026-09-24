@@ -6,6 +6,176 @@
 
 ---
 
+## Cycle 061 — 2026-09-24 07:15
+
+**Zone travaillée** : `.home-project-proof--embed` / `.demo-embed-frame`
+(`src/index.css`), cartes projet 04 (Vers l'Élysée) et 05 (Ombrair) — §4 +
+démos existantes.
+
+**Rotation de questions** : rotation E (mobile-first réel), appliquée aux
+deux chantiers §4 déployés en démo interactive, jamais posée sous cet angle
+sur `LiveDemoEmbed` malgré le correctif cycle 051 sur le même composant
+(qui traitait un débordement visuel, pas la question d'usabilité mobile).
+
+### Note de continuité — numérotation, §4 revalidé
+
+`git log`/`PROGRESS.md` confirment le cycle 060 (`6026e09`) comme dernière
+entrée journalisée ; ce run se numérote donc **061**, pas 066 comme indiqué
+par la consigne de lancement — même règle documentée à chaque cycle depuis
+plusieurs dizaines d'itérations (le journal fait foi, pas le numéro fourni
+au lancement). La consigne de lancement de ce run réaffirme la priorité
+absolue déjà écrite dans `MISSION-UI.md` §4 (Vers l'Élysée → Ombrair →
+Analyse vidéo football, un chantier par cycle, trois livrables) puis
+s'arrête au milieu d'une phrase (« La zone sous Analytical » sans suite) —
+même lecture que les cycles 055-060 : rappel tronqué du §3/§4 déjà en
+vigueur. `npm run build` (`tsc -b` + `vite build`) vérifié vert avant tout
+changement (`git status` propre au démarrage, aucun fichier `STOP` ni
+`ALLOW_PUSH`).
+
+Le §4 est **inchangé depuis 36 cycles** (revalidé en détail au cycle 059,
+revalidé par le run `ui-audit.mjs` complet du cycle 060) : ce cycle n'a pas
+repris de revalidation visuelle complète des trois chantiers, mais le
+chantier livré ci-dessous **est** une intervention directe sur les cartes
+04/05, trouvée en creusant une question jamais posée sous cet angle sur ces
+deux projets précis. **37e cycle consécutif (026-061) où le §4 reste
+intégralement traité**, avec un correctif de plus livré dessus ce cycle.
+
+### Constats d'audit
+
+- Run complet `ui-audit.mjs` (10 combinaisons viewport × langue ×
+  reduced-motion) avant tout changement : **0 débordement horizontal**, 1
+  violation axe-core sur `laptop-1440_en` (`.opening-primary`,
+  color-contrast) — flake intermittent déjà documenté (cycles 059/060 : ce
+  correctif hero est gelé 3/3, l'écart n'est présent qu'à certains instants
+  d'échantillonnage du fondu de sortie, pas une régression neuve). Une
+  combinaison (`desktop-1920_fr`) a échoué avec `Target page, context or
+  browser has been closed` — le flake de crash déjà documenté et toléré
+  depuis le correctif cycle 027 (navigateur dédié par capture, tolérance à
+  l'échec d'une seule combinaison). Aucun des deux flakes ne touche la zone
+  travaillée ce cycle.
+- Hygiène trouvée avant l'audit : un processus `vite` orphelin écoutait
+  encore le port 5183 (`netstat` → PID 20172), laissé par un cycle antérieur
+  malgré la consigne de l'arrêter en fin de cycle. Arrêté (`Stop-Process`)
+  avant de relancer l'audit — screenshots produits sur le code réel de ce
+  cycle (working tree propre confirmé par `git status` avant capture, donc
+  aucune capture invalide).
+- En creusant rotation E sur les deux chantiers §4 déployés en démo
+  interactive (`LiveDemoEmbed`, format 1 de la hiérarchie §5) plutôt que de
+  répéter la revalidation déjà faite 36 fois : sonde Playwright ad hoc
+  (mobile-390, `#project-04`/`#project-05 .home-project-proof`, supprimée
+  après usage) mesurant la géométrie réelle de `.demo-embed-frame` et
+  `.demo-embed-caption`. Résultat : `.home-project-proof--embed` porte
+  `min-height: 360px` sous 1024px (règle posée sans lien avec le contenu de
+  la légende), mais `.demo-embed-caption` affiche une phrase complète
+  (`demoCaption`, `src/data/projects.ts`) qui passe à 3-4 lignes sous
+  ~330px de large — mesuré 106px (Vers l'Élysée/EN), 89px (Ombrair/EN,
+  Vers l'Élysée/FR), 139px (Ombrair/FR, la légende la plus longue). Le
+  cadre (`.demo-embed-frame`, `flex: 1 1 auto`) n'hérite que du reste :
+  **224.8px (27% du viewport) pour Vers l'Élysée, 208px (25%) pour
+  Ombrair**, mesuré mobile-390/EN avant tout changement. MISSION-UI.md §5
+  exige qu'une démo « fonctionne sur mobile » ; un simulateur de campagne
+  jouable ou un visualiseur 3D de produit dans un cadre de 208-225px de
+  haut ne remplit cette exigence qu'au sens littéral (« ça charge »), pas
+  au sens fonctionnel visé par la règle. Vérifié à l'œil après clic sur
+  « Launch the live demo » : le cadre chargé montre bien le vrai site
+  (en-tête + accroche lisibles), donc le format 1 (iframe) reste le bon
+  choix — la mesure porte sur la taille du cadre, pas sur le format.
+
+### Changements livrés
+
+- `e28f8e6` — `ui(home-projects): grow mobile live-demo iframe from 27% to
+  ~43% of viewport height`. `.home-project-proof--embed` sous 1024px :
+  `min-height: 360px` → `500px`. La légende garde le même retour à la
+  ligne (contenu inchangé, `flex-shrink: 0` inchangé) ; le cadre gagne
+  348-365px selon projet/langue (35-43% du viewport mobile-390), contre
+  208-224.8px avant.
+- `7737700` — `ui-loop: galerie du cycle 061`. Paire AVANT/APRÈS sur
+  `#project-04 .home-project-proof` et `#project-05 .home-project-proof`
+  (avant = `6026e09`, fin de cycle 060) à 390 et 1440 — à 1440 les deux
+  images sont identiques (le correctif ne touche qu'un media query
+  `max-width: 1023px`), ce qui est le comportement attendu et honnête, pas
+  une preuve manquante.
+
+### Vérification
+
+- Build : ✅ (`tsc -b` sans sortie, `vite build` vert) avant et après le
+  changement.
+- `scripts/ui-audit.mjs` (10 combinaisons) après correctif : **0
+  débordement horizontal**, mêmes deux flakes déjà documentés
+  (`.opening-primary` intermittent, crash isolé `desktop-1920_fr`), aucune
+  violation nouvelle liée à `.home-project-proof`/`.demo-embed`.
+- Mesure de géométrie rejouée après correctif (sonde ad hoc, supprimée
+  après usage) sur les 2 projets × 2 langues à mobile-390 : cadre
+  348.0-364.8px (35-43% du viewport), légende 72.2-139.4px selon langue,
+  proof 500px fixe comme posé — aucun débordement du cadre au-delà de la
+  carte, `.demo-embed-frame` reste `overflow: hidden` (correctif cycle 051
+  toujours actif).
+- Capture du cadre chargé (clic réel sur « Launch the live demo », Vers
+  l'Élysée, mobile-390) relue à l'œil après correctif : en-tête et accroche
+  de la page réelle lisibles dans le cadre agrandi, pas de recouvrement
+  avec la légende.
+- Viewports vérifiés : 390 (mesure directe + capture) / 768 (768 < 1024,
+  même media query, revu par `ui-audit.mjs`) / 1440 / 1920 (inchangés,
+  hors media query, confirmé par galerie identique avant/après à 1440).
+- Langues : FR ✅ EN ✅ (mesure directe sur les 4 combinaisons projet ×
+  langue, captures relues pour EN, géométrie confirmée identique en
+  proportion pour FR).
+- reduced-motion : ✅ (aucune animation touchée par ce changement, propriété
+  `min-height` statique).
+- Régression détectée : non.
+- Hygiène : sonde `.tmp-mobile-iframe-probe*.mjs` (3 variantes) et
+  `.tmp-mobile-iframe-shot*.mjs` (2 variantes) supprimées après usage.
+  Dossier `docs/ui-loop/screenshots/` purgé après exploitation (jetable,
+  gitignoré). Process `vite` orphelin du port 5183 arrêté (voir Constats
+  d'audit) ; serveur `vite dev` relancé pour ce cycle sur le même port,
+  arrêté explicitement en fin de cycle (`Stop-Process`), 0 processus
+  laissé en écoute (vérifié `Get-NetTCPConnection -LocalPort 5183`).
+
+### Reverté
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024. Démo mobile
+  retouchée par ce cycle (cadre iframe 27%→43% du viewport) ; carte/page
+  inchangées.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025. Démo mobile
+  retouchée par ce cycle (même correctif, 25%→35-41% selon langue) ;
+  carte/page inchangées.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026.
+  Non touché ce cycle (pas de démo interactive, hors périmètre du
+  correctif).
+- **Le §4 de MISSION-UI.md reste intégralement traité pour la 37e fois
+  consécutive (cycles 026-061)**, avec un correctif d'usabilité mobile
+  livré ce cycle sur les deux démos interactives du chantier.
+- Démos projets existants : 3/3 conformes, correctif ce cycle sur 2/3
+  (Vers l'Élysée, Ombrair) ; JobTrackr inchangé (carrousel, pas d'iframe).
+
+### Prochain cycle — point de reprise exact
+- Le chantier de hauteur mobile du live-demo embed est clos. `.home-project-
+  proof--embed` a désormais rotation E posée par écrit (nouveau) en plus de
+  la rotation C implicite du correctif cycle 051 (débordement visuel).
+  Candidats P2 restants hors zone gelée (§3) : (1) le CLS 0.16 de `/cv`
+  (cycle 037), toujours bloqué sur `QUESTIONS.md` Q5, sans réponse depuis
+  le cycle 037 ; (2) le mode `viewport:<cible>@<y>` de `ui-gallery.mjs` qui
+  suppose à tort qu'un scroll ne déplace que sa cible (cycle 029,
+  contournable via `scrollpx:<multiplicateurVh>` depuis le cycle 045, pur
+  outillage sans impact visiteur) ; (3) rotation D sur `nav` (les autres
+  rotations A/B/C/E y sont déjà posées) — probablement peu fertile, `nav`
+  ne porte pas d'affirmation à vérifier, mais c'est la première rotation
+  manquante sur un composant hors zone gelée si aucun défaut mesuré
+  n'apparaît ailleurs. Rotation C sur `/cv` reste aussi ouverte (seule
+  manquante des cinq) mais probablement à faible rendement : la page ne
+  porte aucune animation CSS/JS scoping `.cv-*`, seul le hash-scroll
+  (`scrollToId`, déjà conforme `prefers-reduced-motion` depuis cycle 057).
+  Zone basse (§3) : P2, gelée, aucune intervention sans régression mesurée.
+
+### Questions bloquantes ouvertes
+- `QUESTIONS.md` Q5 (police de corps documentée « Inter » vs police
+  réellement chargée « Almarai ») — toujours ouverte, non rouverte ce cycle
+  faute de fait nouveau.
+
+---
+
 ## Cycle 060 — 2026-09-24 06:05
 
 **Zone travaillée** : `.home-project-card p` / `.home-project-why p`

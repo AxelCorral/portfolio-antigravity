@@ -134,6 +134,24 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   pour que son `min-height: 0` gagne, et un palier quasi opaque ajouté au
   dégradé de `.demo-embed-launch` en défense supplémentaire. Vérifié aux 4
   viewports et dans les 2 langues (voir PROGRESS.md cycle 051).
+- [x] **`LiveDemoEmbed` (Vers l'Élysée, Ombrair) : l'iframe mobile ne recevait
+  que 27%/25% de la hauteur du viewport** (cycle 061, rotation E appliquée
+  aux deux chantiers §4 déployés, jamais mesurée sous cet angle malgré le
+  correctif cycle 051 sur le même composant). `.home-project-proof--embed`
+  avait un `min-height: 360px` sous 1024px, mais `.demo-embed-caption` porte
+  une phrase complète qui passe à 3-4 lignes sous ~330px de large — mesuré à
+  106-139px de haut selon projet/langue — et `.demo-embed-frame` (`flex: 1 1
+  auto`) n'héritait que le reste : 224.8px (Vers l'Élysée) / 208px (Ombrair)
+  sur mobile-390, soit 27%/25% d'un viewport iPhone-14. MISSION-UI.md §5
+  exige qu'une démo « fonctionne sur mobile » ; un cadre de cette taille pour
+  un simulateur jouable ou un visualiseur 3D ne le fait qu'en théorie.
+  Corrigé (commit `e28f8e6`) : `min-height` porté à 500px, la légende garde
+  le même retour à la ligne mais le cadre gagne 348-365px (35-43% du
+  viewport) aux 4 combinaisons projet × langue mesurées. Vérifié : `npm run
+  build` vert, `ui-audit.mjs` complet (0 overflow, 0 nouvelle violation
+  axe-core, le seul flake `.opening-primary` déjà documenté et sans rapport),
+  captures avant/après aux 2 projets × 2 langues, cadre chargé (iframe réel)
+  relu à l'œil après correctif. Galerie cycle 061.
 
 ## P1 — Crédibilité de la zone "Capabilities"
 
