@@ -108,18 +108,34 @@ async function setLanguage(page, lang) {
   );
 }
 
-async function capturePage({ lang, viewport, reducedMotion }, browserRef) {
+// `browser.close()` used to sit as a plain statement at the end of the capture
+// body: any error thrown anywhere between launch and that line (e.g. the
+// `page.screenshot()` timeout that surfaced this — a flake, not a bug in the
+// site) skipped it entirely. The per-job catch in `main()` logs that failure
+// and moves on, but the orphaned Chromium process it leaked behind keeps a
+// pipe open to this script's own `node` process, which then never exits even
+// after printing "Audit complete" — every future cycle would have to notice
+// and manually kill it. Splitting launch/close into this thin wrapper with a
+// real `finally` guarantees the browser closes on every path (success, a
+// thrown error, or the `capturePageWithTimeout` race) without reindenting the
+// whole capture body below.
+async function capturePage(job, browserRef) {
+  const browser = await chromium.launch();
+  if (browserRef) browserRef.browser = browser;
+  try {
+    return await runCapture(browser, job);
+  } finally {
+    await browser.close().catch(() => {
+      // Already closed by the timeout race in capturePageWithTimeout — fine.
+    });
+  }
+}
+
+async function runCapture(browser, { lang, viewport, reducedMotion }) {
   const tag = `${viewport.name}_${lang}${reducedMotion ? "_reduced-motion" : ""}`;
   const dir = path.join(OUT_DIR, tag);
   await mkdir(dir, { recursive: true });
 
-  // A fresh browser per capture, not a shared one across the whole run: a long-lived
-  // Chromium instance accumulates memory across ~10 screenshot-heavy sessions (GSAP
-  // scenes, full-page captures, progressive scroll) and reliably crashes ("Target
-  // crashed") a few captures in. One browser per call costs a few seconds of launch
-  // time but survives the full run instead of losing every capture after the crash.
-  const browser = await chromium.launch();
-  if (browserRef) browserRef.browser = browser;
   const context = await browser.newContext({
     viewport: { width: viewport.width, height: viewport.height },
     reducedMotion: reducedMotion ? "reduce" : "no-preference",
@@ -266,7 +282,6 @@ async function capturePage({ lang, viewport, reducedMotion }, browserRef) {
   );
 
   await context.close();
-  await browser.close();
   return result;
 }
 

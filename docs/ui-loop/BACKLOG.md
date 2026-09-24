@@ -98,16 +98,18 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   intermittent (cycles 059-061), sans rapport avec ce correctif. Dérogation
   au plafond de retouche écrite dans `MISSION-UI.md` §6 (`project-detail-modal`
   passe 3/3 → 4/3, gelée).
-- [ ] **`ui-audit.mjs` : un navigateur peut rester bloqué ~15 min sur une
-  capture sans crasher ni avancer** (cycle 062). Contrairement au crash
-  Chromium documenté et corrigé cycle 027 (`Target crashed`, mémoire), ce
-  blocage ne lève aucune erreur : le process reste vivant, `report.json`
-  n'avance plus, jusqu'à interruption manuelle (`Stop-Process`). Observé une
-  seule fois ce cycle (4/10 combinaisons obtenues avant blocage sur ce qui
-  semble être la 5e) ; pas encore reproduit à la demande. **P2 — outillage** :
-  ajouter un timeout dur par combinaison (au-delà du réseau `networkidle`) qui
-  tue le navigateur et logue un flake plutôt que de bloquer tout le run,
-  symétrique à la tolérance déjà en place pour les crashs.
+- [x] **`ui-audit.mjs` : un navigateur peut rester bloqué ~15 min sur une
+  capture sans crasher ni avancer** (cycle 062, corrigé cycle 063). Contrairement
+  au crash Chromium documenté et corrigé cycle 027 (`Target crashed`, mémoire),
+  ce blocage ne levait aucune erreur : le process restait vivant, `report.json`
+  n'avançait plus, jusqu'à interruption manuelle (`Stop-Process`). Corrigé
+  (commit `2b15a30`) : `capturePageWithTimeout()` fait courir `capturePage()`
+  contre un timeout dur de 90s (`Promise.race`), ferme de force le navigateur
+  de cette combinaison précise si le délai est dépassé, et logue un flake au
+  lieu de bloquer tout le run — symétrique à la tolérance déjà en place pour
+  les crashs (cycle 027). Vérifié : deux runs complets 10/10 combinaisons
+  après correctif (cycle 063), aucun blocage, **0 violation axe-core, 0
+  débordement horizontal** sur les deux runs.
 
 ## P1 — Intégration des nouveaux projets (MISSION-UI.md §4)
 
@@ -1041,6 +1043,34 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   plus hauts restent absorbés par `overflow-y: auto` sur `.home-project-copy`),
   **0 violation axe-core, 0 débordement horizontal** sur le run complet
   `ui-audit.mjs` (10 combinaisons). Galerie cycle 060.
+
+- [x] **10 fichiers `src/components/`/`src/scroll/` jamais importés par aucun
+  fichier vivant** (cycle 063, trouvé par un balayage systématique basename→
+  référence sur tout `src/`, en marge de l'audit rotation D). Même famille que
+  le premier jet abandonné retiré cycles 015/031/040 (`ProjectCard`,
+  `FictifTag`, `LazyMediaSlot`, `DeepDivePage`, `Hero`, `Nav`) — signalé par
+  une entrée `.claude/settings.local.json` déjà ancienne (permission de grep
+  excluant `PathOrb`/`ProgressMarkers`/`HeroField`/`SectionLabel` d'une
+  recherche antérieure) qui montrait que ces fichiers étaient déjà suspectés
+  sans avoir jamais été retirés. Trois groupes confirmés morts par grep
+  exhaustif (`grep -rl` sur `src/`, aucune occurrence hors le fichier
+  lui-même) : `HeroField.tsx`/`PathOrb.tsx`/`ProgressMarkers.tsx`/
+  `SectionLabel.tsx` (placeholders hero/nav antérieurs à
+  `CinematicOpening.tsx`) ; `ScrollProvider.tsx`/`returnPosition.ts`/
+  `scrollSnap.ts` (tout un système de smooth-scroll Lenis + snap au repos +
+  restauration de position, remplacé par le scroll natif + `scrollToId.ts`
+  actuel — `saveReturnPosition()` était exportée mais jamais appelée nulle
+  part, le mécanisme était donc déjà inerte avant même ce nettoyage) ;
+  `Reveal.tsx`/`RevealGroup.tsx`/`reveal-core.ts` (trio de reveal-on-scroll ne
+  se référençant qu'entre eux, remplacé par les composants reveal de
+  `PortfolioMotion.tsx`). Corrigé commit `0bb4e13` : les 10 fichiers
+  supprimés. Vérifié : `tsc -b` sans erreur de module manquant (confirmation
+  définitive qu'aucun fichier vivant ne les importait), `vite build` vert,
+  CSS de prod 87.82 → 85.36 kB (Tailwind ne scanne plus les classes qui
+  n'existaient que dans le code mort), JS identique au kilo-octet près (le
+  code mort était déjà exclu du bundle par tree-shaking). Aucun rendu
+  touché — 0 entrée de galerie pour ce chantier (même règle que les commits
+  d'outillage purs, cycles 027/049).
 
 ## Terminé
 
