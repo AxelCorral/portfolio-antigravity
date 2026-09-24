@@ -243,22 +243,26 @@ async function capturePage({ lang, viewport, reducedMotion }) {
     }
   }
 
-  // 9. Axe accessibility scan — once per language at laptop viewport (representative)
-  //    and once at mobile (touch target / small-viewport specific issues).
-  if (!reducedMotion && (viewport.name === "laptop-1440" || viewport.name === "mobile-390")) {
-    const axeResults = await new AxeBuilder({ page }).analyze();
-    result.axeViolations = axeResults.violations.map((v) => ({
-      id: v.id,
-      impact: v.impact,
-      help: v.help,
-      nodes: v.nodes.length,
-      targets: v.nodes.slice(0, 5).map((n) => n.target),
-    }));
-    await writeFile(
-      path.join(dir, "axe-violations.json"),
-      JSON.stringify(axeResults.violations, null, 2),
-    );
-  }
+  // 9. Axe accessibility scan — on every capture combination. Used to be
+  //    restricted to laptop/mobile at default motion (4 of 10 combos): tablet-768,
+  //    desktop-1920 and both reduced-motion runs were silently never scanned, so
+  //    `report.json` recorded `axeViolations: undefined` for 6 of 10 combos while
+  //    the terminal summary (`runs.reduce(... r.axeViolations?.length ?? 0 ...)`)
+  //    quietly treated that as "0 violations" — MISSION-UI.md §2 phase 2 asks for
+  //    a scan across the full matrix, not a representative sample (found cycle 055
+  //    while reading report.json directly instead of trusting the printed total).
+  const axeResults = await new AxeBuilder({ page }).analyze();
+  result.axeViolations = axeResults.violations.map((v) => ({
+    id: v.id,
+    impact: v.impact,
+    help: v.help,
+    nodes: v.nodes.length,
+    targets: v.nodes.slice(0, 5).map((n) => n.target),
+  }));
+  await writeFile(
+    path.join(dir, "axe-violations.json"),
+    JSON.stringify(axeResults.violations, null, 2),
+  );
 
   await context.close();
   await browser.close();
