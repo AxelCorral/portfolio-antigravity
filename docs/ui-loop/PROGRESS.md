@@ -6,6 +6,148 @@
 
 ---
 
+## Cycle 059 — 2026-09-24 05:15
+
+**Zone travaillée** : `docs/ui-loop/BACKLOG.md` (fermeture d'un P2 obsolète)
+et §4 revalidé visuellement — aucun fichier `src/` modifié.
+
+**Rotation de questions** : rotation C (mouvement), déjà posée sur
+`CinematicOpening.tsx` au cycle 041 — ce cycle la referme plutôt que d'en
+poser une neuve, la revérification d'un constat vieux de 18 cycles primant
+sur une nouvelle question tant qu'un candidat mesuré reste ouvert.
+
+### Note de continuité — numérotation, §4 revalidé
+
+`git log`/`PROGRESS.md` confirment le cycle 058 (`136af8a`) comme dernière
+entrée journalisée ; ce run se numérote donc **059**, pas 064 comme indiqué
+par la consigne de lancement — même règle documentée à chaque cycle depuis
+plusieurs dizaines d'itérations (le journal fait foi, pas le numéro fourni au
+lancement). La consigne de lancement de ce run réaffirme mot pour mot la
+priorité absolue déjà écrite dans `MISSION-UI.md` §4 (Vers l'Élysée → Ombrair
+→ Analyse vidéo football, un chantier par cycle, trois livrables) puis
+s'arrête au milieu d'une phrase (« La zone sous Analytical » sans suite) —
+traité comme un rappel tronqué du §3/§4 déjà en vigueur, même lecture que les
+cycles 055-058. `npm run build` (`tsc -b` + `vite build`) vérifié vert avant
+tout changement (`git status` propre au démarrage).
+
+Le §4 a été revalidé **visuellement** (lecture d'image, pas seulement
+`ui-audit.mjs`), conformément au point de reprise laissé par le cycle 058 :
+sonde Playwright dédiée (`scripts/.tmp-s4-revalidate.mjs`, supprimée après
+usage) capturant chacune des 6 cartes du scrollytelling à 390 et 1440. Les
+cartes 04 (Vers l'Élysée), 05 (Ombrair) et 06 (Analyse vidéo football) sont
+lues à l'écran : copie, CTA, démo embarquée/case study et badges tous en
+place, aucune régression. À 390px, la carte 06 ne recouvre plus les CTA
+`.home-projects-footer` ("Discover the personal layer" / "Contact Axel") —
+le correctif du cycle 058 tient. **35e cycle consécutif (026-059)** où le §4
+reste intégralement traité.
+
+### Constats d'audit
+
+- **Candidat P2 du cycle 041 revérifié : ne reproduit plus.** Le cycle 041
+  avait mesuré (et confirmé sur 4 runs) que `reduce`-motion coûtait
+  ~150-250ms de plus que `no-preference` au chargement de
+  `CinematicOpening.tsx` (TBT ~380-450ms contre ~200-250ms à 1440), sans
+  correctif livré faute de cause exacte tranchée et par prudence sur un
+  composant hero finement calé. Ce cycle relance `scripts/ui-longtask-
+  probe.mjs` sur l'état actuel du code, **avant toute modification** : un
+  premier run à 1440 seul montre `reduce` **égal ou moins cher** que
+  `no-preference` (ex. EN : 106ms contre 114ms). Contre-intuitif par rapport
+  au constat de départ, donc vérifié avant d'être retenu (même leçon citée
+  cycle 037/041 : ne jamais se fier à une seule mesure) : 2 runs
+  supplémentaires à 1440 (104/105ms vs 115/117ms côté `reduce`/
+  `no-preference`), puis un run complet sur les 4 viewports × 2 langues (16
+  combinaisons) — **`reduce` ne dépasse `no-preference` sur aucune des 16
+  combinaisons**, l'écart le plus proche étant 768/FR où `reduce` (108ms)
+  dépasse `no-preference` (100ms) de seulement 8ms, sans commune mesure avec
+  les ~150-250ms de départ. Aucun fichier `src/` modifié entre ces mesures
+  et celles du cycle 041 par ce run — la disparition de l'écart est un effet
+  de bord d'un ou plusieurs des commits hero livrés depuis (044, 045, 046,
+  047, 048, 050, 051, 052, 058 ont tous touché `CinematicOpening.tsx` ou les
+  règles `index.css` autour de ce composant), cause exacte non attribuée à
+  un commit précis — non nécessaire : l'effet mesuré a disparu, c'est ce qui
+  ferme l'item, pas l'identification de la cause. `BACKLOG.md` mis à jour
+  (item coché, mesure et explication consignées).
+- **Run complet `ui-audit.mjs` (10 combinaisons viewport × langue ×
+  reduced-motion)** : 1 groupe de violation axe-core (`color-contrast` sur
+  `.opening-primary`, `laptop-1440_en` uniquement), 0 débordement
+  horizontal sur les 10 combinaisons. La violation est le même flake déjà
+  documenté et retrouvé absent puis présent aux cycles 046/047/050/054 :
+  l'élément porte déjà `aria-hidden="true"` et `tabindex="-1"` au moment de
+  la capture (donc hors arbre d'accessibilité et hors tabulation, aucun
+  utilisateur de lecteur d'écran ou de clavier ne peut l'atteindre) — axe
+  scanne un pixel intermédiaire du fondu de sortie, pas un état stable.
+  `hero-cta` reste gelé 3/3 : pas de fait nouveau, pas de dérogation
+  ouverte.
+- Lecture directe de la capture `scroll-00-y0.png` (`laptop-1440_en`, hero
+  scène A) : composition, nav, CTA "View projects" et pastille "Business
+  Intelligence..." intacts, aucun défaut visuel relevé.
+
+### Changements livrés
+
+- (à suivre dans ce commit) — `docs(backlog): close resolved reduce-motion
+  hero-load cost regression (cycle 041)`. Aucun fichier `src/` modifié.
+
+### Vérification
+
+- Build : ✅ (`tsc -b` sans sortie, `vite build` vert) — vérifié avant tout
+  le cycle ; aucun fichier `src/` touché ensuite, donc build inchangé par
+  construction.
+- `scripts/ui-longtask-probe.mjs` : 4 runs indépendants (3× `--viewports=
+  1440`, 1× complet sur 4 viewports × 2 langues), 0 régression trouvée sur
+  16+4 combinaisons — voir Constats.
+- `scripts/ui-audit.mjs` (10 combinaisons) : 1 violation axe-core connue
+  (flake documenté, `.opening-primary`), 0 débordement horizontal.
+- Viewports vérifiés : 390 / 768 / 1440 / 1920.
+- Langues : FR ✅ EN ✅.
+- reduced-motion : ✅ (c'est l'objet même de la revérification).
+- Régression détectée : non.
+- Hygiène : sonde `.tmp-s4-revalidate.mjs` supprimée après usage. Dossier
+  `docs/ui-loop/screenshots/` purgé après exploitation (jetable, gitignoré).
+  Serveur `vite` de développement lancé pour ce cycle (`--port 5183`)
+  arrêté explicitement en fin de cycle (`Stop-Process`), 0 processus orphelin
+  laissé en écoute.
+
+### Reverté
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024. Revalidé
+  visuellement ce cycle, aucun changement.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025. Revalidé
+  visuellement ce cycle, aucun changement.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026.
+  Revalidé visuellement ce cycle, aucun changement.
+- **Le §4 de MISSION-UI.md reste intégralement traité pour la 35e fois
+  consécutive (cycles 026-059)**, revalidé sans aucun changement requis.
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Prochain cycle — point de reprise exact
+- Le candidat P2 "coût main-thread de `reduce`-motion" est fermé — ne pas
+  le rouvrir sans nouvelle mesure qui montre une régression réelle. Les
+  candidats P2 restants hors zone gelée (§3) sont désormais réduits à : (1)
+  le CLS 0.16 de `/cv` (cycle 037), bloqué sur `QUESTIONS.md` Q5, sans
+  réponse depuis le cycle 037 ; (2) le mode `viewport:<cible>@<y>` de
+  `ui-gallery.mjs` qui suppose à tort qu'un scroll ne déplace que sa cible
+  (cycle 029, contournable via `scrollpx:<multiplicateurVh>` depuis le
+  cycle 045, jamais corrigé à la source faute de besoin réel — pur
+  outillage, aucun impact visiteur). `nav`, `#contact`, `cv-page` ont reçu
+  toutes leurs rotations A-E et sont clos sans fait nouveau. Zone basse
+  (§3) : P2, gelée, aucune intervention sans régression mesurée. Si aucun
+  de ces deux candidats ne peut avancer (Q5 toujours sans réponse), le
+  prochain cycle descend d'un cran de détail sur une section non encore
+  auditée par une rotation précise plutôt que de répéter une rotation déjà
+  posée sans fait nouveau — candidat naturel : `.home-project-actions`/
+  `.pc-*` sous rotation A (hiérarchie), jamais posée par écrit sur les
+  cartes projet elles-mêmes (seulement sur `carousel-nav`, gelé pour un
+  motif différent).
+
+### Questions bloquantes ouvertes
+- `QUESTIONS.md` Q5 (police de corps documentée « Inter » vs police
+  réellement chargée « Almarai ») — toujours ouverte, non rouverte ce
+  cycle faute de fait nouveau.
+
+---
+
 ## Cycle 058 — 2026-09-24 04:20
 
 **Zone travaillée** : `.home-project-step` (`src/OnePage.tsx`, `src/index.css`)
