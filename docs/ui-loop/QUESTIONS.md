@@ -10,6 +10,35 @@
 
 ## Ouvertes
 
+### Q6 — URLs des 3 épisodes LinkedIn « Vers l'Élysée — Data Notebook »
+
+**Constat (cycle 062)** : la modale de « Vers l'Élysée » (`src/data/projects.ts`,
+id `04`) fait de la série LinkedIn « Vers l'Élysée — Data Notebook » (audit du
+modèle, contrefactuels, décomposition de variance) sa preuve la plus
+différenciante — `keyTakeaway` la présente explicitement comme "le signal le
+plus fort" du projet, citée aussi dans `caseStudy` (bloc "Evidence / result")
+et dans `results`. Vérifié visuellement (onglet "Links" de la modale, capture
+`docs/ui-loop/shots/cycle-062/`) : **aucun lien ne pointe vers cette série**,
+nulle part dans la modale — le seul lien présent est "Open the live
+simulator". Un lecteur qui veut vérifier "l'audit publié" n'a aucun moyen de
+le faire depuis la page.
+
+**Pourquoi c'est bloquant** : je ne connais pas les URLs des 3 posts LinkedIn
+concernés, et je ne peux pas les deviner (garde-fou §1 : aucune donnée non
+vérifiable). Je pourrais pointer vers le profil LinkedIn général d'Axel (déjà
+vérifié, Q1 : `https://www.linkedin.com/in/axelcorral`), mais un lien
+générique vers un profil n'est pas la même preuve qu'un lien direct vers les 3
+posts — et ce choix éditorial (lien profil en attendant, vs. rien tant que les
+3 URLs précises ne sont pas fournies) n'est pas à moi de trancher seul.
+
+**Question pour Axel** : peux-tu fournir les URLs des 3 posts LinkedIn de la
+série « Vers l'Élysée — Data Notebook » (audit du modèle, contrefactuels,
+décomposition de variance) ? À défaut, dois-je lier le profil LinkedIn général
+en attendant, ou laisser la série non liée tant que les URLs précises ne sont
+pas disponibles ?
+
+---
+
 ### Q5 — Police de corps documentée (« Inter ») vs police réellement chargée (« Almarai »)
 
 **Constat (cycle 037)** : `MISSION-UI.md` §1 documente l'identité comme
