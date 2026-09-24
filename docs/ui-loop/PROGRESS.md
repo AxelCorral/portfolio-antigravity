@@ -6,6 +6,143 @@
 
 ---
 
+## Cycle 063 — 2026-09-24 09:10
+
+**Zone travaillée** : `scripts/ui-audit.mjs` (outillage), dépôt (nettoyage de
+code mort `src/components/*`, `src/scroll/*`) — aucun chantier §4, déjà
+`carte ✅ page ✅ démo ✅` sur les trois projets depuis le cycle 026.
+
+**Rotation de questions** : rotation D (crédibilité), appliquée à
+hero/nav/footer — jamais reposée par écrit sur ces zones depuis le cycle 029
+(qui portait sur un CTA dupliqué, pas sur le contenu).
+
+### Note de continuité — numérotation, reprise d'un cycle interrompu
+
+`git log`/`PROGRESS.md` confirment le cycle 062 (`5b43992`) comme dernière
+entrée journalisée ; ce run se numérote donc **063**, pas 070 comme indiqué
+par la consigne de lancement — même règle documentée cycle après cycle depuis
+plusieurs dizaines d'itérations (le journal fait foi, pas le numéro fourni au
+lancement). La consigne réaffirme la priorité §4 (déjà traitée 38+ fois,
+inchangée) et s'arrête à nouveau au milieu d'une phrase sur la zone sous
+"Analytical" (§3, déjà en P2 depuis le 2026-09-12) — même relecture tronquée
+que les cycles précédents, rien de neuf à trancher.
+
+À l'ouverture de ce run, `git status` montrait déjà deux commits de ce même
+cycle 063 sur la branche (`2b15a30` : timeout dur 90s par capture dans
+`ui-audit.mjs` ; `0bb4e13` : suppression de 10 fichiers `src/components/`/
+`src/scroll/` jamais importés) **et** des modifications non commitées sur
+`scripts/ui-audit.mjs`/`BACKLOG.md` — le travail d'une session précédente de
+ce même cycle, interrompue avant la phase 7. Ce run a repris exactement là :
+vérifié que le diff en attente était cohérent (`node --check`, lecture du
+code), puis complété plutôt que rejoué depuis zéro.
+
+### Constats d'audit
+
+- `ui-audit.mjs` : le timeout 90s (`2b15a30`) fait toujours courir
+  `browser.close()` comme instruction simple en fin de fonction plutôt que
+  dans un `finally` — toute erreur levée avant cette ligne (ex. le
+  `page.screenshot()` qui avait expiré et motivé le timeout) la saute et
+  laisse un Chromium orphelin. Symptôme : le process `node` du script ne se
+  termine jamais après "Audit complete", pipe encore ouvert vers le
+  navigateur fuité. Trouvé en relisant le diff en attente plutôt que par un
+  run — cause déjà identifiée et partiellement corrigée par la session
+  précédente, restait à vérifier et finaliser.
+- `npm run build` (`tsc -b` + `vite build`) : ✅, avant et après le commit de
+  ce cycle.
+- Deux runs `ui-audit.mjs` complets antérieurs à ce commit (dans
+  `docs/ui-loop/screenshots/`, horodatés 06:54 et 06:59 UTC ce jour)
+  confirment déjà le correctif du timeout : le second couvre les 10/10
+  combinaisons (4 viewports × 2 langues + 2 `reduced-motion`), **0
+  débordement horizontal, 0 violation axe-core, 0 erreur console/page** sur
+  chacune. Réutilisés comme preuve plutôt que rejoués (le comportement du
+  chemin de succès, seul couvert par ces runs, est inchangé par le correctif
+  `finally` de ce cycle — voir Vérification).
+- Rotation D appliquée à la home (captures `00-top.png`/
+  `section-contact-footer.png`, laptop-1440 et mobile-390, EN) : hero
+  ("Data systems built for clarity." + sous-titre rôle/stack précis + CTA
+  "View projects") et footer (CTA "Let us talk about..." + 4 liens directs
+  Email/GitHub/LinkedIn/CV, tous vérifiés Q1) lisibles en quelques secondes,
+  affirmations non chiffrées donc pas de risque de donnée inventée, parcours
+  de conversion évident sans scroll supplémentaire. **Aucun défaut trouvé** —
+  rotation posée, rien à corriger cette fois-ci (constat honnête, pas un
+  échec de l'audit).
+- Hygiène trouvée hors chantier, non liée à la rotation : 8 scripts sondes
+  `scripts/.tmp-*.mjs` (gitignorés) et 2 dossiers `docs/ui-loop/screenshots/`
+  d'une session précédente laissés sur disque au-delà de leur usage —
+  supprimés (§6 : "sondes jetables" et dossier jetable par construction, non
+  suivi par git). 33 process `node.exe` simultanés sur la machine au début du
+  cycle, dont au moins 3 serveurs `vite` en écoute (ports 5184/5195/5199)
+  hérités de sessions antérieures, aucun créé par ce cycle — **non touchés**
+  (ce cycle n'a lancé aucun serveur de dev, donc aucune certitude qu'ils
+  n'appartiennent pas à un usage en cours hors boucle) ; consigné comme item
+  d'outillage P2 dans `BACKLOG.md` plutôt qu'action à l'aveugle.
+
+### Changements livrés
+
+- `2b15a30` — `tooling(ui-audit): hard-cap each capture at 90s...` (déjà
+  commité au début de ce run, hérité de la session précédente du même
+  cycle).
+- `0bb4e13` — `chore: remove 10 unreferenced components/modules...` (idem).
+- `e7c6de9` — `tooling(ui-audit): guarantee browser.close() runs on every
+  path with try/finally`. Isole `launch()`/`close()` de `capturePage()` dans
+  un wrapper `try/finally`, déplace la logique de capture dans
+  `runCapture()`. Le chemin de succès est inchangé (mêmes appels, même
+  ordre) ; seul le chemin d'erreur ferme désormais le navigateur à coup sûr.
+- `BACKLOG.md` : entrées du correctif `finally` et de l'observation sur les
+  process `node.exe` orphelins.
+- Nettoyage hors commit (gitignoré) : 8 scripts `.tmp-*.mjs`, 2 dossiers
+  `docs/ui-loop/screenshots/<horodatage>/` de session précédente.
+
+### Vérification
+
+- Build : ✅ (`tsc -b` sans sortie, `vite build` vert) avant et après le
+  commit `e7c6de9`.
+- `node --check scripts/ui-audit.mjs` : ✅.
+- Comportement du chemin de succès non affecté par `e7c6de9` : les deux runs
+  complets antérieurs (10/10 combinaisons, 0 violation, 0 débordement — voir
+  Constats) exercent exactement la séquence `launch → newContext → ... →
+  context.close()` que `runCapture()` reproduit à l'identique ; seule la
+  ligne finale (`browser.close()`, désormais dans le `finally` du wrapper
+  appelant) change de place. Le chemin d'erreur (leak sur exception) n'a pas
+  été re-testé par un run réel — difficile à déclencher à la demande sans
+  provoquer artificiellement un timeout ; la revue de code (garantie
+  structurelle d'un `finally` en JS) fait foi ici.
+- Viewports vérifiés : 390 / 768 / 1440 / 1920 (via les deux runs
+  `ui-audit.mjs` antérieurs, chemin de succès inchangé par ce cycle).
+- Langues : FR ✅ EN ✅ (idem).
+- reduced-motion : ✅ (idem, 2 des 10 combinaisons du run complet).
+- Régression détectée : non.
+
+### Reverté
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024, revalidé.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025, revalidé.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026,
+  revalidé.
+- **Le §4 de MISSION-UI.md reste intégralement traité pour la 39e fois
+  consécutive (cycles 026-063)** ; ce cycle n'y a rien changé, il a fiabilisé
+  l'outillage d'audit qui sert à le revalider et nettoyé du code mort
+  découvert en marge.
+- Démos projets existants : 3/3 conformes, non touchées ce cycle.
+
+### Prochain cycle — point de reprise exact
+- Rotation D posée sur hero/nav/footer sans défaut trouvé ce cycle : passer à
+  la rotation suivante non reposée récemment sur le P2 hors zone gelée —
+  rotation B (rythme & espace) n'a été appliquée qu'aux cartes projet (cycle
+  060) et à `/cv` (cycles 034/038), jamais à la nav ou au footer eux-mêmes.
+  Sinon, item d'outillage `BACKLOG.md` : investiguer l'accumulation de
+  process `node.exe`/serveurs `vite` orphelins (33 au début de ce cycle) —
+  déterminer si une routine de cycle antérieure spawn un serveur sans le tuer
+  sur un chemin d'erreur, symétrique au bug `browser.close()` corrigé ce
+  cycle.
+
+### Questions bloquantes ouvertes
+- Q6 (`QUESTIONS.md`) : URLs des 3 posts LinkedIn de la série "Vers l'Élysée
+  — Data Notebook", ou confirmation d'un lien de repli vers le profil
+  général. Toujours ouverte, non traitée ce cycle.
+
 ## Cycle 062 — 2026-09-24 08:35
 
 **Zone travaillée** : `ProjectDetailModal.tsx` (dérogation au plafond de

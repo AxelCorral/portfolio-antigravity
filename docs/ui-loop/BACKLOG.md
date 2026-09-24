@@ -110,6 +110,32 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   les crashs (cycle 027). Vérifié : deux runs complets 10/10 combinaisons
   après correctif (cycle 063), aucun blocage, **0 violation axe-core, 0
   débordement horizontal** sur les deux runs.
+- [x] **`ui-audit.mjs` : `browser.close()` sautée si une erreur survient avant
+  la fin de `capturePage()`** (cycle 063). Le correctif précédent (timeout
+  90s) faisait toujours courir `browser.close()` comme instruction simple en
+  fin de fonction : toute erreur levée avant cette ligne (le `page.screenshot()`
+  qui a expiré et déclenché le constat ci-dessus, un flake, pas un bug du
+  site) la sautait, laissant un Chromium orphelin qui garde un pipe ouvert
+  vers le process `node` du script — celui-ci ne se termine alors jamais,
+  même après avoir affiché "Audit complete". Corrigé commit `e7c6de9` :
+  `capturePage()` isole désormais `launch()`/`close()` dans un `try/finally`,
+  la logique de capture déplacée dans `runCapture()`. Vérifié : `node --check`
+  et `npm run build` verts ; aucun run complet rejoué après ce correctif
+  précis (le comportement du chemin de succès est inchangé — seul le chemin
+  d'erreur, difficile à déclencher à la demande, est concerné).
+- [ ] **Accumulation de process `node.exe` orphelins sur la machine** (repéré
+  cycle 063, hors périmètre de ce cycle) : `tasklist` en dénombre **33**
+  simultanés au début du cycle, dont au moins 3 serveurs `vite`/`preview` en
+  écoute (ports 5184, 5195, 5199) hérités de sessions antérieures — aucun créé
+  par ce cycle, qui n'a lancé aucun serveur de dev. Déjà noté cycle 062 sans
+  action (même principe : ne pas toucher un état que le cycle courant n'a pas
+  produit, faute de certitude que rien d'autre ne l'utilise). **P2 —
+  outillage** : creuser si `scripts/ui-audit.mjs` ou une routine de cycle
+  antérieure spawn un serveur `vite` sans jamais le tuer sur un chemin
+  d'erreur (même classe de bug que le `browser.close()` ci-dessus, côté
+  process serveur plutôt que navigateur) ; à défaut, documenter une commande
+  de nettoyage manuel en début de cycle plutôt que de laisser croître le
+  nombre indéfiniment.
 
 ## P1 — Intégration des nouveaux projets (MISSION-UI.md §4)
 
