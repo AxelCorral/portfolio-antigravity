@@ -5,6 +5,18 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 062 — 2026-09-24 · Onglet actif persistant entre deux projets (`ProjectDetailModal`)
+
+> Ouvrir Vers l'Élysée, onglet Links, fermer, puis ouvrir Analyse vidéo football (sans Links) laissait 0 onglet sélectionné et le panneau vide ; `activeTab` se réinitialise désormais à chaque changement de projet.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390**  | ![avant 390](shots/cycle-062/project-detail-modal-stale-tab-state-390-avant.webp)   | ![après 390](shots/cycle-062/project-detail-modal-stale-tab-state-390-apres.webp)   |
+| **1440** | ![avant 1440](shots/cycle-062/project-detail-modal-stale-tab-state-1440-avant.webp) | ![après 1440](shots/cycle-062/project-detail-modal-stale-tab-state-1440-apres.webp) |
+
+`2006dcb`
+
+---
 ## Cycle 061 — 2026-09-24 · Live demo mobile height (Vers l'Élysée / Ombrair) — section `#project-04 .home-project-proof`
 
 > Le cadre d'iframe mobile ne recevait que 27% de hauteur de viewport (le reste allant a la legende) ; porte a 43% pour rendre le demo reellement utilisable, pas juste chargeable

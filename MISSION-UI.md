@@ -427,15 +427,24 @@ sortie alors que son contraste réel s'effondre à 4.27:1 dès 0.15 puis 1:1 à
 0.3, un piège de focus clavier mesuré par échantillonnage de pixels ; cycle
 047 : `aria-hidden` ajouté au même seuil que `pointer-events`/`tabIndex` —
 le lien restait dans l'arbre d'accessibilité, donc signalé par axe-core,
-après être devenu non interactif) · `project-detail-modal` (`ProjectDetailModal.tsx`) **3/3 —
-gelée** (cycle 032 : cible tactile des onglets 34→44px, mesure de lecture du
+après être devenu non interactif) · `project-detail-modal` (`ProjectDetailModal.tsx`) **4/3 —
+gelée, dérogation cycle 062** (cycle 032 : cible tactile des onglets 34→44px, mesure de lecture du
 paragraphe overview via `--measure-lede`, `tabIndex` sur la zone de
 contenu scrollable — correctif `scrollable-region-focusable` ; cycle 033 :
 contraste des eyebrows/labels du case-study 4.28:1/4.02:1 → 5.46:1,
 partagé par les 6 projets ; cycle 043 : paragraphes `.project-case-study
 p`/`.project-key-takeaway p` (blocs CONTEXT/PROBLEM, PIPELINE/METHOD,
 EVIDENCE/RESULT) plafonnés à `--measure-lede`, 99-108→70-77
-caractères/ligne, partagé par les 6 modales) · `cv-page` (`src/pages/CVPage.tsx`,
+caractères/ligne, partagé par les 6 modales ; cycle 062, dérogation écrite
+— voir PROGRESS.md : `activeTab` (useState) survivait aux changements de
+projet car `ProjectDetailModal` est une instance React unique sans `key`
+— ouvrir un projet à onglet Links/Outputs, cliquer cet onglet, fermer,
+puis ouvrir un projet sans cet onglet (ex. Analyse vidéo football, sans
+lien par choix éditorial Q4) laissait **0 onglet sélectionné et le
+panneau de contenu entièrement vide** — contenu invisible, priorité P0 au
+sens de MISSION-UI.md §2 Phase 4, jamais détectable par les rotations
+A-E déjà posées sur ce composant puisqu'aucune n'implique de fermer un
+projet pour en rouvrir un autre différent) · `cv-page` (`src/pages/CVPage.tsx`,
 `.cv-*` dans `src/index.css`) **4/3 — gelée, dérogation cycle 057** (cycle 034 :
 contraste de trois sélecteurs porté à ≥ 4.5:1, cibles tactiles des contacts
 à 44px, mesure de lecture des puces via `--measure-lede` ; cycle 035 : kicker

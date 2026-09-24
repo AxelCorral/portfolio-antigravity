@@ -77,6 +77,38 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   complet `ui-audit.mjs` après correctif : 0 violation axe-core, 0 débordement,
   10/10 combinaisons. Galerie cycle 058.
 
+- [x] **`ProjectDetailModal` : onglet actif persistant entre deux projets
+  différents, panneau vide et 0 onglet sélectionné** (cycle 062, trouvé en
+  auditant "Vers l'Élysée" sous rotation D — cherchait un onglet Links pour
+  vérifier si la série LinkedIn "Data Notebook" était bien liée, a exposé le
+  bug en fermant/rouvrant deux projets différents). `activeTab` (`useState`)
+  n'était jamais réinitialisé quand `project` changeait, car
+  `ProjectDetailModal` est une instance React unique sans `key` — repro
+  Playwright déterministe : ouvrir projet 04, onglet "Links", fermer, ouvrir
+  projet 06 (sans onglet Links/Outputs) → **0 onglet `aria-selected`, panneau
+  `#project-detail-content` à 0 caractère**. Contenu invisible = P0 au sens
+  MISSION-UI.md §2 Phase 4. Corrigé commit `2006dcb` : `useEffect(() =>
+  setActiveTab("overview"), [project?.id])`. Vérifié : `tsc -b` + `vite build`
+  verts, repro rejouée après correctif (EN 1440, FR 1440, reduced-motion
+  on/off) → panneau non vide, onglet "Overview"/"Vue d'ensemble" sélectionné
+  dans les 4 cas. Run `ui-audit.mjs` partiel (4/10 combinaisons avant qu'un
+  navigateur reste bloqué ~15 min sur une capture — tooling à part, voir
+  entrée dédiée ci-dessous) : 0 débordement, 0 erreur console/page, seule
+  violation axe-core = `.opening-primary` déjà documentée comme flake
+  intermittent (cycles 059-061), sans rapport avec ce correctif. Dérogation
+  au plafond de retouche écrite dans `MISSION-UI.md` §6 (`project-detail-modal`
+  passe 3/3 → 4/3, gelée).
+- [ ] **`ui-audit.mjs` : un navigateur peut rester bloqué ~15 min sur une
+  capture sans crasher ni avancer** (cycle 062). Contrairement au crash
+  Chromium documenté et corrigé cycle 027 (`Target crashed`, mémoire), ce
+  blocage ne lève aucune erreur : le process reste vivant, `report.json`
+  n'avance plus, jusqu'à interruption manuelle (`Stop-Process`). Observé une
+  seule fois ce cycle (4/10 combinaisons obtenues avant blocage sur ce qui
+  semble être la 5e) ; pas encore reproduit à la demande. **P2 — outillage** :
+  ajouter un timeout dur par combinaison (au-delà du réseau `networkidle`) qui
+  tue le navigateur et logue un flake plutôt que de bloquer tout le run,
+  symétrique à la tolérance déjà en place pour les crashs.
+
 ## P1 — Intégration des nouveaux projets (MISSION-UI.md §4)
 
 - [x] **Vers l'Élysée** — carte projet + page détail + section démo (iframe
