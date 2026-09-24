@@ -5,6 +5,17 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 058 — 2026-09-24 · Carte projet 06 qui recouvrait le bouton de pied de section sur mobile
+
+> Le décalage top/z-index des cartes projet (scrollytelling) s'appliquait aussi sous 1024px en position relative, où il ne fait que peindre la boîte plus bas sans réserver l'espace : la carte 06 recouvrait le bouton Discover the personal layer, inatteignable au clic.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-058/carte-projet-06-qui-recouvrait-le-bouton-de-pied-de-section--390-avant.webp) | ![après 390](shots/cycle-058/carte-projet-06-qui-recouvrait-le-bouton-de-pied-de-section--390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-058/carte-projet-06-qui-recouvrait-le-bouton-de-pied-de-section--1440-avant.webp) | ![après 1440](shots/cycle-058/carte-projet-06-qui-recouvrait-le-bouton-de-pied-de-section--1440-apres.webp) |
+
+_(aucun commit)_
+
 ## Cycle 057 — 2026-09-24 · `/cv` honore enfin `prefers-reduced-motion` sur le scroll d'ancre
 
 > Pas de paire AVANT/APRÈS : le chantier corrige la courbe d'une animation de
