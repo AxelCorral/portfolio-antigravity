@@ -63,6 +63,20 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   pouvait produire une paire AVANT/APRÈS honnête pour un défaut qui ne se
   voit qu'au survol.
 
+- [x] **Carte projet 06 recouvrait les CTA de `.home-projects-footer` sous
+  1024px, contenu inatteignable au clic** (cycle 058, trouvé en revalidant
+  visuellement le §4 avant de chercher un nouveau chantier). `.home-project-step`
+  posait `top`/`z-index` inline sans condition alors que ces propriétés ne
+  prennent sens qu'en `position: sticky` (cascade scrollytelling ≥1024px) ; en
+  dessous, l'élément reste `position: relative`, où `top` décale la boîte
+  peinte sans réserver l'espace — la carte 06 (dernier index, plus grand
+  décalage) peignait par-dessus "Discover the personal layer"/"Contact Axel".
+  Confirmé par clic Playwright : timeout avant correctif, succès après.
+  Corrigé commit `00cbb76` : offset exposé en `--step-top`/`--step-z`,
+  consommé uniquement dans le media query `≥1024px` de `index.css`. Run
+  complet `ui-audit.mjs` après correctif : 0 violation axe-core, 0 débordement,
+  10/10 combinaisons. Galerie cycle 058.
+
 ## P1 — Intégration des nouveaux projets (MISSION-UI.md §4)
 
 - [x] **Vers l'Élysée** — carte projet + page détail + section démo (iframe

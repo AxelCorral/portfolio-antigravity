@@ -14,7 +14,7 @@
 | **390** | ![avant 390](shots/cycle-058/carte-projet-06-qui-recouvrait-le-bouton-de-pied-de-section--390-avant.webp) | ![après 390](shots/cycle-058/carte-projet-06-qui-recouvrait-le-bouton-de-pied-de-section--390-apres.webp) |
 | **1440** | ![avant 1440](shots/cycle-058/carte-projet-06-qui-recouvrait-le-bouton-de-pied-de-section--1440-avant.webp) | ![après 1440](shots/cycle-058/carte-projet-06-qui-recouvrait-le-bouton-de-pied-de-section--1440-apres.webp) |
 
-_(aucun commit)_
+`00cbb76`
 
 ## Cycle 057 — 2026-09-24 · `/cv` honore enfin `prefers-reduced-motion` sur le scroll d'ancre
 

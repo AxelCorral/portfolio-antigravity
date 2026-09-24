@@ -6,6 +6,147 @@
 
 ---
 
+## Cycle 058 — 2026-09-24 04:20
+
+**Zone travaillée** : `.home-project-step` (`src/OnePage.tsx`, `src/index.css`)
+— carte projet 06 (Analyse vidéo football, §4) et `.home-projects-footer`.
+
+**Rotation de questions** : aucune rotation neuve posée ce cycle — ce n'est
+pas un cycle d'audit par rotation, c'est la réparation d'une régression P0
+trouvée en ouvrant la session : un correctif non commité, non journalisé, déjà
+présent dans l'arbre de travail au démarrage (`git status` montrait
+`OnePage.tsx`/`index.css` modifiés). Le commentaire laissé dans le diff
+lui-même référençait explicitement "cycle 058" et décrivait le bug — signe
+qu'une session précédente avait diagnostiqué et corrigé le problème sans
+avoir eu le temps de vérifier, committer et journaliser avant coupure. §0 de
+la mission est explicite : un cycle non journalisé est un cycle perdu ; ce
+cycle reprend donc ce travail de zéro (revérification complète, pas de
+confiance aveugle dans un diff trouvé sur disque) plutôt que de l'ignorer ou
+de le committer sans preuve.
+
+### Note de continuité — numérotation
+
+`git log` confirme le cycle 057 (`c7bf001`) comme dernière entrée journalisée ;
+ce run se numérote **058**, pas 063 comme indiqué par la consigne de
+lancement — même règle que documentée à chaque cycle depuis plusieurs
+dizaines d'itérations (le journal fait foi, pas le numéro fourni au
+lancement). La consigne de lancement rappelle le §4 (Vers l'Élysée → Ombrair
+→ Analyse vidéo football, priorité absolue) et s'arrête au milieu d'une
+phrase ("La zone sous Analytical") — traité comme un rappel tronqué du §3/§4
+déjà en vigueur, même lecture que les cycles 055-057.
+
+### Constats d'audit
+
+- **Régression P0 trouvée dans le diff non commité au démarrage** : `git diff`
+  sur `src/OnePage.tsx`/`src/index.css` montrait `.home-project-step` passé
+  de `style={{ top: ..., zIndex: ... }}` (toujours appliqué) à des custom
+  properties `--step-top`/`--step-z` consommées uniquement dans le media
+  query `≥1024px`. Cause du bug avant correctif : la règle de base
+  `.home-project-step { position: relative }` (sous 1024px) recevait quand
+  même un `top` inline — en `position: relative`, `top` décale la boîte
+  **peinte** sans réserver d'espace dans le flux, contrairement à
+  `position: sticky` où ce même `top` définit un point d'ancrage. La carte
+  06 (dernier index, décalage `5.5rem + 5*28px` le plus grand) se retrouvait
+  donc peinte par-dessus le bloc suivant dans le flux :
+  `.home-projects-footer`, qui porte les CTA "Discover the personal layer" et
+  "Contact Axel".
+- **Vérifié par clic réel, pas par lecture de capture** : sonde Playwright ad
+  hoc (`scripts/.tmp-step-fix-probe.mjs`, supprimée après usage) à 390×844 —
+  `elementFromPoint()` sur le centre du bouton "Discover the personal layer"
+  retournait `.pc-cover` de la carte 06 avant correctif (`locator.click()`
+  timeout à 3000ms), et le bouton lui-même après correctif (clic réussi).
+  Testé sur les deux états via `git stash`/`git stash pop` + rebuild entre
+  les deux mesures, pas par relecture de code.
+- Recherché si d'autres cartes du scrollytelling (01-05) étaient concernées
+  par le même mécanisme : oui en théorie (même règle partagée par
+  `.home-project-step` pour toutes), mais seule la carte 06 (dernier index,
+  z-index/top les plus grands, dernière avant le footer) produit un
+  chevauchement visible avec un élément interactif — les cartes 01-05 sont
+  recouvertes par la carte suivante dans le même empilement, pas par un CTA.
+
+### Changements livrés
+
+- `00cbb76` — `fix(home-projects): stop card 06's sticky offset from
+  painting over the footer CTAs below 1024px`. `top`/`zIndex` de
+  `.home-project-step` exposés en `--step-top`/`--step-z` (`OnePage.tsx`),
+  consommés uniquement dans le media query `≥1024px` (`index.css`) où
+  `position: sticky` leur donne un sens. 2 fichiers, 26 insertions / 2
+  suppressions.
+- `5180007` — `ui-loop: galerie du cycle 058`. Paire AVANT/APRÈS
+  `viewport:.home-projects-footer@500` à 390 et 1440 (avant = `c7bf001`,
+  état de fin du cycle 057) : à 390, la carte 06 recouvre entièrement les
+  deux CTA du footer avant correctif, ils sont pleinement visibles après.
+
+### Vérification
+
+- Build : ✅ (`tsc -b` sans sortie, `vite build` vert) — vérifié sur l'état
+  trouvé au démarrage (avant toute modification), puis après le `git stash`
+  de test, puis après le `git stash pop` de restauration : trois builds
+  verts distincts.
+- Preuve empirique en quatre temps : (1) build + clic Playwright sur l'état
+  trouvé au démarrage (déjà corrigé) → succès ; (2) `git stash` pour revenir
+  à l'état d'avant-correctif, rebuild, même sonde → timeout confirmé ; (3)
+  `git stash pop`, rebuild, même sonde → succès confirmé à nouveau ; (4) run
+  complet `ui-audit.mjs` (10 combinaisons 4 viewports × 2 langues + 2 passes
+  `reduced-motion`) sur l'état final : **0 violation axe-core, 0 débordement
+  horizontal**, CLS ≤ 0.0015 partout, FCP 380-560ms selon viewport.
+- Viewports vérifiés : 390 / 768 / 1440 / 1920 (run `ui-audit.mjs`, plus sonde
+  dédiée à 390 pour le clic).
+- Langues : FR ✅ EN ✅ (run `ui-audit.mjs`).
+- reduced-motion : ✅ (2 combinaisons dédiées dans le run `ui-audit.mjs`, le
+  changement ne touche aucune animation — purement structurel).
+- Régression détectée : non. Vérifié que le media query `≥1024px` (où
+  `position: sticky` reste actif) produit le même rendu qu'avant : les
+  valeurs `--step-top`/`--step-z` sont calculées identiquement à l'ancien
+  `top`/`zIndex` inline, seule leur portée change.
+- Hygiène : sonde `.tmp-step-fix-probe.mjs` supprimée après usage. Dossier
+  `docs/ui-loop/screenshots/` purgé après exploitation (jetable, gitignoré) —
+  contenait aussi deux résidus d'un cycle antérieur (`tmp-build-mode/`,
+  `tmp-click-probe4.png`), supprimés au passage.
+
+### Reverté
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024. Non
+  retouché ce cycle.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025. Non retouché ce
+  cycle.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026.
+  **Carte retouchée ce cycle** (régression P0 corrigée, pas un chantier de
+  contenu) — la carte 06 elle-même n'a reçu aucun changement de copie/visuel,
+  seul son offset de positionnement CSS est concerné, partagé par les 6
+  cartes du même bloc.
+- **Le §4 de MISSION-UI.md reste intégralement traité pour la 34e fois
+  consécutive (cycles 026-058)**, et cette fois avec une régression réelle
+  trouvée et corrigée plutôt qu'une simple confirmation structurelle — la
+  méthode de revalidation visuelle du §4 (plutôt que la seule lecture du
+  journal) continue de justifier sa charge.
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Prochain cycle — point de reprise exact
+- Revalider le §4 **visuellement** (lecture de capture, pas seulement
+  `ui-audit.mjs`) avant tout nouveau chantier, comme le fait ce cycle-ci et
+  le cycle 056 — c'est cette pratique qui a trouvé la régression corrigée ce
+  cycle, qu'aucun run `ui-audit.mjs` antérieur (axe-core + overflow) n'avait
+  détectée puisqu'elle ne casse ni le contraste ni la géométrie de la page,
+  seulement l'atteignabilité au clic d'un élément recouvert. `cv-page`,
+  `nav`, `#contact` restent clos sur leurs cinq rotations, gelés (§6) : ne pas
+  les rouvrir sans fait nouveau. Zone basse (§3) : P2, gelée, aucune
+  intervention sans régression mesurée. Candidats P2 restants hors zone gelée,
+  par ordre de matière disponible : (1) la piste `reduce`-motion plus
+  coûteuse que `no-preference` au chargement du hero (`CinematicOpening.tsx`,
+  cycle 041, non corrigée) ; (2) Q5 ouverte (`QUESTIONS.md`, police de corps
+  Inter vs Almarai) bloque toujours la réparation du CLS 0.16 sur `/cv`
+  tablet-768+FR (cycle 037).
+
+### Questions bloquantes ouvertes
+- Q5 (`QUESTIONS.md`) — police de corps documentée (Inter) vs chargée
+  (Almarai), bloque la réparation du CLS de `/cv`. Toujours ouverte, aucune
+  réponse reçue depuis le cycle 037.
+
+---
+
 ## Cycle 057 — 2026-09-24 03:35
 
 **Zone travaillée** : `/cv` (`CVPage.tsx`, effet de scroll sur ancre de hash)
