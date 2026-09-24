@@ -6,6 +6,131 @@
 
 ---
 
+## Cycle 053 — 2026-09-24 02:30
+
+**Zone travaillée** : `nav` (`.city-nav`, `.city-nav-links`, `.city-contact`) et
+`#contact` (`.contact-section`, `.contact-panel`, `.contact-links`) — §4 revalidé
+avant tout nouveau chantier, conformément à la priorité absolue de ce run.
+
+**Rotation de questions** : rotation B (rythme & espace), poursuite explicite du
+point de reprise du cycle 052 — repasser une rotation B sur les deux sections non
+gelées sous le hero (`#contact` 1/3, `nav` 2/3) avant de revenir à une rotation
+A/C/D/E. Complétée par des vérifications ponctuelles D (crédibilité), E (cibles
+tactiles) et un contrôle dédié des états `:focus-visible`, une fois la rotation B
+elle-même n'ayant rien trouvé sur ces deux composants.
+
+### Note de continuité — numérotation, hygiène de session, §4 revalidé
+
+`git log`/`PROGRESS.md` confirment le cycle 052 (`d5af1bc`) comme dernière entrée
+journalisée ; ce run se numérote donc **053**, pas 058 comme indiqué par la
+consigne de lancement — même règle que documentée aux cycles précédents (le
+journal fait foi, pas le numéro fourni au lancement). `npm run build` (`tsc -b` +
+`vite build`) vérifié vert avant tout changement. Aucun processus `vite` orphelin
+au démarrage (le correctif de fuite du cycle 052 — `taskkill /T` au lieu de
+`server.kill()` — est resté silencieux depuis, contrairement aux notes
+d'hygiène récurrentes des cycles 049-051). Le §4 (Vers l'Élysée, Ombrair, Analyse
+vidéo football) a été revalidé par lecture visuelle directe des captures
+`section-project-slides` d'un run complet `ui-audit.mjs` : les trois cartes
+(04/05/06), leurs case studies, et leurs démos (`LiveDemoEmbed`) sont
+intégralement en place, aucune régression — **29e cycle consécutif (026-053)**
+où le §4 est confirmé intégralement traité sans changement requis.
+
+### Constats d'audit
+
+- **Run complet `ui-audit.mjs --base-url=http://localhost:5196` (10 combinaisons
+  viewport×langue×reduced-motion) : 0 violation axe-core, 0 débordement
+  horizontal.** Confirme en conditions réelles (pas seulement le test isolé du
+  cycle 052) que le correctif de fuite de serveur tient : aucun processus `vite`
+  ni port 5183 en écoute après le run (`tasklist`/`netstat` vérifiés
+  immédiatement après).
+- **Rotation B mesurée sur `nav` et `#contact` (sondes Playwright ad hoc,
+  supprimées après usage) — aucun défaut trouvé, résultat en soi le constat de
+  ce cycle.** Espacements de `.city-nav` (padding 8/120/8/16px, gap
+  `.city-nav-links` 32px) et de `.contact-panel`/`.contact-links` (gap 32px/12px,
+  padding clamp 24→64px à bornes rondes) mesurés à toutes les valeurs déclarées,
+  toutes multiples de 4px sauf les paddings des puces/pilules (`.city-contact`
+  0.2rem/0.9rem, `.contact-links a` 0.9rem 1rem, gap icône-texte 0.55rem) —
+  vérifiées **non isolées** : `0.55rem`/`0.9rem`/`0.45rem`/`0.65rem` sont une
+  micro-échelle déjà réutilisée dans une quinzaine de règles à travers tout le
+  site (`.home-project-evidence`, `.home-project-actions`, `.pc-cover`,
+  `.cv-timeline-bullets`, etc., `grep -c "0.9rem" src/index.css` → 18 occurrences)
+  — un token de fait, pas une valeur oubliée ; y toucher aurait introduit une
+  incohérence plutôt que d'en corriger une (§5 : réutiliser les tokens
+  existants). Ratio de padding vertical entre zones voisines (`#about` 112px,
+  `#capabilities` 96px, `.contact-section` 80px, `.site-footer` 48px à 1440)
+  revérifié identique aux valeurs tranchées cycle 020 — aucune régression.
+  Longueur de ligne du paragraphe `.contact-panel p` : 52 caractères/ligne (EN et
+  FR, 2 lignes) à 1440/1920 — largement sous le plafond de 75.
+- **États `:focus-visible` de `.city-nav-links a`, `.city-contact` et
+  `.contact-links a` vérifiés non rognés et visibles** (sonde Playwright dédiée,
+  focus programmatique + capture recadrée + détection des ancêtres
+  `overflow != visible` — `.city-nav` porte bien `overflow: hidden`, mais la
+  marge verticale interne du nav, ~21px de chaque côté des liens, absorbe
+  largement l'anneau `outline 2px + offset 4px` du token global). Aucun défaut.
+- **Rotation D (crédibilité) et E (cibles tactiles) repassées incidemment sur
+  les deux mêmes composants** : `#contact` ne porte aucune affirmation
+  non étayée (c'est un bloc de disponibilité, pas un bloc de preuve — la preuve
+  vit dans `#capabilities`/les cartes projet, déjà auditées) ; les 4
+  `.contact-links a` et `.city-contact` restent à 44px de cible tactile (déjà
+  corrigé cycles 016/027). Rien retenu.
+
+### Changements livrés
+
+- Aucun. Un audit qui ne trouve rien à corriger ne consomme pas de passe de
+  retouche (§6) — même schéma que le cycle 049 (rotation A sur `nav`).
+  Compteurs §6 inchangés : `#contact` **1/3**, `nav` **2/3**.
+
+### Vérification
+
+- Build : ✅ (`tsc -b` sans sortie, `vite build` vert, avant tout le cycle).
+- Run complet `ui-audit.mjs` (10 combinaisons) : 0 violation axe-core, 0
+  débordement horizontal, aucun processus orphelin après coup.
+- Viewports vérifiés : 390 / 768 / 1440 / 1920 (captures + mesures).
+- Langues : FR ✅ EN ✅.
+- reduced-motion : ✅ (inclus dans le run complet ci-dessus).
+- Régression détectée : non.
+
+### Reverté
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024. Revalidé ce
+  cycle, aucun changement.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025. Revalidé ce
+  cycle, aucun changement.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026.
+  Revalidé ce cycle, aucun changement.
+- **Le §4 de MISSION-UI.md reste intégralement traité pour la 29e fois
+  consécutive (cycles 026-053)**, revalidé sans aucun changement requis.
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Dérogation au plafond de retouche
+- Aucune (aucune section retouchée ce cycle).
+
+### Prochain cycle — point de reprise exact
+- `#contact` et `nav` ont maintenant reçu une rotation B complète (+ passages D/
+  E/focus) sans rien trouver : ne pas redemander cette rotation sur ces deux
+  composants sans fait nouveau (même règle que `nav`/rotation A depuis le cycle
+  049). Prochaine rotation à dérouler sur ces deux composants si un cycle futur
+  y revient : **rotation C (mouvement)** — n'a jamais été posée par écrit sur
+  `.city-nav a:hover`/`.contact-links a:hover` (transitions `color`/`transform`
+  simples, jamais mesurées). Sinon, candidats P2 restants hors zone gelée (§3) :
+  la piste `reduce`-motion plus coûteuse que `no-preference` au chargement du
+  hero (`CinematicOpening.tsx`, cycle 041, non corrigée — nécessite un budget
+  d'instrumentation dédié avant toute tentative, risque de régression sur un
+  composant scroll-pin finement calé) et le mode `viewport:<cible>@<y>` de
+  `ui-gallery.mjs` qui suppose à tort qu'un scroll ne déplace que sa cible
+  (cycle 029, contournable au cas par cas, jamais corrigé à la source). Le CLS
+  0.16 sur `/cv` (cycle 037) reste le candidat P1 le plus mûr mais bloqué sur
+  `QUESTIONS.md` Q5 — ne pas deviner, attendre l'arbitrage d'Axel.
+
+### Questions bloquantes ouvertes
+- `QUESTIONS.md` Q5 (police de corps documentée « Inter » vs police
+  réellement chargée « Almarai ») — toujours ouverte, non rouverte ce
+  cycle faute de fait nouveau.
+
+---
+
 ## Cycle 052 — 2026-09-24 01:55
 
 **Zone travaillée** : `.city-content` (scène A du hero) et `.hero-title-column`

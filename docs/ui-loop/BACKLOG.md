@@ -911,6 +911,35 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   une régression de ce correctif. Compteur §6 : nouvelle entrée `city-tag`/
   `transition-prompt` **1/3**.
 
+- [x] **`#contact` (`.contact-section`/`.contact-panel`/`.contact-links`)
+  audité sous rotation B pour la première fois, `nav` (`.city-nav`) une
+  deuxième fois — rien retenu, plusieurs pistes creusées et écartées avec
+  preuve** (cycle 053). Sondes Playwright ad hoc (supprimées après usage) :
+  tous les espacements déclarés de `.city-nav`/`.contact-panel`/
+  `.contact-links` sont multiples de 4px sauf les paddings des pilules/puces
+  (`.city-contact` 0.2rem/0.9rem, `.contact-links a` 0.9rem 1rem, gap
+  icône-texte 0.55rem) — vérifiées **non isolées** : ces valeurs forment une
+  micro-échelle déjà réutilisée dans une quinzaine de règles à travers tout
+  le site (`grep -c "0.9rem" src/index.css` → 18 occurrences ;
+  `home-project-evidence`, `home-project-actions`, `pc-cover`,
+  `cv-timeline-bullets`, etc.) — un token de fait, pas une valeur oubliée,
+  écarté conformément à la consigne de réutiliser les tokens existants (§5).
+  Ratio de padding vertical entre `#about`/`#capabilities`/`#contact`/footer
+  (112/96/80/48px à 1440) revérifié identique aux valeurs tranchées cycle
+  020 — aucune régression. États `:focus-visible` de `.city-nav-links a`,
+  `.city-contact` et `.contact-links a` vérifiés non rognés malgré
+  `.city-nav { overflow: hidden }` (marge interne ~21px, largement au-dessus
+  de l'anneau `outline 2px + offset 4px`). Rotation D et E repassées
+  incidemment sur les deux mêmes composants (aucune affirmation non étayée
+  dans `#contact`, cibles tactiles déjà conformes) — rien retenu non plus.
+  **Aucun code retouché** — un audit qui ne trouve rien à corriger ne
+  consomme pas de passe (§6) : compteurs inchangés, `#contact` **1/3**,
+  `nav` **2/3**. Les rotations B (les deux composants) et A (`nav`, cycle
+  049) sont désormais posées par écrit et ne devront pas être redemandées
+  sans fait nouveau ; prochaine rotation naturelle si un cycle y revient :
+  **C (mouvement)**, jamais posée sur `.city-nav a:hover`/
+  `.contact-links a:hover`.
+
 ## Terminé
 
 - [x] Cycle 028 — §4 reconfirmé intégralement traité (code réel revérifié, pas
