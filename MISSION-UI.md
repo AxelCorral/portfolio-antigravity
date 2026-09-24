@@ -436,13 +436,19 @@ partagé par les 6 projets ; cycle 043 : paragraphes `.project-case-study
 p`/`.project-key-takeaway p` (blocs CONTEXT/PROBLEM, PIPELINE/METHOD,
 EVIDENCE/RESULT) plafonnés à `--measure-lede`, 99-108→70-77
 caractères/ligne, partagé par les 6 modales) · `cv-page` (`src/pages/CVPage.tsx`,
-`.cv-*` dans `src/index.css`) **3/3 — gelée** (cycle 034 : contraste de trois
-sélecteurs porté à ≥ 4.5:1, cibles tactiles des contacts à 44px, mesure
-de lecture des puces via `--measure-lede` ; cycle 035 : kicker
+`.cv-*` dans `src/index.css`) **4/3 — gelée, dérogation cycle 057** (cycle 034 :
+contraste de trois sélecteurs porté à ≥ 4.5:1, cibles tactiles des contacts
+à 44px, mesure de lecture des puces via `--measure-lede` ; cycle 035 : kicker
 "Axel Corral" redondant avec le `<h1>` juste en dessous retiré,
 rotation A ; cycle 038 : gap vertical Education/Languages sous 768px
 104px→48px, `.cv-two-col > .cv-section { margin-bottom: 0 }`,
-rotation E) · `hero-links` (`.subtle-link`, ligne View CV/Download/GitHub/
+rotation E ; cycle 057, dérogation écrite — voir PROGRESS.md : le hash
+effect de `CVPage.tsx` appelait `scrollIntoView({behavior:"smooth"})`, qui
+ignore `prefers-reduced-motion` par construction — bug d'accessibilité
+chiffré, jamais couvert par les rotations A/B/D/E déjà posées sur cette
+route, seule rotation C — jamais appliquée à `/cv` avant ce cycle — pose la
+question qui l'a trouvé. Remplacé par `scrollToId()`, déjà utilisé ailleurs
+dans le repo et déjà conforme) · `hero-links` (`.subtle-link`, ligne View CV/Download/GitHub/
 Contact du hero, `src/components/CinematicOpening.tsx`) **2/3** (cycle 045 :
 `flex-wrap` sur le conteneur + `white-space: nowrap` sur `.subtle-link` —
 à 768px, `.hero-intro` (1/3 de large) faisait rétrécir un seul lien au lieu

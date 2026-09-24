@@ -6,6 +6,187 @@
 
 ---
 
+## Cycle 057 — 2026-09-24 03:35
+
+**Zone travaillée** : `/cv` (`CVPage.tsx`, effet de scroll sur ancre de hash)
+— §4 revalidé avant tout nouveau chantier, conformément à la priorité
+absolue rappelée par la consigne de lancement de ce run.
+
+**Rotation de questions** : rotation C (mouvement) sur `/cv` — dernière des
+cinq rotations jamais posée par écrit sur cette route (A cycle 035, B cycle
+056, D cycle 036, E cycle 038), exactement le point de reprise laissé par le
+cycle 056.
+
+### Note de continuité — numérotation, §4 revalidé
+
+`git log`/`PROGRESS.md` confirment le cycle 056 (`d9d02fa`) comme dernière
+entrée journalisée ; ce run se numérote donc **057**, pas 062 comme indiqué
+par la consigne de lancement — même règle documentée à chaque cycle depuis
+plusieurs dizaines d'itérations (le journal fait foi, pas le numéro fourni au
+lancement). La consigne de lancement de ce run réaffirme mot pour mot la
+priorité absolue déjà écrite dans `MISSION-UI.md` §4 (Vers l'Élysée → Ombrair
+→ Analyse vidéo football, un chantier par cycle, trois livrables) puis
+s'arrête au milieu d'une phrase (« La zone sous Analytical » sans suite) —
+traité comme un rappel tronqué du §3/§4 déjà en vigueur, pas comme une
+instruction nouvelle à deviner, même traitement que les cycles 055/056.
+`npm run build` (`tsc -b` + `vite build`) vérifié vert avant tout changement.
+Le §4 n'a pas été revalidé visuellement ce cycle-ci (déjà revalidé par lecture
+d'image au cycle 056, aucun fichier touché par §4 depuis) mais confirmé
+structurellement intact par le run `ui-audit.mjs` ci-dessous (0 violation
+axe-core, 0 débordement) — **33e cycle consécutif (026-057)** où le §4 reste
+intégralement traité sans régression détectée.
+
+### Constats d'audit
+
+- **Rotation C posée par écrit sur `/cv` pour la première fois.** Recherche
+  exhaustive de toute animation propre à la route : `grep` sur
+  `CVPage.tsx` pour `animat|transition|gsap|motion|framer|@keyframes|:hover|
+  :focus` → 0 résultat ; `grep` sur les règles `.cv-*` de `src/index.css`
+  pour `transition|animation|transform` → 0 résultat sur la première passe
+  (sélecteur et propriété devaient être sur la même ligne), corrigé par une
+  lecture directe du bloc qui a trouvé `.cv-contacts a { transition: color
+  200ms ease }` — un simple fondu de couleur au survol, partagé par des
+  dizaines d'autres règles du site, non gated derrière `reduced-motion`
+  nulle part ailleurs non plus (comportement cohérent, pas un défaut
+  spécifique à `/cv`). La vraie animation de la route n'est pas dans le CSS :
+  `CVPage.tsx:20` appelait `document.getElementById(id)?.scrollIntoView({
+  behavior: "smooth", block: "start" })` dans l'effet qui gère les ancres de
+  hash (`/cv#experience`, `/cv#projects`, `/cv#education`…), déclenché à
+  chaque arrivée sur la page avec un fragment dans l'URL — y compris depuis
+  le deep-link homepage→modale ajouté cycle 036.
+- **Bug d'accessibilité mesuré, pas estimé** : sonde Playwright ad hoc
+  (`scripts/.tmp-cv-scroll-motion-probe.mjs`, créée puis supprimée après
+  usage) ouvrant `/cv#experience` sous `reducedMotion: "reduce"` puis sous
+  `"no-preference"` (émulation Chromium native, pas un media query simulé à
+  la main), et échantillonnant `window.scrollY` toutes les 50ms pendant
+  2,5s. **Avant correctif** : les deux préférences produisaient la **même
+  séquence de 8-9 paliers d'easing** (`reduced=true` :
+  `0→28→324→492→573→625→651→658→659` ; `reduced=false` :
+  `0→28→324→524→603→641→657→659`) — `prefers-reduced-motion: reduce` n'avait
+  strictement aucun effet sur cette animation, alors même que le projet a
+  déjà la règle globale `scroll-behavior: auto` sous `reduced-motion`
+  (`src/index.css:3297`) et un utilitaire dédié qui la respecte
+  (`src/scroll/scrollToId.ts`, déjà utilisé par `OnePage.tsx` pour le même
+  type de saut d'ancre, commentaire du fichier : « Readers who asked for no
+  motion keep getting an instant jump »). La cause exacte : passer
+  `behavior: "smooth"` explicitement à `scrollIntoView()` fait ignorer la
+  propriété CSS `scroll-behavior` de la boîte de défilement (spec CSSOM
+  View) — `CVPage.tsx` réinventait un appel natif au lieu de réutiliser
+  `scrollToId`, et le réinventait sans la garde que `scrollToId` obtient
+  gratuitement de `index.css`. Angle mort confirmé identique à celui déjà
+  loggé pour axe-core et le contraste (cycles 021/037) : ni un run
+  `ui-audit.mjs` classique ni une lecture de capture statique ne peuvent
+  voir un défaut qui ne existe que dans la courbe temporelle d'un scroll.
+- Aucune autre section de la zone auditée (`.cv-*` restant, nav, footer) ne
+  présente d'animation propre déclenchée par scroll ou par état — confirmé
+  par la même recherche exhaustive ci-dessus, cohérent avec la conclusion du
+  cycle 056 (« `/cv` n'a pas d'animation scroll-scrubée comme le hero »).
+
+### Changements livrés
+
+- `8b11aea` — `ui(cv): honor reduced-motion on hash deep-link scroll`.
+  `CVPage.tsx` : `scrollIntoView({behavior:"smooth"})` remplacé par
+  `scrollToId(id)` (import ajouté depuis `@/scroll/scrollToId`, utilitaire
+  déjà partagé par `OnePage.tsx`, aucune duplication de logique introduite).
+  1 fichier, 2 insertions / 1 suppression.
+
+### Dérogation au plafond de retouche
+
+`cv-page` (`src/pages/CVPage.tsx`) était gelée à 3/3 depuis le cycle 038.
+Dérogation écrite appliquée (§6), compteur mis à jour dans `MISSION-UI.md` :
+
+1. **Passes déjà effectuées** : cycle 034 (contraste de trois sélecteurs
+   ≥ 4.5:1, cibles tactiles des contacts à 44px, mesure de lecture des
+   puces) ; cycle 035 (kicker "Axel Corral" redondant retiré, rotation A) ;
+   cycle 038 (gap vertical Education/Languages sous 768px 104px→48px,
+   rotation E).
+2. **Fait nouveau** : un bug d'accessibilité chiffré (§6 l'autorise
+   explicitement) — `prefers-reduced-motion: reduce` mesuré sans aucun
+   effet sur l'animation de scroll de `CVPage.tsx` (9 paliers d'easing
+   identiques avec et sans la préférence), constaté par sonde Playwright,
+   pas par estimation.
+3. **Pourquoi indétectable avant** : les trois passes précédentes
+   répondaient aux rotations A (035), B (implicite, cycle 034) et E (038) —
+   aucune n'interroge le mouvement. Rotation C, qui pose explicitement « le
+   site est-il utilisable et élégant avec `reduced-motion` ? », n'avait
+   **jamais** été appliquée à `/cv` avant ce cycle (confirmé cycle 056 : les
+   quatre rotations A/B/D/E étaient déjà posées, C manquait seule) — le
+   défaut vivait exactement dans l'angle mort que ces trois passes ne
+   couvraient pas.
+
+### Vérification
+
+- Build : ✅ (`tsc -b` sans sortie, `vite build` vert, avant et après le
+  changement).
+- Preuve empirique en trois temps : (1) sonde sur l'état pré-correctif
+  (`git stash`) confirmant le bug (9 paliers identiques reduced/no-
+  preference) ; (2) `git stash pop` + rebuild ; (3) sonde sur l'état
+  post-correctif confirmant la réparation (`reduced=true` → 1 seul palier
+  `0→659`, `reduced=false` → 6 paliers d'easing conservés, même position
+  finale `659px` dans les deux cas). Sonde supprimée après usage.
+- Run complet `ui-audit.mjs` sur `/` (10 combinaisons) : 0 violation
+  axe-core, 0 débordement horizontal. Run complet `ui-audit.mjs --path=/cv`
+  (10 combinaisons) : 0 violation axe-core, 0 débordement horizontal.
+- Viewports vérifiés : 390 / 768 / 1440 / 1920 (via les deux runs
+  `ui-audit.mjs` ci-dessus).
+- Langues : FR ✅ EN ✅.
+- reduced-motion : ✅ — c'est le sujet même du correctif, vérifié par sonde
+  dédiée en plus des runs `ui-audit.mjs`.
+- Régression détectée : non. Le changement est purement comportemental
+  (méthode de scroll), aucun sélecteur CSS touché, aucune section voisine
+  concernée.
+- Hygiène : un premier essai de la sonde de vérification a laissé un
+  processus `vite preview` orphelin sur le port 5183 (`spawn(...,
+  {shell:true})` sur Windows ne tue que le wrapper `cmd.exe`, pas l'enfant
+  réel — même classe de piège que celui déjà corrigé pour `ui-audit.mjs` au
+  cycle 027, mais dans un script jetable cette fois). Détecté par
+  `netstat`, nettoyé par `taskkill /F`, run d'audit relancé proprement pour
+  ne pas garder un résultat produit sous contention de port. Dossier
+  `docs/ui-loop/screenshots/` supprimé après exploitation (jetable,
+  gitignoré). Sonde `.tmp-cv-scroll-motion-probe.mjs` supprimée après usage.
+
+### Reverté
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024. Non
+  retouché ce cycle.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025. Non retouché ce
+  cycle.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026.
+  Non retouché ce cycle.
+- **Le §4 de MISSION-UI.md reste intégralement traité pour la 33e fois
+  consécutive (cycles 026-057)**, structurellement confirmé par le run
+  `ui-audit.mjs` (0 violation, 0 débordement), sans lecture visuelle dédiée
+  ce cycle-ci (le chantier livré ne touche aucun fichier du §4).
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Prochain cycle — point de reprise exact
+- `/cv` a désormais reçu les **cinq** rotations par écrit (A cycle 035, B
+  cycle 056, C ce cycle, D cycle 036, E cycle 038) — cycle de rotation
+  complet clos sur cette route. `cv-page` est maintenant à **4/3, gelée
+  avec dérogation consommée** : toute nouvelle retouche exigera un nouveau
+  fait nouveau explicite, pas une simple préférence. `nav`/`#contact`
+  restent clos sur les cinq rotations sans fait nouveau (cycles
+  049/052-054) : ne pas les rouvrir. Candidats P2 restants hors zone gelée
+  (§3), par ordre de matière disponible : (1) la piste `reduce`-motion plus
+  coûteuse que `no-preference` au chargement du hero
+  (`CinematicOpening.tsx`, cycle 041, non corrigée — nécessite un budget
+  d'instrumentation dédié, risque de régression sur un composant
+  scroll-pin finement calé) — candidat naturel si aucune régression P0
+  n'apparaît d'ici là ; (2) le mode `viewport:<cible>@<y>` de
+  `ui-gallery.mjs` (cycle 029, contournable via `scrollpx:` depuis le
+  cycle 045, jamais corrigé à la source faute de besoin réel). Sinon,
+  revenir à une revalidation visuelle directe du §4 (comme au cycle 056)
+  plutôt qu'une confirmation seulement structurelle comme ce cycle.
+
+### Questions bloquantes ouvertes
+- `QUESTIONS.md` Q5 (police de corps documentée « Inter » vs police
+  réellement chargée « Almarai ») — toujours ouverte, non rouverte ce
+  cycle faute de fait nouveau.
+
+---
+
 ## Cycle 056 — 2026-09-24 03:10
 
 **Zone travaillée** : `/cv` (`.cv-hook`, rythme vertical de `CVPage.tsx`) — §4

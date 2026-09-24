@@ -5,6 +5,25 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 057 — 2026-09-24 · `/cv` honore enfin `prefers-reduced-motion` sur le scroll d'ancre
+
+> Pas de paire AVANT/APRÈS : le chantier corrige la courbe d'une animation de
+> scroll, pas un état visuel statique — la position finale (`scrollY = 659`
+> pour `#experience` à 1440px) est strictement identique avant/après, donc
+> deux captures montreraient la même image. Preuve mesurable, non une image :
+> sonde Playwright (`reducedMotion: "reduce"` vs `"no-preference"`,
+> échantillonnage `window.scrollY` toutes les 50ms après navigation vers
+> `/cv#experience`). **Avant** : `reduced=true` traversait **9 paliers
+> d'easing identiques** à `reduced=false` (`0→28→324→492→573→625→651→658→659`)
+> — `scrollIntoView({behavior:"smooth"})` ignore `prefers-reduced-motion` par
+> construction (l'option explicite prime sur `scroll-behavior` en CSS).
+> **Après** : `reduced=true` saute en **un seul palier** (`0→659`),
+> `reduced=false` conserve ses 6 paliers d'easing — remplacé
+> `scrollIntoView` par `scrollToId()` (`src/scroll/scrollToId.ts`), déjà
+> utilisé par `OnePage.tsx` et déjà conforme.
+
+`8b11aea`
+
 ## Cycle 052 — 2026-09-24 · Libelle du hero (scenes A/B) equilibre au lieu d'un mot orphelin
 
 > Le libelle Axel Corral - France and international mobility (et son equivalent scene B) se coupait sur un mot seul en fin de ligne a 390/768px ; text-wrap:balance repartit la coupure a parts egales.
