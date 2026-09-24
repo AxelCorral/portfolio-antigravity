@@ -3502,8 +3502,18 @@ a {
 }
 
 @media (max-width: 1023px) {
+  /* 360px used to hand almost a third of this box to `.demo-embed-caption`
+     (a full sentence, wraps to 3 lines under ~330px of width) and left the
+     live iframe itself — the actual demo — at 224.8px tall, 27% of an
+     iPhone-14 viewport (measured mobile-390, Vers l'Élysée and Ombrair,
+     both languages). MISSION-UI.md §5 requires every demo to "fonctionner
+     sur mobile"; a postage-stamp iframe for a playable simulator or a 3D
+     product viewer fails that in spirit even though it technically loads.
+     500px keeps the caption's wrap unchanged but gives the frame itself
+     ~400px (≈47% of the same viewport) — enough to actually use the embed
+     rather than glimpse it. */
   .home-project-proof--embed {
-    min-height: 360px;
+    min-height: 500px;
   }
 }
 
