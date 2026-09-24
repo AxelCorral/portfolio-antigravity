@@ -6,6 +6,185 @@
 
 ---
 
+## Cycle 052 — 2026-09-24 01:55
+
+**Zone travaillée** : `.city-content` (scène A du hero) et `.hero-title-column`
+(scène B), `src/components/CinematicOpening.tsx` — §4 revalidé avant tout
+nouveau chantier, conformément à la priorité absolue de ce run. Outillage :
+`scripts/ui-audit.mjs` (fuite de processus serveur, voir plus bas).
+
+**Rotation de questions** : rotation B (rythme & espace) enfin déroulée
+jusqu'au bout sur le hero/nav, comme prévu par le point de reprise des
+cycles 050 et 051 — pas détournée cette fois par un défaut plus urgent
+trouvé en ouverture.
+
+### Note de continuité — numérotation, hygiène de session, §4 revalidé
+
+`git log`/`PROGRESS.md` confirment le cycle 051 (`7927a8c`) comme dernière
+entrée journalisée ; ce run se numérote donc **052**, pas 056 comme indiqué
+par la consigne de lancement — même règle que les cycles précédents (le
+journal fait foi). Phase 1 : dix processus `node` orphelins détectés au
+démarrage, dont deux réellement liés au projet (un serveur Vite sur le port
+5183 laissé par un cycle antérieur, les huit autres appartenant à un outil
+tiers sans rapport avec ce repo, laissés intacts) — arrêtés avant de
+démarrer un serveur de dev propre sur le port 5190. `npm run build`
+(`tsc -b` + `vite build`) vérifié vert avant tout changement. Le §4 (Vers
+l'Élysée, Ombrair, Analyse vidéo football) a été revalidé par lecture directe
+du code (`src/data/projects.ts` id 04/05/06, `src/data/projects/video-analysis.ts`)
+et par revue visuelle des captures pleine page/section du run `ui-audit.mjs`
+(cartes 04/05/06, démos `LiveDemoEmbed` de Vers l'Élysée et Ombrair
+re-capturées au format mobile ciblé pour confirmer que le correctif du
+cycle 051 tient toujours) : les trois chantiers restent intégralement
+traités, aucune régression. Le travail du cycle porte donc sur le reste du
+site (hero), conformément à l'ordre de priorité de MISSION-UI.md §2 phase 4
+une fois le §4 confirmé intégralement traité.
+
+### Constats d'audit
+
+- **Le run complet `ui-audit.mjs` lancé avec `timeout 300` (5 min, choix de
+  ma part) a été tronqué en plein milieu d'une capture reduced-motion** —
+  le process a reçu SIGTERM avant d'atteindre `finally { server.kill() }` et
+  a laissé un serveur Vite orphelin sur le port 5183 (constat d'exploitation,
+  pas un défaut du site ; a motivé le relancement sans timeout artificiel
+  ci-dessous, qui a lui-même révélé le vrai bug ci-dessous).
+- **`scripts/ui-audit.mjs` fuit son propre serveur Vite spawné sur toute
+  exécution, même quand `--base-url` pointe déjà vers un serveur existant —
+  outillage, pas le site, mais cause directe des « processus node/vite
+  orphelins » notés comme point de vigilance récurrent aux cycles 049, 050 et
+  051 sans qu'aucun de ces cycles n'en ait identifié la cause.** Deux bugs
+  cumulés : (1) le script démarre toujours son propre `npx vite --port 5183`
+  même quand l'appelant a déjà démarré un serveur ailleurs et passé
+  `--base-url` — le second serveur ne sert jamais à rien, `waitForServer`
+  interrogeant `BASE_URL`, pas le serveur spawné ; (2) `server.kill()` ne
+  signale que le `cmd.exe` de tête que `shell: true` doit spawner sous
+  Windows pour résoudre les shims `.cmd` de `npx`/`vite` — la vraie
+  commande vite.js, trois niveaux plus bas (node → cmd → npx → vite),
+  survit. Confirmé par un run interrompu par erreur (`timeout 300` externe) :
+  process tué proprement en apparence (code de sortie 0 du point de vue du
+  pipeline), mais le port 5183 restait en écoute. Reproduit et isolé par un
+  test dédié (`taskkill`/`Get-NetTCPConnection` avant/après sur un serveur de
+  test port 5199) — sonde jetable, supprimée après usage.
+- **Libellé d'accroche du hero coupé sur un mot seul en fin de ligne
+  ("MOBILITY" / "international" selon la scène et la langue) à 390 et
+  768px, dans les deux scènes A et B du hero, dans les deux langues — P2,
+  rupture de rythme typographique (rotation B).** Trouvé en mesurant les
+  largeurs de ligne réelles (`getClientRects()`, sonde Playwright ad hoc
+  supprimée après usage) de `.city-content p.mb-5` (scène A,
+  `t.hero.introLabel`) et `.hero-title-column p.mb-5` (scène B, `t.hero.role`) :
+  scène A à 390/768 en EN 322px/72px et en FR 272px/122px (sur une largeur de
+  ligne totale d'environ 342-395px) ; scène B à 390 en EN 318px/42px et en FR
+  314px/52px. Dans les quatre cas, la seconde ligne ne contenait qu'un seul
+  mot, un vrai veuf typographique — pas seulement un retour à la ligne
+  précoce. Invisible à `ui-audit.mjs` (aucune violation axe-core ne couvre ce
+  type de défaut, et 0 débordement horizontal puisque rien ne déborde, le
+  texte est simplement mal réparti) — trouvé par lecture visuelle directe des
+  captures `00-top.png`/`section-*` du run complet, conformément à la
+  consigne de rotation B ("les blancs sont-ils voulus ou subis ?").
+
+### Changements livrés
+
+- `4a66ef6` — fix(hero): balance the scene A/B eyebrow labels instead of
+  leaving a widow. `[text-wrap:balance]` (valeur arbitraire Tailwind, motif
+  déjà utilisé dans ce fichier pour `tracking-[0.18em]`/`leading-[1.35]`)
+  ajouté aux deux paragraphes concernés. Choix de `text-wrap: balance`
+  plutôt qu'une espace insécable placée à la main entre les deux derniers
+  mots : la longueur des deux libellés diffère entre EN et FR (traduction
+  oblige), une espace insécable calibrée sur un cas casse l'autre ; `balance`
+  laisse le moteur de rendu répartir la coupure au mieux dans les deux
+  langues sans dupliquer la logique. Sans effet là où le libellé tient déjà
+  sur une ligne (1440/1920 pour les deux ; 768 pour la scène B), donc aucun
+  changement visuel au-delà des cas cassés.
+- `2711636` — ui-loop: galerie du cycle 052 (au format `--sections=scrollpx:0`,
+  pas `viewport:.city-content` — ce dernier a produit deux captures
+  AVANT/APRÈS identiques montrant un fondu ville/falaise à mi-scroll au lieu
+  de la scène A au repos, `.city-content` étant positionné en absolu dans un
+  conteneur `position: sticky` scroll-linké : `scrollIntoViewIfNeeded()` n'a
+  aucune prise sur ce genre d'élément, exactement le problème que le mode
+  `scrollpx:` du script documente déjà pour cette famille de scènes).
+- `34f1605` — chore(ui-audit): stop leaking the spawned dev server on every
+  run. Serveur spawné sauté entièrement si `--base-url` est fourni ; sinon,
+  `taskkill /T` au lieu de `server.kill()` sous Windows pour tuer l'arbre de
+  processus complet.
+
+### Vérification
+
+- Build : ✅ avant et après chaque commit (`tsc -b` sans sortie, `vite build`
+  vert).
+- Mesure de largeur de ligne (sonde Playwright ad hoc, supprimée après
+  usage) : après correctif, scène A 390 EN 195px/199px (contre 322px/72px),
+  FR 192px/203px (contre 272px/122px) ; scène B 390 EN 195px/165px (contre
+  318px/42px), FR 212px/155px (contre 314px/52px) — dans les quatre cas la
+  seconde ligne n'est plus un mot isolé. Confirmé aussi par capture ciblée de
+  `.city-content` et `.hero-title-column` aux 4 combinaisons
+  viewport×langue concernées, comparées avant/après côté à côte.
+- Confirmé sans effet à 1440/1920 (une seule ligne dans les deux cas, largeur
+  inchangée) et à 768 pour la scène B (déjà une seule ligne, 424px EN/431px
+  FR identiques avant/après).
+- Correctif `ui-audit.mjs` vérifié directement : un arbre de processus
+  node→cmd→npx→vite à 4 niveaux, tué proprement par `taskkill /T /F`, port
+  de test libéré immédiatement après (sonde jetable, supprimée après usage).
+  `node --check scripts/ui-audit.mjs` : syntaxe valide.
+- Run complet `ui-audit.mjs` (10 combinaisons viewport×langue×reduced-motion,
+  relancé sans timeout externe après l'interruption accidentelle notée
+  ci-dessus) : 0 débordement horizontal sur 10/10, CLS ≤ 0.024 partout ; 1
+  violation axe-core isolée (`color-contrast` sur `.opening-primary`,
+  `laptop-1440_fr` uniquement) — non reproduite en français sur les cycles
+  précédents ni en anglais ce cycle, strictement identique à l'instabilité de
+  scan déjà documentée cycles 046-047-050-051 sur cet élément (piège de
+  focus déjà corrigé, contraste réel mesuré à 6.54:1 dans la fenêtre où le
+  lien est interactif) ; aucun fait nouveau, `hero-cta` reste gelée (3/3),
+  pas de dérogation ouverte.
+- Viewports vérifiés : 390 / 768 / 1440 / 1920.
+- Langues : FR ✅ EN ✅.
+- reduced-motion : ✅ (scène B, seule scène visible sous reduced-motion,
+  vérifiée aux 4 viewports/2 langues ; le libellé concerné y est déjà
+  corrigé par le même commit).
+- Régression détectée : non.
+
+### Reverté
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024. Revalidé ce
+  cycle, aucun changement.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025. Revalidé ce
+  cycle, aucun changement.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026.
+  Revalidé ce cycle, aucun changement.
+- **Le §4 de MISSION-UI.md reste intégralement traité pour la 27e fois
+  consécutive (cycles 026-052)**, revalidé sans aucun changement requis ce
+  cycle-ci (contrairement au cycle 051, qui avait dû corriger le
+  chevauchement poster/légende).
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Dérogation au plafond de retouche
+- Aucune. `hero-links`/`hero-scene-b-controls` (2/3 et 1/3) ne sont pas
+  concernées par ce correctif : le veuf typographique touche `.city-content
+  p.mb-5` et `.hero-title-column p.mb-5`, deux éléments non comptabilisés
+  séparément dans le compteur du §6 (ils font partie de la scène hero
+  générale, jamais retouchés individuellement jusqu'ici).
+
+### Prochain cycle — point de reprise exact
+- Revalider le §4 (routine désormais établie), puis poursuivre l'audit de
+  détail du hero/nav en descendant encore d'un cran : la rotation B vient de
+  livrer un correctif réel (veuf typographique), donc ne pas changer d'angle
+  par précaution — repasser une rotation B sur les sections en dessous du
+  hero non gelées (`#contact` 1/3, `nav` 2/3) avant de revenir à une rotation
+  A/C/D/E. Le CLS 0.16 sur `/cv` (tablet-768 + FR, cycle 037) reste le
+  candidat P1 le plus mûr mais bloqué sur `QUESTIONS.md` Q5 (police de corps
+  Inter vs Almarai) — ne pas deviner, attendre l'arbitrage d'Axel. Hygiène :
+  la fuite de serveur `ui-audit.mjs` est corrigée ce cycle — vérifier au
+  prochain cycle qu'aucun processus Vite ne survit après un run complet,
+  pour confirmer le correctif en conditions réelles plutôt que sur le seul
+  test isolé de ce cycle.
+
+### Questions bloquantes ouvertes
+- `QUESTIONS.md` Q5 (police de corps documentée « Inter » vs police
+  réellement chargée « Almarai ») — toujours ouverte, non rouverte ce
+  cycle faute de fait nouveau.
+
+---
+
 ## Cycle 051 — 2026-09-23 22:47
 
 **Zone travaillée** : `LiveDemoEmbed` (`.demo-embed*`, `src/index.css`,
