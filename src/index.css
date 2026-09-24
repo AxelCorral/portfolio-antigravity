@@ -856,7 +856,7 @@ a {
 }
 
 .home-project-card p {
-  max-width: 52rem;
+  max-width: var(--measure-lede);
   margin: 0 0 1.5rem;
   color: #aeb4b7;
   font-size: clamp(0.95rem, 1.25vw, 1.1rem);
@@ -882,6 +882,7 @@ a {
 }
 
 .home-project-why p {
+  max-width: var(--measure-lede);
   margin: 0;
   color: rgba(225, 224, 204, 0.82);
   font-size: 0.875rem;
