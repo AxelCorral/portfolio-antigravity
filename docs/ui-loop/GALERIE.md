@@ -5,6 +5,17 @@
 > Captures : viewports 390 et 1440 par défaut — un bloc peut en indiquer d'autres quand la preuve du chantier vit à une largeur que cette paire ne couvre pas. `.webp` qualité 80, largeur max 1200 px.
 
 ---
+## Cycle 060 — 2026-09-24 · Mesure de lecture des cartes projet (description + why it matters)
+
+> Rotation B : jusqu'a 116 caract./ligne mesures sur .home-project-why, corrige via --measure-lede deja utilise ailleurs.
+
+|          | AVANT | APRÈS |
+| -------- | ----- | ----- |
+| **390** | ![avant 390](shots/cycle-060/mesure-de-lecture-des-cartes-projet-description-why-it-matte-390-avant.webp) | ![après 390](shots/cycle-060/mesure-de-lecture-des-cartes-projet-description-why-it-matte-390-apres.webp) |
+| **1440** | ![avant 1440](shots/cycle-060/mesure-de-lecture-des-cartes-projet-description-why-it-matte-1440-avant.webp) | ![après 1440](shots/cycle-060/mesure-de-lecture-des-cartes-projet-description-why-it-matte-1440-apres.webp) |
+
+`566f6d0` · `adfefaf` · `7f273b3` · `0168e75` · `136af8a` · `5180007`
+
 ## Cycle 059 — 2026-09-24 · Coût main-thread de `reduce`-motion au chargement du hero : régression close, sans correctif
 
 > Pas de paire AVANT/APRÈS : aucun fichier `src/` modifié ce cycle, la
