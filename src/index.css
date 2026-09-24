@@ -3141,6 +3141,8 @@ a {
 
   .home-project-step {
     position: sticky;
+    top: var(--step-top);
+    z-index: var(--step-z);
     height: min(85vh, 720px);
     min-height: 620px;
     margin-bottom: 1rem;

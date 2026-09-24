@@ -33,7 +33,14 @@ import {
   footballVideoAnalysisSlidesFr,
 } from "@/data/projects/video-analysis";
 import { motion, useInView, useReducedMotion, useScroll } from "framer-motion";
-import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type RefObject,
+} from "react";
 import { BuildMode } from "@/components/BuildMode";
 import { ProjectDetailModal } from "@/components/build-mode/ProjectDetailModal";
 import { CinematicOpening } from "@/components/CinematicOpening";
@@ -234,7 +241,22 @@ function ProjectShowcaseCard({
     <div
       id={`project-${project.id}`}
       className="home-project-step"
-      style={{ top: `calc(5.5rem + ${index * 28}px)`, zIndex: index + 1 }}
+      // Exposed as custom properties, not `top`/`zIndex` directly: this
+      // offset only means something once `.home-project-step` is
+      // `position: sticky` (the ≥1024px scrollytelling cascade, see
+      // index.css). Below that breakpoint the element stays
+      // `position: relative`, where a `top` offset still shifts the
+      // painted box without reserving the space — cycle 058 found this
+      // leaking on mobile, where card 06's `top` (last card, largest
+      // offset) visually painted over `.home-projects-footer` and made
+      // the "Discover the personal layer" button unclickable. index.css
+      // now only consumes these variables inside the 1024px+ media query.
+      style={
+        {
+          "--step-top": `calc(5.5rem + ${index * 28}px)`,
+          "--step-z": index + 1,
+        } as CSSProperties
+      }
     >
       <article className="home-project-card">
         <div className="home-project-copy" tabIndex={0}>
