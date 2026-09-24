@@ -968,6 +968,30 @@ Ordre de priorité imposé par MISSION-UI.md §2 : P0 build/régression/contrast
   **Aucun code retouché**. Rotations désormais posées par écrit sur `/cv` : A
   (035), B (ce cycle), D (036), E (038) — il ne reste que **C (mouvement)**.
 
+- [x] **`.home-project-card p`/`.home-project-why p` (description et encart
+  "Why it matters", partagés par les 6 cartes projet) jamais mesurés en
+  caractères/ligne** (cycle 060, rotation B — jamais posée sur ces deux
+  sélecteurs précis, seulement sur le paragraphe d'overview de la modale,
+  cycles 032/043). Sonde ad hoc (`Range.getClientRects()` sur le texte réel,
+  supprimée après usage) sur les 6 cartes × 2 viewports desktop (1440/1920) ×
+  2 langues : `.home-project-why p` jusqu'à **109-116 caractères/ligne**
+  (carte 04, Vers l'Élysée, les deux viewports/langues), `.home-project-card p`
+  jusqu'à **99 caractères/ligne** à 1920 (cartes 01, 05, 06) — bien au-delà du
+  plafond de 75 que rotation B fixe, sur des paragraphes qui touchent
+  directement le §4 (cartes 03/04/05/06). Corrigé (commit `566f6d0`) :
+  `max-width: 52rem` (fixe) → `var(--measure-lede)` (58ch, déjà le token
+  tranché pour ce type de copie ailleurs sur le site) sur les deux règles.
+  Après : 52-66 caractères/ligne sur les 6 cartes × 2 viewports × 2 langues.
+  `.home-project-hook` délibérément non touché : son pire cas mesuré (84
+  caractères, un seul cas — Ombrair/EN) reste dans un ordre de grandeur
+  proche de la fourchette 70-77 déjà qualifiée « normale » au cycle 056 pour
+  `.cv-hook`, contrairement aux 99-116 des deux autres sélecteurs. Revérifié :
+  **0/48 régression de clic** sur `.home-project-actions` (4 viewports desktop
+  × 2 langues × 6 cartes, même test que le P0 du cycle 042 — les paragraphes
+  plus hauts restent absorbés par `overflow-y: auto` sur `.home-project-copy`),
+  **0 violation axe-core, 0 débordement horizontal** sur le run complet
+  `ui-audit.mjs` (10 combinaisons). Galerie cycle 060.
+
 ## Terminé
 
 - [x] Cycle 028 — §4 reconfirmé intégralement traité (code réel revérifié, pas

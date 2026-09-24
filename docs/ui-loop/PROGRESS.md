@@ -6,6 +6,140 @@
 
 ---
 
+## Cycle 060 — 2026-09-24 06:05
+
+**Zone travaillée** : `.home-project-card p` / `.home-project-why p`
+(`src/index.css`) — cartes projet 01/03/04/05/06 (§4 + démos existantes).
+
+**Rotation de questions** : rotation B (rythme & espace), jamais posée par
+écrit sur ces deux sélecteurs précis avant ce cycle.
+
+### Note de continuité — numérotation, §4 revalidé sans changement
+
+`git log`/`PROGRESS.md` confirment le cycle 059 (`adfefaf`) comme dernière
+entrée journalisée ; ce run se numérote donc **060**, pas 065 comme indiqué
+par la consigne de lancement — même règle documentée à chaque cycle depuis
+plusieurs dizaines d'itérations (le journal fait foi, pas le numéro fourni au
+lancement). La consigne de lancement réaffirme la priorité absolue du §4
+(Vers l'Élysée → Ombrair → Analyse vidéo football, un chantier par cycle,
+trois livrables) puis s'arrête au milieu d'une phrase (« La zone sous
+Analytical ») — même lecture que les cycles 055-059 : rappel tronqué du
+§3/§4 déjà en vigueur, rien à en déduire de nouveau. `npm run build`
+(`tsc -b` + `vite build`) vérifié vert avant tout changement (`git status`
+propre au démarrage).
+
+Le §4 est **inchangé depuis 35 cycles** (revalidé en détail au cycle 059) :
+ce cycle n'a pas rouvert de revalidation visuelle complète (aurait été une
+répétition sans fait nouveau du même travail), mais le run `ui-audit.mjs`
+complet et le test de clic ciblé sur les 6 cartes (voir Vérification)
+couvrent directement les cartes 03-06 et n'ont trouvé aucune régression.
+**36e cycle consécutif (026-060) où le §4 reste intégralement traité.**
+
+### Constats d'audit
+
+- Run complet `ui-audit.mjs` (10 combinaisons viewport × langue ×
+  reduced-motion) avant tout changement : **0 violation axe-core, 0
+  débordement horizontal** — mieux que le cycle 059 (qui avait 1 flake déjà
+  documenté sur `.opening-primary`, absent cette fois, cohérent avec le
+  comportement intermittent déjà connu).
+- `scripts/ui-hierarchy-probe.mjs` relancé sur `project-card-01`
+  (`#project-01 .home-project-card`, cible posée cycle 030) pour rouvrir la
+  piste suggérée par le point de reprise du cycle 059 (rotation A sur les
+  cartes elles-mêmes) : **18 niveaux typographiques, 0 near-duplicate** aux
+  8 combinaisons (4 viewports × 2 langues) — inchangé depuis le nettoyage du
+  cycle 030, aucun nouveau doublon à couper. 18 niveaux dépasse largement le
+  seuil de bruit de 4, mais c'est une densité de contenu délibérée (case
+  study riche : eyebrow/catégorie/titre/hook/CTA/description/why-it-matters/
+  stats), pas un défaut — le test actionnable (quasi-doublons) ne remonte
+  rien. **Rien retenu de cette piste**, pas de fait nouveau depuis 030.
+- En creusant la même zone sous un autre angle (rotation B, jamais posée sur
+  ces sélecteurs), sonde `Range.getClientRects()` ad hoc (texte réel, pas une
+  estimation) sur `.home-project-hook` / `.home-project-copy > p` /
+  `.home-project-why p` des 6 cartes × 2 viewports desktop (1440/1920) × 2
+  langues : `.home-project-why p` mesuré à **109-116 caractères/ligne** sur
+  la carte 04 (Vers l'Élysée) aux deux viewports et langues ; `.home-project-
+  card p` à **96-99** sur les cartes 01/05/06 à 1920. Le plafond de rotation
+  B est 75. `.home-project-hook` culmine à 84 (un seul cas, Ombrair/EN),
+  proche de la fourchette 70-77 déjà qualifiée « normale » cycle 056 pour un
+  cas similaire — délibérément non retenu.
+
+### Changements livrés
+
+- `566f6d0` — `ui(home-projects): cap line length of card description and
+  why-it-matters text`. `.home-project-card p` et `.home-project-why p`
+  gagnent `max-width: var(--measure-lede)` (58ch) au lieu de `52rem` fixe
+  (le premier) / aucune limite (le second, héritait du conteneur). Token déjà
+  tranché pour ce type de copie (cycles 019/032/034/043). 1 fichier, 2
+  insertions / 1 suppression.
+- `9177e45` — `ui-loop: galerie du cycle 060`. Paire AVANT/APRÈS sur
+  `.home-project-why` (carte 04) à 390 et 1440 (avant = `00cbb76`, fin de
+  cycle 058) : le texte passe de 2 lignes larges à 4 lignes mesurées.
+
+### Vérification
+
+- Build : ✅ (`tsc -b` sans sortie, `vite build` vert) avant et après le
+  changement.
+- `scripts/ui-audit.mjs` (10 combinaisons) après correctif : **0 violation
+  axe-core, 0 débordement horizontal**.
+- Test de clic ciblé (sonde ad hoc, supprimée après usage) sur
+  `.home-project-actions` des 6 cartes × 4 viewports desktop (1024/1280/
+  1440/1920) × 2 langues — même famille de test que le P0 du cycle 042 :
+  **0/48 échec**. Les paragraphes plus hauts après correctif restent
+  absorbés par `overflow-y: auto` sur `.home-project-copy`.
+- Sonde de mesure de ligne rejouée après correctif : 52-66 caractères/ligne
+  sur les 6 cartes × 2 viewports × 2 langues (contre 55-116 avant).
+- Viewports vérifiés : 390 / 768 / 1440 / 1920.
+- Langues : FR ✅ EN ✅ (captures `mobile-390_fr` et `laptop-1440_en_reduced-
+  motion` relues à l'œil après correctif, aucune régression visuelle).
+- reduced-motion : ✅.
+- Régression détectée : non.
+- Hygiène : sondes `.tmp-line-length-probe.mjs` et
+  `.tmp-click-regression-probe.mjs` supprimées après usage. Dossier
+  `docs/ui-loop/screenshots/` purgé après exploitation (464 Mo libérés,
+  jetable, gitignoré). Serveur `vite preview` (port 5183) lancé pour ce
+  cycle, arrêté explicitement en fin de cycle, 0 processus orphelin laissé
+  en écoute (vérifié `ps aux | grep vite`).
+
+### Reverté
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024. Carte 04
+  touchée par ce cycle (mesure de lecture de son encart "Why it matters",
+  pire cas mesuré du chantier) ; case study/démo inchangés.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025. Carte 05 touchée
+  par ce cycle (même correctif), case study/démo inchangés.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026.
+  Carte 06 touchée par ce cycle (même correctif), case study/démo inchangés.
+- **Le §4 de MISSION-UI.md reste intégralement traité pour la 36e fois
+  consécutive (cycles 026-060)**, aucune régression trouvée par les
+  vérifications de ce cycle.
+- Démos projets existants : 3/3 conformes, inchangé depuis cycle 026.
+
+### Prochain cycle — point de reprise exact
+- Le chantier de mesure de lecture des cartes projet est clos. Candidats P2
+  restants hors zone gelée (§3) : (1) le CLS 0.16 de `/cv` (cycle 037),
+  toujours bloqué sur `QUESTIONS.md` Q5, sans réponse depuis le cycle 037 ;
+  (2) le mode `viewport:<cible>@<y>` de `ui-gallery.mjs` qui suppose à tort
+  qu'un scroll ne déplace que sa cible (cycle 029, contournable via
+  `scrollpx:<multiplicateurVh>` depuis le cycle 045, pur outillage sans
+  impact visiteur). `nav` a désormais les rotations A/B/C/E posées par écrit
+  (D jamais posée) ; `#contact` a B/C posées (A/D/E jamais posées) ; `/cv` a
+  A/B/D/E posées (seule C manque). Si aucun des deux candidats P2 ci-dessus
+  ne peut avancer (Q5 toujours sans réponse), le prochain cycle candidat
+  naturel est : rotation D sur `nav`, ou rotation A/D/E sur `#contact`, ou
+  rotation C sur `/cv` — la première rotation manquante rencontrée sur un
+  composant hors zone gelée, pour continuer à couvrir le site avec les cinq
+  angles plutôt que de répéter une rotation déjà posée sans fait nouveau.
+  Zone basse (§3) : P2, gelée, aucune intervention sans régression mesurée.
+
+### Questions bloquantes ouvertes
+- `QUESTIONS.md` Q5 (police de corps documentée « Inter » vs police
+  réellement chargée « Almarai ») — toujours ouverte, non rouverte ce cycle
+  faute de fait nouveau.
+
+---
+
 ## Cycle 059 — 2026-09-24 05:15
 
 **Zone travaillée** : `docs/ui-loop/BACKLOG.md` (fermeture d'un P2 obsolète)
