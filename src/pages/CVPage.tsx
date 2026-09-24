@@ -1,6 +1,7 @@
 import { ArrowUpRight, Download, GitBranch, Mail } from "lucide-react";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { scrollToId } from "@/scroll/scrollToId";
 import { useDocumentMeta } from "@/scroll/useDocumentMeta";
 import { useLanguage } from "@/i18n/language";
 
@@ -17,7 +18,7 @@ export function CVPage() {
     if (window.location.hash) {
       const id = window.location.hash.slice(1);
       const frame = requestAnimationFrame(() => {
-        document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+        scrollToId(id);
       });
       return () => cancelAnimationFrame(frame);
     }
