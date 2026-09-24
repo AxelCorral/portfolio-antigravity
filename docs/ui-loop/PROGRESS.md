@@ -6,6 +6,188 @@
 
 ---
 
+## Cycle 062 — 2026-09-24 08:35
+
+**Zone travaillée** : `ProjectDetailModal.tsx` (dérogation au plafond de
+retouche, 3/3 → 4/3) — §4 (audit), correctif transversal aux 6 projets.
+
+**Rotation de questions** : rotation D (crédibilité), appliquée à « Vers
+l'Élysée » — jamais posée sous cet angle sur le contenu des trois chantiers
+§4 eux-mêmes depuis le cycle 037 (qui l'avait posée sur `/cv`, pas sur §4).
+
+### Note de continuité — numérotation, §4 revalidé, priorité de lancement
+
+`git log`/`PROGRESS.md` confirment le cycle 061 (`0f7f93d`) comme dernière
+entrée journalisée ; ce run se numérote donc **062**. `npm run build`
+(`tsc -b` + `vite build`) vérifié vert avant tout changement (`git status`
+propre, aucun `STOP` ni `ALLOW_PUSH`). La consigne de lancement de ce run
+réaffirme la priorité absolue déjà écrite dans `MISSION-UI.md` §4 (Vers
+l'Élysée → Ombrair → Analyse vidéo football, un chantier par cycle, trois
+livrables) et s'arrête à nouveau au milieu d'une phrase — même lecture que
+les cycles 055-061 : rappel tronqué du §3/§4 déjà en vigueur, rien de neuf
+à trancher là-dessus. **Le §4 a ses trois chantiers à `carte ✅ page ✅
+démo ✅` depuis le cycle 026** (revalidé cycle après cycle depuis 36+
+cycles) : il n'y avait donc rien à « avancer » au sens d'un livrable
+manquant. Plutôt que de répéter une revalidation déjà faite des dizaines de
+fois, ce cycle a posé sur le contenu des trois case studies §4 une rotation
+qui n'y avait jamais été appliquée par écrit (D — crédibilité), ce qui a
+produit un chantier réel : voir ci-dessous.
+
+Hygiène trouvée en cours de cycle, non liée au chantier : deux serveurs
+`vite` orphelins (ports 5173, 5174) tournant depuis une session antérieure,
+arrêtés avant de démarrer le travail de ce cycle. Un run complet de
+`scripts/ui-audit.mjs` lancé en tâche de fond après le correctif s'est
+bloqué **~15 minutes sans crasher ni avancer** sur une capture (4/10
+combinaisons obtenues) — comportement distinct du crash Chromium déjà
+documenté et corrigé cycle 027 ; interrompu manuellement, consigné comme
+nouvel item d'outillage dans `BACKLOG.md` plutôt que rejoué en boucle.
+Plusieurs autres processus `vite`/`node` orphelins de sessions antérieures
+(ports 5195, 5199, 5183 en mode `preview`) ont été repérés sur la machine
+pendant ce cycle mais **non arrêtés** : ils ne bloquaient aucun port dont ce
+cycle avait besoin, et je ne peux pas garantir qu'ils n'appartiennent pas à
+un usage humain en cours en dehors de la boucle — seuls les processus que
+*ce cycle* a lui-même créés ont été nettoyés en fin de cycle, conformément
+au principe de ne jamais toucher un état que je n'ai pas produit sans
+certitude.
+
+### Constats d'audit
+
+- Lecture complète de `src/data/projects.ts` (id `04`/`05`/`06`, EN+FR) sous
+  rotation D : « Vers l'Élysée » fait de la série LinkedIn "Vers l'Élysée —
+  Data Notebook" sa preuve la plus différenciante — `keyTakeaway` la
+  présente explicitement comme *le signal le plus fort* du projet, reprise
+  dans `caseStudy` (bloc "Evidence / result") et dans `results`
+  ("Published methodology"). Vérifié à l'écran (onglet "Links" de la
+  modale, capture `docs/ui-loop/shots/cycle-062/` non conservée pour cette
+  preuve-ci — voir plus bas) : **aucun lien ne mène à cette série**, nulle
+  part dans la modale ; le seul lien présent est "Open the live simulator".
+  Ombrair et Analyse vidéo football n'ont pas cet écart (Ombrair : la
+  preuve *est* le lien vers le site déployé lui-même ; Analyse vidéo
+  football : aucun lien nulle part, par choix éditorial Q4, cohérent).
+  Je ne connais pas les URLs des 3 posts LinkedIn et ne peux pas les
+  deviner (garde-fou §1) — **consigné Q6 dans `QUESTIONS.md`**, bloqué
+  pour arbitrage d'Axel, pas de correctif deviné.
+- En vérifiant ce constat à l'écran (ouverture de la modale "Vers l'Élysée",
+  onglet "Links", capture Playwright ad hoc), un second défaut, indépendant
+  de Q6, est apparu en fermant cette modale puis en ouvrant celle d'un
+  autre projet pour comparer : **`ProjectDetailModal` garde l'onglet actif
+  d'un projet au précédent**. Repro déterministe (script Playwright ad hoc,
+  supprimé après usage) : ouvrir le projet 04, cliquer l'onglet "Links",
+  fermer la modale, ouvrir le projet 06 (« Analyse vidéo football », qui
+  n'a ni onglet Links ni onglet Outputs, par choix éditorial Q4) →
+  **0 onglet `aria-selected`, panneau `#project-detail-content` à 0
+  caractère**. Cause : `ProjectDetailModal` est une instance React unique
+  sans `key` sur son appel (`src/OnePage.tsx:859`), donc son
+  `useState<ProjectTab>("overview")` (ligne 88) n'était jamais
+  réinitialisé quand `project` changeait. Contenu invisible = **P0** au
+  sens strict de `MISSION-UI.md` §2 Phase 4 ("Régression / build cassé /
+  contenu invisible / contraste non conforme"), pas un simple défaut
+  cosmétique.
+
+### Changements livrés
+
+- `2006dcb` — `ui(project-detail-modal): reset active tab when switching
+  projects`. Ajout d'un `useEffect(() => setActiveTab("overview"),
+  [project?.id])`. Correctif transversal, partagé par les 6 modales
+  projet (tout projet ayant un onglet Links/Outputs absent d'un autre peut
+  déclencher le même symptôme).
+- `6697968` — `ui-loop: consigner Q6`. Question bloquante sur les URLs de
+  la série LinkedIn "Data Notebook" (voir constats ci-dessus).
+- Dérogation écrite au plafond de retouche de `project-detail-modal.tsx`
+  (3/3 → **4/3**, voir `MISSION-UI.md` §6) : (1) trois passes déjà
+  consommées — cycle 032 (cibles tactiles, mesure de lecture, focus
+  scrollable), cycle 033 (contraste eyebrows/labels), cycle 043 (mesure de
+  lecture des paragraphes de case study) ; (2) fait nouveau — un bug de
+  contenu invisible (P0), jamais un défaut de rythme/contraste/mesure comme
+  les trois passes précédentes ; (3) non détectable avant : aucune des
+  rotations A-E déjà posées sur ce composant n'implique de fermer un projet
+  pour en rouvrir un autre différent — la séquence qui déclenche le bug
+  n'existe dans aucun protocole d'audit antérieur du composant.
+- `BACKLOG.md` : entrée du correctif (avec repro) + nouvel item
+  d'outillage (`ui-audit.mjs` peut se bloquer ~15 min sans crasher).
+
+### Vérification
+
+- Build : ✅ (`tsc -b` sans sortie, `vite build` vert) avant et après le
+  correctif.
+- Repro Playwright ad hoc (créée pour confirmer le bug, rejouée après
+  correctif, supprimée après usage) : séquence 04→Links→fermer→06 rejouée
+  en EN/1440, EN/390, FR/1440 (`reduced-motion: no-preference` et
+  `reduce`) → dans les **4 cas**, le panneau affiche le contenu complet du
+  projet 06 (4031-4621 caractères selon langue) avec l'onglet
+  "Overview"/"Vue d'ensemble" correctement `aria-selected`. Edge case
+  supplémentaire vérifié : même séquence en partant du projet 03 (seul
+  projet avec un onglet "Outputs") vers le projet 06 — tentative de repro
+  automatisée non concluante (le bouton "Open case study" du projet 03
+  n'a pas été localisé par le sélecteur du script ad hoc dans le délai
+  imparti), **non bloquant** : le correctif (reset sur `project?.id`,
+  sans condition sur le tab concerné) couvre structurellement tous les
+  onglets par construction, pas seulement "Links".
+- `scripts/ui-audit.mjs` (run complet lancé en tâche de fond) : **bloqué
+  après 4/10 combinaisons** (voir Note de continuité) ; sur ces 4
+  combinaisons obtenues (mobile-390_en en erreur de capture — flake déjà
+  documenté, "Execution context was destroyed" —, tablet-768_en,
+  laptop-1440_en, desktop-1920_en) : **0 débordement horizontal, 0 erreur
+  console/page**, 1 seule violation axe-core (`.opening-primary`,
+  color-contrast) — le flake intermittent déjà documenté et gelé 3/3
+  (cycles 059-061), sans rapport avec ce correctif.
+- Capture worktree AVANT (`0f7f93d`, révision juste avant ce cycle) /
+  APRÈS (arbre courant) de la séquence exacte du bug, aux deux viewports
+  390/1440 : AVANT montre bien 0 onglet sélectionné et un panneau
+  totalement vide ; APRÈS montre l'onglet "Overview" sélectionné et le
+  texte complet du projet 06. Galerie cycle 062.
+- Viewports vérifiés : 390 / 768 (implicite, même logique React, aucune
+  media query en jeu) / 1440 / 1920 (implicite, idem).
+- Langues : FR ✅ EN ✅ (repro rejouée dans les deux langues, voir
+  ci-dessus).
+- reduced-motion : ✅ (repro rejouée sous les deux préférences, le
+  correctif est un `useEffect` sur l'état React, indépendant de
+  l'animation).
+- Régression détectée : non.
+- Hygiène : scripts ad hoc (`scripts/.tmp-rotation-d-probe.mjs`,
+  `scripts/.tmp-tab-bug-repro*.mjs`, `scripts/.tmp-cycle062-gallery.mjs`)
+  supprimés après usage. `docs/ui-loop/screenshots/` (dossier jetable,
+  gitignoré) purgé après exploitation. Serveurs `vite` créés par ce cycle
+  (ports 5173/5174 initiaux arrêtés car orphelins d'une session
+  antérieure, 5183/5960/5961 créés et arrêtés par ce cycle) tous arrêtés en
+  fin de cycle ; worktree temporaire de capture supprimé
+  (`git worktree list` confirme un seul worktree restant, celui du dépôt
+  principal).
+
+### Reverté
+- Aucun.
+
+### État des chantiers structurels
+- Vers l'Élysée : terminé (carte ✅ page ✅ démo ✅) — cycle 024. Modale de
+  détail (partagée par les 6 projets) corrigée ce cycle ; un écart éditorial
+  (Q6, lien manquant vers la série LinkedIn) reste ouvert, bloqué sur
+  arbitrage.
+- Ombrair : terminé (carte ✅ page ✅ démo ✅) — cycle 025. Modale de détail
+  corrigée par le même commit transversal ; aucun écart éditorial trouvé
+  sous rotation D ce cycle.
+- Analyse vidéo football : terminé (carte ✅ page ✅ démo ✅) — cycle 026.
+  C'est le projet dont l'absence d'onglet Links a permis de révéler le bug
+  de ce cycle ; modale corrigée par le même commit.
+- **Le §4 de MISSION-UI.md reste intégralement traité pour la 38e fois
+  consécutive (cycles 026-062)**, avec un bug P0 transversal aux 6 modales
+  projet corrigé ce cycle, trouvé en auditant le §4 sous un angle jamais
+  posé par écrit sur son contenu.
+- Démos projets existants : 3/3 conformes, non touchées ce cycle.
+
+### Prochain cycle — point de reprise exact
+- Relancer `scripts/ui-audit.mjs` complet (10/10 combinaisons, EN+FR,
+  reduced-motion) sur l'état actuel du code : ce cycle n'a obtenu que 4/10
+  avant blocage (voir `BACKLOG.md`, nouvel item d'outillage). Si le run
+  complet ne révèle rien de neuf, reprendre l'audit rotation D sur le reste
+  du site (P2, hors §4) — rotation D n'a plus été posée par écrit sur
+  hero/nav/footer depuis le cycle 029, qui portait sur un CTA dupliqué, pas
+  sur la crédibilité du contenu.
+
+### Questions bloquantes ouvertes
+- Q6 (`QUESTIONS.md`) : URLs des 3 posts LinkedIn de la série "Vers
+  l'Élysée — Data Notebook", ou confirmation d'un lien de repli vers le
+  profil général.
+
 ## Cycle 061 — 2026-09-24 07:15
 
 **Zone travaillée** : `.home-project-proof--embed` / `.demo-embed-frame`
